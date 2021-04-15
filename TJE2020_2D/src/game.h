@@ -9,6 +9,7 @@
 #include "image.h"
 #include "utils.h"
 #include "synth.h"
+#include "mygame.h"
 
 class Game
 {
@@ -30,6 +31,18 @@ public:
 
 	//audio
 	Synth synth;
+
+	//World
+	World* world;
+
+	//Stage
+	Stage* intro_stage;
+	Stage* play_stage;
+	Stage* current_stage;
+
+	//
+	GameMap* mapa;
+	GameMap* mapa2;
 
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );

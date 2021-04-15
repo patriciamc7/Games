@@ -2,15 +2,11 @@
 #include "utils.h"
 #include "input.h"
 #include "image.h"
-
 #include <cmath>
 
 Game* Game::instance = NULL;
-
-Image font;
-Image minifont;
-Image sprite;
 Color bgcolor(130, 80, 100);
+
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
@@ -19,64 +15,58 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	this->window = window;
 	instance = this;
 	must_exit = false;
-
+	
 	fps = 0;
 	frame = 0;
 	time = 0.0f;
 	elapsed_time = 0.0f;
+	world = new World();
+	mapa = new GameMap();
+	mapa2 = new GameMap();
 
-	font.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
-	minifont.loadTGA("data/mini-font-white-4x6.tga"); //load bitmap-font image
-	sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
-
+	world->font.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
+	world->minifont.loadTGA("data/mini-font-white-4x6.tga"); //load bitmap-font image
+	world->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
+	mapa2 = mapa->loadGameMap("data/mymap.map");
 	//enableAudio(); //enable this line if you plan to add audio to your application
 	synth.playSample("data/coin.wav",1,true);
 	synth.osc1.amplitude = 0.5;
+
+	intro_stage = new IntroStage();
+	play_stage = new PlayStage();
+	current_stage =  intro_stage;
+	
+
 }
 
 //what to do when the image has to be draw
 void Game::render(void)
 {
-	//Create a new Image (or we could create a global one if we want to keep the previous frame)
+	////Create a new Image (or we could create a global one if we want to keep the previous frame)
 	Image framebuffer(160, 120); //do not change framebuffer size
 
-	//add your code here to fill the framebuffer
-	//...
+	////add your code here to fill the framebuffer
+	////...
 
-	//some new useful functions
-		framebuffer.fill( bgcolor );								//fills the image with one color
-		//framebuffer.drawLine( 0, 0, 100,100, Color::RED );		//draws a line
-		//framebuffer.drawImage( sprite, 0, 0 );					//draws full image
-		//framebuffer.drawImage( sprite, 0, 0, framebuffer.width, framebuffer.height );			//draws a scaled image
-		//framebuffer.drawImage( sprite, 0, 0, Area(0,0,14,18) );	//draws only a part of an image
-		framebuffer.drawText( "Hello World", 0, 0, font );				//draws some text using a bitmap font in an image (assuming every char is 7x9)
-		//framebuffer.drawText( toString(time), 1, 10, minifont,4,6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
-
-	//send image to screen
+	////some new useful functions
+	//framebuffer.fill(bgcolor);								//fills the image with one color
+	////framebuffer.drawLine( 0, 0, 100,100, Color::RED );		//draws a line
+	////framebuffer.drawImage( sprite, 0, 0 );					//draws full image
+	////framebuffer.drawImage( sprite, 0, 0, framebuffer.width, framebuffer.height );			//draws a scaled image
+	//framebuffer.drawImage(sprite, 0, 0, Area(0, 0, 14, 18));	//draws only a part of an image
+	//framebuffer.drawText("Hello World", 0, 0, font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
+	////framebuffer.drawText( toString(time), 1, 10, minifont,4,6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+	current_stage->render(framebuffer);
+//send image to screen
 	showFramebuffer(&framebuffer);
 }
 
 void Game::update(double seconds_elapsed)
 {
 	//Add here your update method
-	//...
 
+	current_stage->update(seconds_elapsed);
 	//Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
-	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
-	{
-	}
-	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
-	{
-	}
-
-	//example of 'was pressed'
-	if (Input::wasKeyPressed(SDL_SCANCODE_A)) //if key A was pressed
-	{
-	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_Z)) //if key Z was pressed
-	{
-	}
-
 	//to read the gamepad state
 	if (Input::gamepads[0].isButtonPressed(A_BUTTON)) //if the A button is pressed
 	{

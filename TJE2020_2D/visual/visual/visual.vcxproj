@@ -16,6 +16,7 @@
     <ClCompile Include="..\..\src\image.cpp" />
     <ClCompile Include="..\..\src\input.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\mygame.cpp" />
     <ClCompile Include="..\..\src\synth.cpp" />
     <ClCompile Include="..\..\src\utils.cpp" />
   </ItemGroup>
@@ -25,6 +26,7 @@
     <ClInclude Include="..\..\src\image.h" />
     <ClInclude Include="..\..\src\includes.h" />
     <ClInclude Include="..\..\src\input.h" />
+    <ClInclude Include="..\..\src\mygame.h" />
     <ClInclude Include="..\..\src\synth.h" />
     <ClInclude Include="..\..\src\utils.h" />
   </ItemGroup>
