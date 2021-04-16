@@ -21,35 +21,35 @@ void PlayStage::render(Image& framebuffer) {
 	Game* game = Game::instance;
 
 	//size in pixels of a cell, we assume every row has 16 cells so the cell size must be image.width / 16
-	int cs = game->world->tileset.width / 16 ; //size of cellin tileset
-	
-	//for every cell
-	for (int x = 0; x < game->map->width; ++x)
-		for (int y = 0; y < game->map->height; ++y)
-		{
-			//get cell info
-			sCell& cell = game->map->getCell(x, y);
-			if (cell.type == 0) //skip empty
-				continue;
-			int type = (int)cell.type;
-			//compute tile pos in tileset image
-			int tilex = (type % 16) * cs; 	//x pos in tileset
-			int tiley = floor(type / 16) * cs;	//y pos in tileset
-			Area area(tilex , tiley , cs , cs); //tile area
-			int screenx = (x * cs) + game->world->camera.position.x; //place offset here if you want
-			int screeny = (y * cs) + game->world->camera.position.y;
-			//avoid rendering out of screen stuff
-			if (screenx < -cs || screenx > framebuffer.width ||
-				screeny < -cs || screeny > framebuffer.height)
-				continue;
+	//int cs = game->world->tileset.width / 16 ; //size of cellin tileset
+	//
+	////for every cell
+	//for (int x = 0; x < game->map->width; ++x)
+	//	for (int y = 0; y < game->map->height; ++y)
+	//	{
+	//		//get cell info
+	//		sCell& cell = game->map->getCell(x, y);
+	//		if (cell.type == 0) //skip empty
+	//			continue;
+	//		int type = (int)cell.type;
+	//		//compute tile pos in tileset image
+	//		int tilex = (type % 16) * cs; 	//x pos in tileset
+	//		int tiley = floor(type / 16) * cs;	//y pos in tileset
+	//		Area area(tilex , tiley , cs , cs); //tile area
+	//		int screenx = (x * cs) + game->world->camera.position.x; //place offset here if you want
+	//		int screeny = (y * cs) + game->world->camera.position.y;
+	//		//avoid rendering out of screen stuff
+	//		if (screenx < -cs || screenx > framebuffer.width ||
+	//			screeny < -cs || screeny > framebuffer.height)
+	//			continue;
 
-			//draw region of tileset inside framebuffer
-			
-			framebuffer.drawImage(game->world->tileset,screenx, screeny,area);
-			
-		}
-	
-	framebuffer.drawImage(game->world->sprite, game->world->myGame.players[0].pos.x, game->world->myGame.players[0].pos.y, Area(0, 0, 14, 18));	//draws only a part of an image
+	//		//draw region of tileset inside framebuffer
+	//		
+	//		framebuffer.drawImage(game->world->tileset,screenx, screeny,area);
+	//		
+	//	}
+	 
+	framebuffer.drawImage(game->world->sprite, game->world->myGame.players[0].pos.x, game->world->myGame.players[0].pos.y, Area(0, 18*(int)game->world->myGame.players[0].dir, 14, 18));	//draws only a part of an image
 
 }
 
@@ -59,22 +59,29 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 	{
 		game->world->camera.position.y += game->world->camera.velocity * seconds_elapsed;
-		game->world->myGame.players[0].pos.y -= game->world->myGame.players[0].player_velocity * seconds_elapsed;
+		game->world->myGame.players[0].pos.y -= game->world->player_velocity * seconds_elapsed;
+		game->world->myGame.players[0].dir = game->world->UP;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 	{
 		game->world->camera.position.y -= game->world->camera.velocity * seconds_elapsed;
-		game->world->myGame.players[0].pos.y += game->world->myGame.players[0].player_velocity * seconds_elapsed;
+		game->world->myGame.players[0].pos.y += game->world->player_velocity * seconds_elapsed;
+		game->world->myGame.players[0].dir = game->world->DOWN;
+
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
 		game->world->camera.position.x -= game->world->camera.velocity * seconds_elapsed;
-		game->world->myGame.players[0].pos.x += game->world->myGame.players[0].player_velocity * seconds_elapsed;
+		game->world->myGame.players[0].pos.x += game->world->player_velocity * seconds_elapsed;
+		game->world->myGame.players[0].dir = game->world->RIGHT; 
+
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
 	{
 		game->world->camera.position.x += game->world->camera.velocity * seconds_elapsed;
-		game->world->myGame.players[0].pos.x -= game->world->myGame.players[0].player_velocity * seconds_elapsed;
+		game->world->myGame.players[0].pos.x -= game->world->player_velocity * seconds_elapsed;
+		game->world->myGame.players[0].dir = game->world->LEFT;
+
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) //if key left
 	{
@@ -136,4 +143,3 @@ GameMap* GameMap::loadGameMap(const char* filename)
 
 	return map;
 };
-

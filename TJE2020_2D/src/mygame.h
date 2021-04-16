@@ -26,16 +26,23 @@ class World {
 
 	Image font;
 	Image minifont;
-	Image sprite;
 	Image tileset;
+	Image sprite;
+	const float player_velocity = 50;
+	enum DIRECTION {
+		DOWN,
+		LEFT,
+		UP,
+		RIGHT
+	};
 	struct Camera {
 		Vector2 position;
 		int velocity;
 	};
 	struct sPlayer {
 		Vector2 pos;
-		float player_velocity = 50;
-		int health ;
+		int health;
+		DIRECTION dir;
 	};
 	struct sItem {
 		int type; //which item type
@@ -52,9 +59,9 @@ class World {
 		sItem items; //available 
 		sPlayer players[2];
 	};
+
 	Camera camera;
 	sGameData myGame; //instance of the whole game
-
 };
 
 class Stage { 
