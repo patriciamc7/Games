@@ -11,7 +11,8 @@ enum eCellType : uint8 {
 
 enum eItemType : uint8 {
 	NOTHING,
-	SWORD
+	SWORD,
+	POTION
 };
 
 struct sCell {
@@ -22,15 +23,38 @@ struct sCell {
 class World {
 	public:
 	World();
+
 	Image font;
 	Image minifont;
 	Image sprite;
-
+	Image tileset;
+	struct Camera {
+		Vector2 position;
+		int velocity;
+	};
 	struct sPlayer {
 		Vector2 pos;
 		float player_velocity = 50;
+		int health ;
 	};
-	sPlayer player;
+	struct sItem {
+		int type; //which item type
+		int extra; //to store extra info
+	};
+
+	struct sCell { //every cell of the world
+		int type; //which type (rock,water,etc)
+		int item; //which item is here
+		int inventory[16]; //max 16 items
+
+	};
+	struct sGameData {
+		sItem items; //available 
+		sPlayer players[2];
+	};
+	Camera camera;
+	sGameData myGame; //instance of the whole game
+
 };
 
 class Stage { 
@@ -74,8 +98,3 @@ struct sMapHeader {
 	unsigned char bytes; //num bytes per cell
 	unsigned char extra[7]; //filling bytes, not used
 };
-
-//class Sprite : public Image {
-//	Vector2 pos;
-//	Image* sprite; //ang, escala, opacidad...
-//};

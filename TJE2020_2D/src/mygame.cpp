@@ -9,72 +9,84 @@ void IntroStage::render(Image& framebuffer) {
 }
 
 void IntroStage::update(double seconds_elapsed) {
+	Game* game = Game::instance;
+
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) //if key up
 	{
-		Game::instance->current_stage = Game::instance->play_stage;
+		game->current_stage = game->play_stage;
 	}
 };
 
 void PlayStage::render(Image& framebuffer) {
-	//size in pixels of a cell, we assume every row has 16 cells so the cell size must be image.width / 16
-	int cs = tiles / 16;
+	Game* game = Game::instance;
 
+	//size in pixels of a cell, we assume every row has 16 cells so the cell size must be image.width / 16
+	int cs = game->world->tileset.width / 16 ; //size of cellin tileset
+	
 	//for every cell
-	for (int x = 0; x < Game::instance->mapa2->width; ++x)
-		for (int y = 0; y < Game::instance->mapa2->height; ++y)
+	for (int x = 0; x < game->map->width; ++x)
+		for (int y = 0; y < game->map->height; ++y)
 		{
 			//get cell info
-			sCell& cell = Game::instance->mapa2->getCell(x, y);
+			sCell& cell = game->map->getCell(x, y);
 			if (cell.type == 0) //skip empty
 				continue;
 			int type = (int)cell.type;
 			//compute tile pos in tileset image
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
-			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = x * cs; //place offset here if you want
-			int screeny = y * cs;
+			Area area(tilex , tiley , cs , cs); //tile area
+			int screenx = (x * cs) + game->world->camera.position.x; //place offset here if you want
+			int screeny = (y * cs) + game->world->camera.position.y;
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
 				screeny < -cs || screeny > framebuffer.height)
 				continue;
 
 			//draw region of tileset inside framebuffer
-			framebuffer.drawImage(tiles, 		//image
-				screenx, screeny, 	//pos in screen
-				area); 		//area
+			
+			framebuffer.drawImage(game->world->tileset,screenx, screeny,area);
+			
 		}
+	
+	framebuffer.drawImage(game->world->sprite, game->world->myGame.players[0].pos.x, game->world->myGame.players[0].pos.y, Area(0, 0, 14, 18));	//draws only a part of an image
 
-	framebuffer.drawImage(Game::instance->world->sprite, Game::instance->world->player.pos.x, Game::instance->world->player.pos.y, Area(0, 0, 14, 18));	//draws only a part of an image
 }
 
 void PlayStage::update(double seconds_elapsed) { //movement of the character
+	Game* game = Game::instance;
+
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 	{
-		Game::instance->world->player.pos.y -= Game::instance->world->player.player_velocity * seconds_elapsed;
+		game->world->camera.position.y += game->world->camera.velocity * seconds_elapsed;
+		game->world->myGame.players[0].pos.y -= game->world->myGame.players[0].player_velocity * seconds_elapsed;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 	{
-		Game::instance->world->player.pos.y += Game::instance->world->player.player_velocity * seconds_elapsed;
+		game->world->camera.position.y -= game->world->camera.velocity * seconds_elapsed;
+		game->world->myGame.players[0].pos.y += game->world->myGame.players[0].player_velocity * seconds_elapsed;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
-		Game::instance->world->player.pos.x += Game::instance->world->player.player_velocity * seconds_elapsed;
+		game->world->camera.position.x -= game->world->camera.velocity * seconds_elapsed;
+		game->world->myGame.players[0].pos.x += game->world->myGame.players[0].player_velocity * seconds_elapsed;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
 	{
-		Game::instance->world->player.pos.x -= Game::instance->world->player.player_velocity * seconds_elapsed;
+		game->world->camera.position.x += game->world->camera.velocity * seconds_elapsed;
+		game->world->myGame.players[0].pos.x -= game->world->myGame.players[0].player_velocity * seconds_elapsed;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) //if key left
 	{
-		Game::instance->current_stage = Game::instance->intro_stage;
+		game->current_stage = game->intro_stage;
 	}
 
 };
 
 World::World() {
-
-
+	this->camera.velocity = 100;
+	this->camera.position.x = myGame.players[0].pos.x;
+	this->camera.position.y = myGame.players[0].pos.y;
 };
 
 GameMap::GameMap()

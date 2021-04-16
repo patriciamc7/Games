@@ -7,7 +7,6 @@
 Game* Game::instance = NULL;
 Color bgcolor(130, 80, 100);
 
-
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
 	this->window_width = window_width;
@@ -21,13 +20,13 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	time = 0.0f;
 	elapsed_time = 0.0f;
 	world = new World();
-	mapa = new GameMap();
-	mapa2 = new GameMap();
+
 
 	world->font.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
 	world->minifont.loadTGA("data/mini-font-white-4x6.tga"); //load bitmap-font image
 	world->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
-	mapa2 = mapa->loadGameMap("data/mymap.map");
+	world->tileset.loadTGA("data/tileset.tga");
+	map = map->loadGameMap("data/mymap.map");
 	//enableAudio(); //enable this line if you plan to add audio to your application
 	synth.playSample("data/coin.wav",1,true);
 	synth.osc1.amplitude = 0.5;

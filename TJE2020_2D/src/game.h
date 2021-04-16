@@ -41,8 +41,7 @@ public:
 	Stage* current_stage;
 
 	//
-	GameMap* mapa;
-	GameMap* mapa2;
+	GameMap* map;
 
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );
