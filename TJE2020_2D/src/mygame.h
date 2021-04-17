@@ -29,11 +29,18 @@ class World {
 	Image tileset;
 	Image sprite;
 	const float player_velocity = 50;
+	
+
 	enum DIRECTION {
 		DOWN,
 		LEFT,
 		UP,
 		RIGHT
+	};
+	struct Animation {
+		int current_animation;
+		const int num_animations = 4;
+		const int velocity_animation = 4;
 	};
 	struct Camera {
 		Vector2 position;
@@ -43,6 +50,7 @@ class World {
 		Vector2 pos;
 		int health;
 		DIRECTION dir;
+		bool ismoving;
 	};
 	struct sItem {
 		int type; //which item type
@@ -59,7 +67,7 @@ class World {
 		sItem items; //available 
 		sPlayer players[2];
 	};
-
+	Animation animation;
 	Camera camera;
 	sGameData myGame; //instance of the whole game
 };

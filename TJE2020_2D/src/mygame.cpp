@@ -48,8 +48,9 @@ void PlayStage::render(Image& framebuffer) {
 	//		framebuffer.drawImage(game->world->tileset,screenx, screeny,area);
 	//		
 	//	}
-	 
-	framebuffer.drawImage(game->world->sprite, game->world->myGame.players[0].pos.x, game->world->myGame.players[0].pos.y, Area(0, 18*(int)game->world->myGame.players[0].dir, 14, 18));	//draws only a part of an image
+	
+	game->world->animation.current_animation = game->world->myGame.players[0].ismoving ? (int(game->time*game->world->animation.velocity_animation) % game->world->animation.num_animations) : 0;
+	framebuffer.drawImage(game->world->sprite, game->world->myGame.players[0].pos.x, game->world->myGame.players[0].pos.y, Area(14  * game->world->animation.current_animation, 18*(int)game->world->myGame.players[0].dir, 14, 18));	//draws only a part of an image
 
 }
 
@@ -60,7 +61,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		game->world->camera.position.y += game->world->camera.velocity * seconds_elapsed;
 		game->world->myGame.players[0].pos.y -= game->world->player_velocity * seconds_elapsed;
-		game->world->myGame.players[0].dir = game->world->UP;
+		game->world->myGame.players[0].dir = game->world->RIGHT;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 	{
@@ -73,14 +74,14 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		game->world->camera.position.x -= game->world->camera.velocity * seconds_elapsed;
 		game->world->myGame.players[0].pos.x += game->world->player_velocity * seconds_elapsed;
-		game->world->myGame.players[0].dir = game->world->RIGHT; 
+		game->world->myGame.players[0].dir = game->world->LEFT; 
 
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
 	{
 		game->world->camera.position.x += game->world->camera.velocity * seconds_elapsed;
 		game->world->myGame.players[0].pos.x -= game->world->player_velocity * seconds_elapsed;
-		game->world->myGame.players[0].dir = game->world->LEFT;
+		game->world->myGame.players[0].dir = game->world->UP;
 
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) //if key left
@@ -94,6 +95,7 @@ World::World() {
 	this->camera.velocity = 100;
 	this->camera.position.x = myGame.players[0].pos.x;
 	this->camera.position.y = myGame.players[0].pos.y;
+	this->myGame.players[0].dir = this->LEFT;
 };
 
 GameMap::GameMap()
