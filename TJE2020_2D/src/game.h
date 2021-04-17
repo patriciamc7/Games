@@ -42,6 +42,9 @@ public:
 
 	//
 	GameMap* map;
+	//Sprite
+	Sprite* sprite;
+	Sprite* menu;
 
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );

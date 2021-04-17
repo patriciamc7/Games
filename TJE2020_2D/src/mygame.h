@@ -27,7 +27,7 @@ class World {
 	Image font;
 	Image minifont;
 	Image tileset;
-	Image sprite;
+
 	const float player_velocity = 50;
 	
 
@@ -40,7 +40,7 @@ class World {
 	struct Animation {
 		int current_animation;
 		const int num_animations = 4;
-		const int velocity_animation = 4;
+		const int velocity_animation = 5;
 	};
 	struct Camera {
 		Vector2 position;
@@ -112,4 +112,9 @@ struct sMapHeader {
 	int h; //height of map
 	unsigned char bytes; //num bytes per cell
 	unsigned char extra[7]; //filling bytes, not used
+};
+
+class Sprite {
+public:
+	Image sprite;
 };
