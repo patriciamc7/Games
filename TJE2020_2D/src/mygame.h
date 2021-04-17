@@ -20,6 +20,39 @@ struct sCell {
 	eItemType item;
 };
 
+enum eDirection : uint8{
+	DOWN,
+	RIGHT,
+	LEFT,
+	UP
+};
+struct sPlayer {
+	Vector2 pos;
+	int health;
+	eDirection dir;
+	bool ismoving;
+
+};
+struct sAnimation {
+	int current_animation;
+	const int num_animations = 4;
+	const int velocity_animation = 5;
+};
+struct sCamera {
+	Vector2 position;
+	const int velocity = 50;
+};
+
+struct sItem {
+	int type; //which item type
+	int extra; //to store extra info
+};
+
+
+struct sGameData {
+	sItem items; //available 
+	sPlayer players[2];
+};
 class World {
 	public:
 	World();
@@ -28,58 +61,24 @@ class World {
 	Image minifont;
 	Image tileset;
 
-	const float player_velocity = 50;
+	const float player_velocity = 30;
 	
-
-	enum DIRECTION {
-		DOWN,
-		LEFT,
-		UP,
-		RIGHT
-	};
-	struct Animation {
-		int current_animation;
-		const int num_animations = 4;
-		const int velocity_animation = 5;
-	};
-	struct Camera {
-		Vector2 position;
-		int velocity;
-	};
-	struct sPlayer {
-		Vector2 pos;
-		int health;
-		DIRECTION dir;
-		bool ismoving;
-	};
-	struct sItem {
-		int type; //which item type
-		int extra; //to store extra info
-	};
-
-	struct sCell { //every cell of the world
-		int type; //which type (rock,water,etc)
-		int item; //which item is here
-		int inventory[16]; //max 16 items
-
-	};
-	struct sGameData {
-		sItem items; //available 
-		sPlayer players[2];
-	};
-	Animation animation;
-	Camera camera;
+	sAnimation animation;
+	sCamera camera;
 	sGameData myGame; //instance of the whole game
+
 };
 
 class Stage { 
 	public: 
 	virtual void render(Image& framebuffer) {}; //empty body 
 	virtual void update(double seconds_elapsed) {}; //empty body 
+	virtual void restart() {};
 }; 
 					
 class IntroStage : public Stage { 
 	public: 
+
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
 };
@@ -88,7 +87,14 @@ class PlayStage : public Stage {
 	public: 
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
-	
+	virtual void restart();
+};
+
+struct sMapHeader {
+	int w; //width of map
+	int h; //height of map
+	unsigned char bytes; //num bytes per cell
+	unsigned char extra[7]; //filling bytes, not used
 };
 
 class GameMap {
@@ -106,12 +112,6 @@ public:
 	//example of parser of .map from rogued editor
 	GameMap* loadGameMap(const char* filename);
 
-};
-struct sMapHeader {
-	int w; //width of map
-	int h; //height of map
-	unsigned char bytes; //num bytes per cell
-	unsigned char extra[7]; //filling bytes, not used
 };
 
 class Sprite {
