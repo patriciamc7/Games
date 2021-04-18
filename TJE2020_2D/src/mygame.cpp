@@ -22,6 +22,7 @@ void PlayStage::render(Image& framebuffer) {
 	Game* game = Game::instance;
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
+	
 
 	//size in pixels of a cell, we assume every row has 16 cells so the cell size must be image.width / 16
 	int cs = world->tileset.width / 16 ; //size of cellin tileset
@@ -59,6 +60,8 @@ void PlayStage::render(Image& framebuffer) {
 		player->pos.y,
 		Area(14  *world->animation.current_animation, 18*(int)player->dir, 14, 18));	//draws only a part of an image
 	player->ismoving = 0;
+	//framebuffer.drawImage(game->health->sprite, 0, 0, 1, 1);
+
 }
 
 void PlayStage::update(double seconds_elapsed) { //movement of the character
@@ -66,14 +69,14 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 
-	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
-	{
-		player->ismoving = 1;
-		world->camera.position.y += world->camera.velocity * seconds_elapsed;
-		player->pos.y -= world->player_velocity * seconds_elapsed;
-		player->dir = eDirection::UP ;
-	}
-	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
+	//if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
+	//{
+	//	player->ismoving = 1;
+	//	world->camera.position.y += world->camera.velocity * seconds_elapsed;
+	//	player->pos.y -= world->player_velocity.y * seconds_elapsed;
+	//	player->dir = eDirection::UP;
+	//}
+	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down //If only not collision
 	{
 		player->ismoving = 1;
 		world->camera.position.y -= world->camera.velocity * seconds_elapsed;
@@ -95,7 +98,6 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		world->camera.position.x += world->camera.velocity * seconds_elapsed;
 		world->myGame.players[0].pos.x -=world->player_velocity * seconds_elapsed;
 		world->myGame.players[0].dir = eDirection::LEFT;
-
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key left
 	{	
@@ -106,8 +108,8 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		player->ismoving = 0;
 		world->camera.position.y += world->camera.velocity * seconds_elapsed;
-		player->pos.y -= world->player_velocity * seconds_elapsed;
-		player->dir = eDirection::UP; 
+		player->pos.y -= world->player_velocity* seconds_elapsed;
+		player->dir = eDirection::UP;
 	}
 
 
@@ -118,6 +120,7 @@ World::World() {
 	this->camera.position = Vector2(0, 0);
 	this->myGame.players[0].pos = Vector2(0, 100);
 	this->myGame.players[0].dir = eDirection::RIGHT;
+	this->myGame.players[0].health = 6;
 };
 
 GameMap::GameMap()
@@ -176,4 +179,5 @@ void PlayStage::restart() { //Restart the game
 	player->pos = Vector2(0, 100);	
 	world->camera.position = Vector2(0, 0);
 	player->dir = eDirection::RIGHT;
+	player-> health = 6;
 }; 

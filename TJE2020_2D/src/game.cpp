@@ -22,12 +22,14 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	world = new World();
 	sprite = new Sprite();
 	menu = new Sprite();
+	health = new Sprite();
 
 	world->font.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
 	world->minifont.loadTGA("data/mini-font-white-4x6.tga"); //load bitmap-font image
 	sprite->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
 	menu->sprite.loadTGA("data/intro.tga"); //example to load an sprite
 	world->tileset.loadTGA("data/tileset.tga");
+	health->sprite.loadTGA("data / health.tga");
 	map = map->loadGameMap("data/mymap.map");
 
 	//enableAudio(); //enable this line if you plan to add audio to your application

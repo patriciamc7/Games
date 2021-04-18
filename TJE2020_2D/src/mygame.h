@@ -61,7 +61,7 @@ class World {
 	Image minifont;
 	Image tileset;
 
-	const float player_velocity = 30;
+	const int player_velocity = 30;
 	
 	sAnimation animation;
 	sCamera camera;
