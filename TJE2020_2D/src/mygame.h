@@ -90,6 +90,11 @@ class PlayStage : public Stage {
 	virtual void restart();
 };
 
+class OverStage : public Stage {
+	virtual void render(Image& framebuffer);
+	virtual void update(double seconds_elapsed);
+	virtual void restart();
+};
 struct sMapHeader {
 	int w; //width of map
 	int h; //height of map

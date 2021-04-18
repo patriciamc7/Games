@@ -29,7 +29,8 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	sprite->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
 	menu->sprite.loadTGA("data/intro.tga"); //example to load an sprite
 	world->tileset.loadTGA("data/tileset.tga");
-	health->sprite.loadTGA("data / health.tga");
+	health->sprite.loadTGA("data/health.tga");
+	health->sprite.scale(35,35);
 	map = map->loadGameMap("data/mymap.map");
 
 	//enableAudio(); //enable this line if you plan to add audio to your application
@@ -38,6 +39,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	intro_stage = new IntroStage();
 	play_stage = new PlayStage();
+	over_stage = new OverStage();
 	current_stage =  intro_stage;
 	
 

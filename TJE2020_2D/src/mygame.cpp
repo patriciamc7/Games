@@ -22,11 +22,11 @@ void PlayStage::render(Image& framebuffer) {
 	Game* game = Game::instance;
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
-	
+
 
 	//size in pixels of a cell, we assume every row has 16 cells so the cell size must be image.width / 16
-	int cs = world->tileset.width / 16 ; //size of cellin tileset
-	
+	int cs = world->tileset.width / 16; //size of cellin tileset
+
 	//for every cell
 	for (int x = 0; x < game->map->width; ++x)
 		for (int y = 0; y < game->map->height; ++y)
@@ -39,7 +39,7 @@ void PlayStage::render(Image& framebuffer) {
 			//compute tile pos in tileset image
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
-			Area area(tilex , tiley , cs , cs); //tile area
+			Area area(tilex, tiley, cs, cs); //tile area
 			int screenx = (x * cs) + world->camera.position.x; //place offset here if you want
 			int screeny = (y * cs) + world->camera.position.y;
 			//avoid rendering out of screen stuff
@@ -47,21 +47,62 @@ void PlayStage::render(Image& framebuffer) {
 				screeny < -cs || screeny > framebuffer.height)
 				continue;
 
-			
+
 			//draw region of tileset inside framebuffer
-			framebuffer.drawImage(world->tileset,screenx, screeny, area);
-			
+			framebuffer.drawImage(world->tileset, screenx, screeny, area);
+
 		}
-	
-	world->animation.current_animation = player->ismoving 
-	? (int(game->time*world->animation.velocity_animation) % world->animation.num_animations) : 0;
-	framebuffer.drawImage(game->sprite->sprite, 
+
+	world->animation.current_animation = player->ismoving
+		? (int(game->time * world->animation.velocity_animation) % world->animation.num_animations) : 0;
+	framebuffer.drawImage(game->sprite->sprite,
 		player->pos.x,
 		player->pos.y,
-		Area(14  *world->animation.current_animation, 18*(int)player->dir, 14, 18));	//draws only a part of an image
+		Area(14 * world->animation.current_animation, 18 * (int)player->dir, 14, 18));	//draws only a part of an image
 	player->ismoving = 0;
-	//framebuffer.drawImage(game->health->sprite, 0, 0, 1, 1);
 
+		if (player->health == 6) {
+		framebuffer.drawImage(game->health->sprite, 0, 0, 0, 10, 12, 30); //full
+		framebuffer.drawImage(game->health->sprite, 10, 0, 0, 10, 12, 30); //full
+		framebuffer.drawImage(game->health->sprite, 20, 0, 0, 10, 12, 30); //full
+		}
+
+		if (player->health == 5) {
+			framebuffer.drawImage(game->health->sprite, 0,  0,  0, 10, 12, 30); //full
+			framebuffer.drawImage(game->health->sprite, 10, 0,  0, 10, 12, 30); //full
+			framebuffer.drawImage(game->health->sprite, 20, 0, 20, 10, 12, 30); //half
+
+		}
+		if (player->health == 4) {
+			framebuffer.drawImage(game->health->sprite, 0,  0, 0, 10, 12, 30); //full
+			framebuffer.drawImage(game->health->sprite, 10, 0, 0, 10, 12, 30); //full
+			framebuffer.drawImage(game->health->sprite, 20, 0, 10, 10, 12, 30); //void
+		}
+		if (player->health == 3) {
+
+			framebuffer.drawImage(game->health->sprite, 0,  0, 0,  10, 12, 30); //full
+			framebuffer.drawImage(game->health->sprite, 11, 0, 23, 10, 12, 30); //half
+			framebuffer.drawImage(game->health->sprite, 20, 0, 12, 10, 12, 30); //void
+		}
+		if (player->health == 2) {
+			framebuffer.drawImage(game->health->sprite, 0,  0, 1, 12,  12, 30); //full
+			framebuffer.drawImage(game->health->sprite, 11, 0, 12, 12, 12, 30); //void
+			framebuffer.drawImage(game->health->sprite, 20, 0, 12, 12, 12, 30); //void
+		}
+		if (player->health == 1) {
+
+			framebuffer.drawImage(game->health->sprite, 0, 0, 23, 10, 12, 30); //half
+			framebuffer.drawImage(game->health->sprite, 10, 0, 12, 10, 12, 30); //void
+			framebuffer.drawImage(game->health->sprite, 20, 0, 12, 10, 12, 30); //void
+		}
+		if (player->health == 0) {
+			game->current_stage = game->over_stage;
+		}
+
+		//framebuffer.drawImage(game->health->sprite, 0, 0, 0, 10, 17, 30); //full
+		//framebuffer.drawImage(game->health->sprite, 17, 0, 17, 10, 43, 30); //void
+		//framebuffer.drawImage(game->health->sprite, 37, 0, 37, 10, 43, 30); //half
+	
 }
 
 void PlayStage::update(double seconds_elapsed) { //movement of the character
@@ -69,13 +110,6 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 
-	//if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
-	//{
-	//	player->ismoving = 1;
-	//	world->camera.position.y += world->camera.velocity * seconds_elapsed;
-	//	player->pos.y -= world->player_velocity.y * seconds_elapsed;
-	//	player->dir = eDirection::UP;
-	//}
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down //If only not collision
 	{
 		player->ismoving = 1;
@@ -120,7 +154,7 @@ World::World() {
 	this->camera.position = Vector2(0, 0);
 	this->myGame.players[0].pos = Vector2(0, 100);
 	this->myGame.players[0].dir = eDirection::RIGHT;
-	this->myGame.players[0].health = 6;
+	this->myGame.players[0].health = 0;
 };
 
 GameMap::GameMap()
@@ -181,3 +215,22 @@ void PlayStage::restart() { //Restart the game
 	player->dir = eDirection::RIGHT;
 	player-> health = 6;
 }; 
+
+void OverStage::render(Image& framebuffer){
+	Game* game = Game::instance;
+	framebuffer.fill(Color());
+	framebuffer.drawText("Game Over", 160 / 2 - 30, 120 / 2 - 10, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
+}
+void OverStage::update(double seconds_elapsed) {
+
+}
+
+void OverStage::restart() { //Restart the game
+	World* world = Game::instance->world;
+	sPlayer* player = &Game::instance->world->myGame.players[0];
+
+	player->pos = Vector2(0, 100);
+	world->camera.position = Vector2(0, 0);
+	player->dir = eDirection::RIGHT;
+	player->health = 6;
+};

@@ -39,6 +39,7 @@ public:
 	Stage* intro_stage;
 	Stage* play_stage;
 	Stage* current_stage;
+	Stage* over_stage;
 
 	//
 	GameMap* map;
