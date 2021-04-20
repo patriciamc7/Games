@@ -40,6 +40,7 @@ public:
 	Stage* play_stage;
 	Stage* current_stage;
 	Stage* over_stage;
+	
 
 	//
 	GameMap* map;
@@ -47,7 +48,7 @@ public:
 	Sprite* sprite;
 	Sprite* menu;
 	Sprite* health;
-
+	Sprite* guide;
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );
 

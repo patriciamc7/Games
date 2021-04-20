@@ -73,6 +73,7 @@ public:
 	void drawImage(const Image& img, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh); //draws only a part of the image
 	void drawImage(const Image& img, int x, int y, Area rect) { drawImage(img, x, y, rect.x, rect.y, rect.w, rect.h); }//draws only a part of the image
 	void drawLine( int x0, int y0, int x1, int y1, const Color& c);
+	void drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, const Color& c);
 	void drawText( std::string text, int x, int y, const Image& bitmapfont, int font_w = 7, int font_h = 9, int first_char = 32);
 	void drawRectangle(int x, int y, int w, int h, const Color& c);
 

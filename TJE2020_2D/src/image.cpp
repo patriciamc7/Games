@@ -199,6 +199,12 @@ void Image::drawLine(int x0, int y0, int x1, int y1, const Color& c)
 	}
 }
 
+void Image::drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, const Color& c) {
+	drawLine(x0,  y0,  x1,  y1,  c);
+	drawLine(x1,  y1,  x2,  y2,  c);
+	drawLine(x2,  y2,  x0,  y0,  c);
+}
+
 void Image::drawText(std::string text, int x, int y, const Image& bitmapfont, int font_w, int font_h, int first_char )
 {
 	for (int i = 0; i < text.size(); ++i)

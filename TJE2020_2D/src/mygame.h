@@ -5,8 +5,7 @@ class mygame {};
 enum eCellType : uint8 {
 	EMPTY, START,
 	WALL,
-	DOOR,
-	CHEST
+	FLOOR
 };
 
 enum eItemType : uint8 {
@@ -57,6 +56,7 @@ class World {
 	public:
 	World();
 
+	int button;
 	Image font;
 	Image minifont;
 	Image tileset;
@@ -78,7 +78,8 @@ class Stage {
 					
 class IntroStage : public Stage { 
 	public: 
-
+	
+	
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
 };
@@ -116,7 +117,7 @@ public:
 	
 	//example of parser of .map from rogued editor
 	GameMap* loadGameMap(const char* filename);
-
+	bool isValid(Vector2 target);
 };
 
 class Sprite {

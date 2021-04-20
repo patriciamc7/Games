@@ -23,11 +23,13 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	sprite = new Sprite();
 	menu = new Sprite();
 	health = new Sprite();
+	guide = new Sprite();
 
-	world->font.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
-	world->minifont.loadTGA("data/mini-font-white-4x6.tga"); //load bitmap-font image
+	world->font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
+	world->minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
 	sprite->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
-	menu->sprite.loadTGA("data/intro.tga"); //example to load an sprite
+	menu->sprite.loadTGA("data/intro.tga"); 
+	guide->sprite.loadTGA("data/guide.tga");
 	world->tileset.loadTGA("data/tileset.tga");
 	health->sprite.loadTGA("data/health.tga");
 	health->sprite.scale(35,35);
