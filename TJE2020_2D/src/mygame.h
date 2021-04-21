@@ -2,8 +2,8 @@
 #include "image.h"
 
 class mygame {}; 
-enum eCellType : uint8 {
-	EMPTY, START,
+enum eCellType {
+	EMPTY,
 	WALL,
 	FLOOR
 };

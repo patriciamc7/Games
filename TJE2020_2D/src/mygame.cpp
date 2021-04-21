@@ -140,42 +140,40 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	Vector2 target = player->pos;
 
 
-	
-
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down //If only not collision
 	{
-		target.y += 1;
-		if (game->map->isValid(target))
+		target.y += world->player_velocity * seconds_elapsed;
+		if (game->map->isValid(target)){
 			player->pos = target;
-
-		player->ismoving = 1;
-		world->camera.position.y -= world->camera.velocity * seconds_elapsed;
-		player->pos.y += world->player_velocity * seconds_elapsed;
-		player->dir = eDirection::DOWN;
+			player->ismoving = 1;
+			world->camera.position.y -= world->camera.velocity * seconds_elapsed;
+			player->pos.y += world->player_velocity * seconds_elapsed;
+			player->dir = eDirection::DOWN;
+		}
 
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
-		target.x += 1;
-		if (game->map->isValid(target))
+		target.x += world->player_velocity * seconds_elapsed;
+		if (game->map->isValid(target)){
 			player->pos = target;
-		
-		player->ismoving = 1;
-		world->camera.position.x -=world->camera.velocity * seconds_elapsed;
-		player->pos.x += world->player_velocity * seconds_elapsed;
-		player->dir = eDirection::RIGHT;
+			player->ismoving = 1;
+			world->camera.position.x -= world->camera.velocity * seconds_elapsed;
+			player->pos.x += world->player_velocity * seconds_elapsed;
+			player->dir = eDirection::RIGHT;
+		}
 
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
 	{	
-		target.x -= 1;
-		if (game->map->isValid(target))
+		target.x -= world->player_velocity * seconds_elapsed;
+		if (game->map->isValid(target)){
 			player->pos = target;
-
-		player->ismoving = 1;
-		world->camera.position.x += world->camera.velocity * seconds_elapsed;
-		world->myGame.players[0].pos.x -=world->player_velocity * seconds_elapsed;
-		world->myGame.players[0].dir = eDirection::LEFT;
+			player->ismoving = 1;
+			world->camera.position.x +=world->camera.velocity * seconds_elapsed;
+			world->myGame.players[0].pos.x -=world->player_velocity * seconds_elapsed;
+			world->myGame.players[0].dir = eDirection::LEFT;
+		}
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_R)) //if key enter
 	{	
@@ -184,28 +182,28 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_SPACE)) //jump action
 	{
-		target.y += 1;
-		if (game->map->isValid(target))
+		target.y += world->player_velocity * seconds_elapsed;
+		if (game->map->isValid(target)){
 			player->pos = target;
-
-		player->ismoving = 0;
-		world->camera.position.y += world->camera.velocity * seconds_elapsed;
-		player->pos.y -= world->player_velocity* seconds_elapsed;
-		player->dir = eDirection::RIGHT;
+			player->ismoving = 0;
+			world->camera.position.y += world->camera.velocity * seconds_elapsed;
+			player->pos.y -= world->player_velocity* seconds_elapsed;
+			player->dir = eDirection::RIGHT;
+		}
 	}
-	if (game->map->isValid(target))
+	/*if (game->map->isValid(target))
 		player->pos = target;
 	else if (game->map->isValid(Vector2(target.x, player->pos.y)))
 		player->pos = Vector2(target.x, player->pos.y);
 	else if (game->map->isValid(Vector2(player->pos.x, target.y)))
-		player->pos = Vector2(player->pos.x, target.y);
+		player->pos = Vector2(player->pos.x, target.y);*/
 
 };
 
 World::World() {
 
 	this->camera.position = Vector2(0, 0);
-	this->myGame.players[0].pos = Vector2(0, 100);
+	this->myGame.players[0].pos = Vector2(0, 0);
 	this->myGame.players[0].dir = eDirection::RIGHT;
 	this->myGame.players[0].health = 6;
 	this->button = 0;
@@ -264,7 +262,7 @@ void PlayStage::restart() { //Restart the game
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 
-	player->pos = Vector2(0, 100);	
+	player->pos = Vector2(0, 0);	
 	world->camera.position = Vector2(0, 0);
 	player->dir = eDirection::RIGHT;
 	player-> health = 6;
@@ -295,16 +293,14 @@ bool GameMap::isValid(Vector2 target) {
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 
 	int celdax = (target.x ) / 8;
-	int celday = (target.y ) / 16;
+	int celday = (target.y ) / 8;
 
 	sCell aux = game->map->getCell(celdax, celday);
-	if (aux.item == eCellType::EMPTY)
+	if (0<aux.type && aux.type<9)//floor
+		return false;
+	else if (9<aux.type && aux.type<21)//wall
+		return false;
+	else //empty
 		return true;
-	else if (aux.item == eCellType::FLOOR)
-		return false;
-	else if (aux.item == eCellType::WALL)
-		return false;
-	else if (aux.item == eCellType::START)
-		return false;
 
 }

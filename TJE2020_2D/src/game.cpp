@@ -29,7 +29,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	world->minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
 	sprite->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
 	menu->sprite.loadTGA("data/intro.tga"); 
-	guide->sprite.loadTGA("data/guide.tga");
 	world->tileset.loadTGA("data/tileset.tga");
 	health->sprite.loadTGA("data/health.tga");
 	health->sprite.scale(35,35);
