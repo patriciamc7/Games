@@ -91,10 +91,6 @@ void PlayStage::render(Image& framebuffer) {
 
 	world->animation.current_animation = player->ismoving
 		? (int(game->time * world->animation.velocity_animation) % world->animation.num_animations) : 0;
-	//framebuffer.drawImage(game->sprite->sprite,
-	//	player->pos.x,
-	//	player->pos.y,
-	//	Area(14 * world->animation.current_animation, 18 * (int)player->dir, 14, 18));	//draws only a part of an image
 	framebuffer.drawImage(game->sprite->sprite,
 		player->pos.x,
 		player->pos.y,
@@ -159,7 +155,6 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		target.x += world->player_velocity * seconds_elapsed;
 		player->ismoving = 1;
-		//world->camera.position.x -= world->camera.velocity * seconds_elapsed;
 		player->dir = eDirection::RIGHT;
 
 	}
@@ -167,7 +162,6 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{	
 		target.x -= world->player_velocity * seconds_elapsed;
 		player->ismoving = 1;
-		//world->camera.position.x +=world->camera.velocity * seconds_elapsed;
 		player->dir = eDirection::LEFT;
 		
 	}
@@ -180,9 +174,8 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		target.y -= world->player_velocity * seconds_elapsed;
 		player->ismoving = 0;
-		//world->camera.position.y += world->camera.velocity * seconds_elapsed;
 		player->dir = eDirection::RIGHT;
-		game->synth.playSample("data/ambiente.wav", 20, false);
+		game->synth.playSample("data/jump.wav", 20, false);
 	}
 	if (game->map->isValid(target))
 		player->pos = target;
@@ -258,7 +251,7 @@ void PlayStage::restart() { //Restart the game
 
 void OverStage::render(Image& framebuffer){
 	Game* game = Game::instance;
-	game->synth.playSample("data/ambiente.wav", 20, false);
+	game->synth.playSample("data/game-over.wav", 20, false);
 	framebuffer.fill(Color());
 	framebuffer.drawText("Game Over", 160 / 2 - 30, 120 / 2 - 10, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
 }
