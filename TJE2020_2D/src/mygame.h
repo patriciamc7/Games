@@ -20,10 +20,8 @@ struct sCell {
 };
 
 enum eDirection : uint8{
-	DOWN,
 	RIGHT,
-	LEFT,
-	UP
+	LEFT
 };
 struct sPlayer {
 	Vector2 pos;
@@ -34,7 +32,7 @@ struct sPlayer {
 };
 struct sAnimation {
 	int current_animation;
-	const int num_animations = 4;
+	const int num_animations = 6;
 	const int velocity_animation = 5;
 };
 struct sCamera {

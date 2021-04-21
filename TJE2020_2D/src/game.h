@@ -48,7 +48,7 @@ public:
 	Sprite* sprite;
 	Sprite* menu;
 	Sprite* health;
-	Sprite* guide;
+
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );
 

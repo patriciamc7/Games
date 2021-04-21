@@ -51,14 +51,18 @@ void IntroStage::update(double seconds_elapsed) {
 };
 
 void PlayStage::render(Image& framebuffer) {
+
+	Color bgcolor(8, 14, 13);
 	Game* game = Game::instance;
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 
+	framebuffer.fill(bgcolor);
 
 	//size in pixels of a cell, we assume every row has 16 cells so the cell size must be image.width / 16
 	int cs = world->tileset.width / 16; //size of cellin tileset
-
+	Vector2 target_pos = player->pos - Vector2(80, 60);
+	world->camera.position += (target_pos - world->camera.position) * 0.06f;
 	//for every cell
 	for (int x = 0; x < game->map->width; ++x)
 		for (int y = 0; y < game->map->height; ++y)
@@ -72,8 +76,8 @@ void PlayStage::render(Image& framebuffer) {
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
 			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = (x * cs) + world->camera.position.x; //place offset here if you want
-			int screeny = (y * cs) + world->camera.position.y;
+			int screenx = (x * cs) - world->camera.position.x; //place offset here if you want
+			int screeny = (y * cs) - world->camera.position.y;
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
 				screeny < -cs || screeny > framebuffer.height)
@@ -87,10 +91,14 @@ void PlayStage::render(Image& framebuffer) {
 
 	world->animation.current_animation = player->ismoving
 		? (int(game->time * world->animation.velocity_animation) % world->animation.num_animations) : 0;
+	//framebuffer.drawImage(game->sprite->sprite,
+	//	player->pos.x,
+	//	player->pos.y,
+	//	Area(14 * world->animation.current_animation, 18 * (int)player->dir, 14, 18));	//draws only a part of an image
 	framebuffer.drawImage(game->sprite->sprite,
 		player->pos.x,
 		player->pos.y,
-		Area(14 * world->animation.current_animation, 18 * (int)player->dir, 14, 18));	//draws only a part of an image
+		Area(13 * world->animation.current_animation, 40 * (int)player->dir, 13, 40));	//draws only a part of an image
 	player->ismoving = 0;
 
 		if (player->health == 6) {
@@ -131,6 +139,7 @@ void PlayStage::render(Image& framebuffer) {
 			game->current_stage = game->over_stage;
 		}
 
+		
 }
 
 void PlayStage::update(double seconds_elapsed) { //movement of the character
@@ -143,37 +152,24 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down //If only not collision
 	{
 		target.y += world->player_velocity * seconds_elapsed;
-		if (game->map->isValid(target)){
-			player->pos = target;
-			player->ismoving = 1;
-			world->camera.position.y -= world->camera.velocity * seconds_elapsed;
-			player->pos.y += world->player_velocity * seconds_elapsed;
-			player->dir = eDirection::DOWN;
-		}
+		player->ismoving = 1;
 
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
 		target.x += world->player_velocity * seconds_elapsed;
-		if (game->map->isValid(target)){
-			player->pos = target;
-			player->ismoving = 1;
-			world->camera.position.x -= world->camera.velocity * seconds_elapsed;
-			player->pos.x += world->player_velocity * seconds_elapsed;
-			player->dir = eDirection::RIGHT;
-		}
+		player->ismoving = 1;
+		//world->camera.position.x -= world->camera.velocity * seconds_elapsed;
+		player->dir = eDirection::RIGHT;
 
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
 	{	
 		target.x -= world->player_velocity * seconds_elapsed;
-		if (game->map->isValid(target)){
-			player->pos = target;
-			player->ismoving = 1;
-			world->camera.position.x +=world->camera.velocity * seconds_elapsed;
-			world->myGame.players[0].pos.x -=world->player_velocity * seconds_elapsed;
-			world->myGame.players[0].dir = eDirection::LEFT;
-		}
+		player->ismoving = 1;
+		//world->camera.position.x +=world->camera.velocity * seconds_elapsed;
+		player->dir = eDirection::LEFT;
+		
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_R)) //if key enter
 	{	
@@ -182,21 +178,14 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_SPACE)) //jump action
 	{
-		target.y += world->player_velocity * seconds_elapsed;
-		if (game->map->isValid(target)){
-			player->pos = target;
-			player->ismoving = 0;
-			world->camera.position.y += world->camera.velocity * seconds_elapsed;
-			player->pos.y -= world->player_velocity* seconds_elapsed;
-			player->dir = eDirection::RIGHT;
-		}
+		target.y -= world->player_velocity * seconds_elapsed;
+		player->ismoving = 0;
+		//world->camera.position.y += world->camera.velocity * seconds_elapsed;
+		player->dir = eDirection::RIGHT;
+		game->synth.playSample("data/ambiente.wav", 20, false);
 	}
-	/*if (game->map->isValid(target))
+	if (game->map->isValid(target))
 		player->pos = target;
-	else if (game->map->isValid(Vector2(target.x, player->pos.y)))
-		player->pos = Vector2(target.x, player->pos.y);
-	else if (game->map->isValid(Vector2(player->pos.x, target.y)))
-		player->pos = Vector2(player->pos.x, target.y);*/
 
 };
 
@@ -261,7 +250,6 @@ GameMap* GameMap::loadGameMap(const char* filename)
 void PlayStage::restart() { //Restart the game
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
-
 	player->pos = Vector2(0, 0);	
 	world->camera.position = Vector2(0, 0);
 	player->dir = eDirection::RIGHT;
@@ -270,6 +258,7 @@ void PlayStage::restart() { //Restart the game
 
 void OverStage::render(Image& framebuffer){
 	Game* game = Game::instance;
+	game->synth.playSample("data/ambiente.wav", 20, false);
 	framebuffer.fill(Color());
 	framebuffer.drawText("Game Over", 160 / 2 - 30, 120 / 2 - 10, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
 }
@@ -294,8 +283,10 @@ bool GameMap::isValid(Vector2 target) {
 
 	int celdax = (target.x ) / 8;
 	int celday = (target.y ) / 8;
-
+	
 	sCell aux = game->map->getCell(celdax, celday);
+	//std::cout << target.x << target.y << "\n";
+	std::cout << toString(aux.type ) << "\n";
 	if (0<aux.type && aux.type<9)//floor
 		return false;
 	else if (9<aux.type && aux.type<21)//wall
