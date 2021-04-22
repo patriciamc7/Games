@@ -40,7 +40,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	intro_stage = new IntroStage();
 	play_stage = new PlayStage();
 	over_stage = new OverStage();
-	current_stage =  intro_stage;
+	current_stage = intro_stage;
 
 }
 
