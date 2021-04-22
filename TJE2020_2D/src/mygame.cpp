@@ -61,6 +61,7 @@ void PlayStage::render(Image& framebuffer) {
 
 	//size in pixels of a cell, we assume every row has 16 cells so the cell size must be image.width / 16
 	int cs = world->tileset.width / 16; //size of cellin tileset
+
 	Vector2 target_pos = player->pos - Vector2(80, 60);
 	world->camera.position += (target_pos - world->camera.position) * 0.06f;
 	//for every cell
@@ -76,8 +77,8 @@ void PlayStage::render(Image& framebuffer) {
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
 			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = (x * cs) - world->camera.position.x; //place offset here if you want
-			int screeny = (y * cs) - world->camera.position.y;
+			int screenx = (x * cs); //place offset here if you want
+			int screeny = (y * cs);
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
 				screeny < -cs || screeny > framebuffer.height)
@@ -170,7 +171,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		game->current_stage->restart();
 		game->current_stage = game->intro_stage;
 	}
-	if (Input::isKeyPressed(SDL_SCANCODE_SPACE)) //jump action
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) //jump action
 	{
 		target.y -= world->player_velocity * seconds_elapsed;
 		player->ismoving = 0;
@@ -179,13 +180,15 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	}
 	if (game->map->isValid(target))
 		player->pos = target;
-
+	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
+		player->health  = player->health - 1;
+	}
 };
 
 World::World() {
 
 	this->camera.position = Vector2(0, 0);
-	this->myGame.players[0].pos = Vector2(0, 0);
+	this->myGame.players[0].pos = Vector2(50, 0);
 	this->myGame.players[0].dir = eDirection::RIGHT;
 	this->myGame.players[0].health = 6;
 	this->button = 0;
@@ -251,7 +254,7 @@ void PlayStage::restart() { //Restart the game
 
 void OverStage::render(Image& framebuffer){
 	Game* game = Game::instance;
-	game->synth.playSample("data/game-over.wav", 20, false);
+	game->synth.playSample("data/game-over.wav", 10, false);
 	framebuffer.fill(Color());
 	framebuffer.drawText("Game Over", 160 / 2 - 30, 120 / 2 - 10, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
 }
@@ -273,18 +276,44 @@ bool GameMap::isValid(Vector2 target) {
 	Game* game = Game::instance;
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
-
-	int celdax = (target.x ) / 8;
-	int celday = (target.y ) / 8;
+	int cs = world->tileset.width / 16; //size of cellin tileset
 	
-	sCell aux = game->map->getCell(celdax, celday);
-	//std::cout << target.x << target.y << "\n";
-	std::cout << toString(aux.type ) << "\n";
-	if (0<aux.type && aux.type<9)//floor
-		return false;
-	else if (9<aux.type && aux.type<21)//wall
-		return false;
-	else //empty
-		return true;
+	//int celdax = (target.x + world->camera.position.x) / (8);
+	//int celday = (target.y + world->camera.position.y) / (8);
+	//
+	//sCell aux = game->map->getCell(celdax, celday);
+	////std::cout << target.x << target.y << "\n";
+	//std::cout << toString(aux.type ) << "\n";
+	//if (0<aux.type && aux.type<9)//floor
+	//	return false;
+	//else if (9<aux.type && aux.type<21)//wall
+	//	return false;
+	//else //empty
+	//	return true;
+	int celdax[2];
+	int celday[2];
+
+	//std::cout << x << " " << y << "\n";
+	for (int i = 0; i < 2; i++)
+	{
+		celdax[i] = ((target.x + (13 * i) ) / cs);
+		celday[i] = ((target.y + (20 * i) ) / cs);
+
+	}
+
+	for (int i = 0; i < 2; i++)
+	{
+		for (int k = 0; k < 2; k++)
+		{
+			sCell aux = game->map->getCell(celdax[i], celday[k]);
+			std::cout << toString(aux.type) << "\n";
+			if (0 < aux.type && aux.type < 9) //floor
+				return false;
+			else if (9 < aux.type && aux.type < 21)//wall
+				return false;
+
+		}
+	}
+	return true;
 
 }
