@@ -74,8 +74,8 @@ void PlayStage::render(Image& framebuffer) {
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
 			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = (x * cs)- world->camera.position.x; //place offset here if you want
-			int screeny = (y * cs)- world->camera.position.y;
+			int screenx = (x * cs);// -world->camera.position.x; //place offset here if you want
+			int screeny = (y * cs);// -world->camera.position.y;
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
 				screeny < -cs || screeny > framebuffer.height)
@@ -142,20 +142,6 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 	Vector2 target = player->pos;
 
-
-	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down //If only not collision
-	{
-		target.y += world->player_velocity * seconds_elapsed;
-		player->ismoving = 1;
-
-	}
-
-	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key down //If only not collision
-	{
-		target.y -= world->player_velocity * seconds_elapsed;
-		player->ismoving = 1;
-
-	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
 		target.x += world->player_velocity * seconds_elapsed;
@@ -175,24 +161,68 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		game->current_stage->restart();
 		game->current_stage = game->intro_stage;
 	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) //jump action
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && !player->isjumping) //jump action
 	{
-		target.y -= world->player_velocity * seconds_elapsed;
-		player->ismoving = 0;
-		player->dir = eDirection::RIGHT;
+		player->isjumping = true;
+		player->jumpAngle = 0;
+		player->startY = player->pos.y;
+		player->posYMax = player->pos.y - 40;
 		game->synth.playSample("data/jump.wav", 20, false);
+
 	}
-	if (game->map->isValid(target))
-		player->pos = target;
+
 
 	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
 		player->health  = player->health - 1;
 	}
+
+	if (player->isjumping) {
+		player->jumpAngle += 2;
+		if (player->jumpAngle == 180)
+		{
+			player->isjumping = false;
+			player->pos.y = player->startY;
+			//animations
+		}
+		//else if (player->jumpAngle > 90) {
+		//		target.y -= int(player->startY - (player->startY - 50) * sin(3.14159f * player->jumpAngle / 180));
+		//}
+		else
+			player->pos.y = int(player->startY - (player->startY - player->posYMax) * sin(3.14159f * player->jumpAngle / 180));
+
+		if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
+		{
+			target.x += world->player_velocity * seconds_elapsed;
+			player->ismoving = 1;
+			player->dir = eDirection::RIGHT;
+
+		}
+		if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
+		{
+			target.x -= world->player_velocity * seconds_elapsed;
+			player->ismoving = 1;
+			player->dir = eDirection::LEFT;
+
+		}
+
+		if (player->startY - player->pos.y > 40)
+			player->health -= 1;
+		
+	}
+
+	if (game->map->isValid(target))
+		player->pos.y += player->speed_fall;
+
+	if (game->map->isValid(Vector2(target.x ,player->pos.y-1)))
+		player->pos.x = target.x;
+
 };
 
 void PlayStage::restart() { //Restart the game
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
+	
 	player->pos = Vector2(50, 0);
 	world->camera.position = Vector2(0, 0);
 	player->dir = eDirection::RIGHT;
@@ -203,13 +233,13 @@ void PlayStage::restart() { //Restart the game
 void OverStage::render(Image& framebuffer) {
 	Game* game = Game::instance;
 
-	framebuffer.fill(Color());
-	framebuffer.drawText("Game Over", 160 / 2 - 30, 120 / 2 - 10, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
+	framebuffer.fill(Color(1,0,0));
+	framebuffer.drawText("Game Over", 160 / 2 - 32, 120 / 2 - 10, game->world->fontWhite);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
 	game->synth.playSample("data/game-over.wav", 10, false);
-	framebuffer.drawText("Retry", 160 / 2 - 18, 50, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
-	framebuffer.drawText("Exit", 160 / 2 - 18, 60, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
-	if (game->world->button == 0) framebuffer.drawTriangle(160 / 2 - 27, 40, 160 / 2 - 22, 45, 160 / 2 - 27, 50, Color(0, 0, 0));
-	if (game->world->button == 1) framebuffer.drawTriangle(160 / 2 - 27, 50, 160 / 2 - 22, 55, 160 / 2 - 27, 60, Color(0, 1, 0));
+	framebuffer.drawText("Retry", 160 / 2 - 40, 70, game->world->fontWhite);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
+	framebuffer.drawText("Exit", 160 / 2 +10, 70, game->world->fontWhite);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
+	if (game->world->button == 0) framebuffer.drawTriangle(160 / 2 - 50, 69, 160 / 2 - 45, 74, 160 / 2 - 50, 79, Color(255, 255, 255));
+	if (game->world->button == 1) framebuffer.drawTriangle(160 / 2, 69, 160 / 2 + 5, 74, 160 / 2 , 79, Color(255, 255, 255));
 }
 
 void OverStage::update(double seconds_elapsed) {
@@ -221,13 +251,13 @@ void OverStage::update(double seconds_elapsed) {
 		game->current_stage = game->intro_stage;
 	}
 
-	if (Input::wasKeyPressed(SDL_SCANCODE_DOWN)) //if key down //If only not collision
+	if (Input::wasKeyPressed(SDL_SCANCODE_RIGHT)) //if key down //If only not collision
 	{
 		world->button += 1;
 		if (world->button == 2) world->button = 0;
 
 	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_UP)) //if key down //If only not collision
+	if (Input::wasKeyPressed(SDL_SCANCODE_LEFT)) //if key down //If only not collision
 	{
 		world->button -= 1;
 		if (world->button == -1) world->button = 0;
@@ -235,6 +265,7 @@ void OverStage::update(double seconds_elapsed) {
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN) && world->button == 0) //if key enter
 	{
 		game->current_stage = game->play_stage;
+		game->current_stage->restart();
 	}
 	if (world->button == 1 && Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key enter
 	{
@@ -245,7 +276,7 @@ void OverStage::update(double seconds_elapsed) {
 void OverStage::restart() { //Restart the game
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
-	player->pos = Vector2(50, 0);
+	player->pos = Vector2(80, 0);
 	world->camera.position = Vector2(0, 0);
 	player->dir = eDirection::RIGHT;
 	player->health = 6;
@@ -255,10 +286,14 @@ void OverStage::restart() { //Restart the game
 World::World() {
 
 	this->camera.position = Vector2(0, 0);
-	this->myGame.players[0].pos = Vector2(50, 0);
+	this->myGame.players[0].pos = Vector2(80, 0);
 	this->myGame.players[0].dir = eDirection::RIGHT;
 	this->myGame.players[0].health = 6;
 	this->button = 0;
+	this->myGame.players[0].speed_fall = 2;
+	this->myGame.players[0].isjumping = false;
+	this->myGame.players[0].jumpAngle = 0;
+	this->myGame.players[0].posYMax = 0;
 };
 
 GameMap::GameMap()
@@ -317,23 +352,23 @@ bool GameMap::isValid(Vector2 target) {
 	Game* game = Game::instance;
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
+
 	int cs = world->tileset.width / 16; //size of cellin tileset
-	Vector2 targetp = target - Vector2(80, 60);
 	int celdax[2];
 	int celday[2];
 	
 	for (int i = 0; i < 2; i++){
 	
-		celdax[i] = (target.x + (13 * i) + world->camera.position.x) / cs;
-		celday[i] = (target.y + (20 * i) + world->camera.position.y) / cs;
+		celdax[i] = (target.x + (13 * i) ) / cs;
+		celday[i] = (target.y + (20 * i) ) / cs;
 
 	}
 
 	for (int i = 0; i < 2; i++)
 	{
-		for (int k = 0; k < 2; k++)
+		for (int j = 0; j < 2; j++)
 		{
-			sCell aux = game->map->getCell(celdax[i], celday[k]);
+			sCell aux = game->map->getCell(celdax[i], celday[j]);
 			std::cout << toString(aux.type) << "\n";
 			if (0 < aux.type && aux.type < 9) //floor
 				return false;

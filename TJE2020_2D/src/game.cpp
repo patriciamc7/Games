@@ -24,6 +24,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	health = new Sprite();
 
 	world->font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
+	world->fontWhite.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
 	world->minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
 	sprite->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
 	sprite->sprite.scale(80, 80);

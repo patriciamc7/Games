@@ -28,6 +28,11 @@ struct sPlayer {
 	int health;
 	eDirection dir;
 	bool ismoving;
+	int speed_fall;
+	bool isjumping;
+	int jumpAngle;
+	int startY;
+	int posYMax;
 
 };
 struct sAnimation {
@@ -57,6 +62,7 @@ class World {
 	int button;
 	Image font;
 	Image minifont;
+	Image fontWhite;
 	Image tileset;
 
 	const int player_velocity = 30;
