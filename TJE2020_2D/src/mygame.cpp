@@ -39,6 +39,9 @@ void IntroStage::update(double seconds_elapsed) {
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN) && game->world->button == 1) //if key enter
 	{
+		world->loadGameInfo();
+		game->current_stage = game->play_stage;
+
 	}
 	if (world->button == 2 && Input::isKeyPressed(SDL_SCANCODE_RETURN) ) //if key enter
 	{
@@ -75,7 +78,7 @@ void PlayStage::render(Image& framebuffer) {
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
 			Area area(tilex, tiley, cs, cs); //tile area
 			int screenx = (x * cs);//-world->camera.position.x; //place offset here if you want
-			int screeny = (y * cs);// -world->camera.position.y;
+			int screeny = (y * cs);//-world->camera.position.y;
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
 				screeny < -cs || screeny > framebuffer.height)
@@ -83,7 +86,7 @@ void PlayStage::render(Image& framebuffer) {
 
 
 			//draw region of tileset inside framebuffer
-			framebuffer.drawImage(world->tileset, screenx, screeny, area);
+			framebuffer.drawImage(world->tileset, screenx, screeny , area);
 
 		}
 
@@ -133,7 +136,16 @@ void PlayStage::render(Image& framebuffer) {
 			game->current_stage = game->over_stage;
 		}
 
-		
+		if (menu == 1) {
+			Game* game = Game::instance;
+			framebuffer.drawImage(game->menu->sprite, 0, 0, 160, 120);
+			framebuffer.drawText("Hello world", 160 / 2 - 40, 10, game->world->font);			//draws some text using a bitmap font in an image (assuming every char is 7x9)
+			framebuffer.drawText("Save", 160 / 2 - 20, 40, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
+			framebuffer.drawText("Exit", 160 / 2 - 18, 50, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
+			if (game->world->button == 0) framebuffer.drawTriangle(160 / 2 - 27, 40, 160 / 2 - 22, 45, 160 / 2 - 27, 50, Color(0, 0, 0));
+			if (game->world->button == 1) framebuffer.drawTriangle(160 / 2 - 27, 50, 160 / 2 - 22, 55, 160 / 2 - 27, 60, Color(0, 1, 0));
+
+		}
 }
 
 void PlayStage::update(double seconds_elapsed) { //movement of the character
@@ -141,55 +153,66 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 	Vector2 target = player->pos;
-	//int jumpdistance = 0;
 
 	if (Input::isKeyPressed(SDL_SCANCODE_R)) //if key enter
 	{	
 		game->current_stage->restart();
 		game->current_stage = game->intro_stage;
 	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_M))
 		player->health = player->health - 1;
+
+	// Menu for save
+	if (Input::wasKeyPressed(SDL_SCANCODE_X))
+		menu = true;
+	if (Input::wasKeyPressed(SDL_SCANCODE_DOWN) && menu == true){
+		world->button += 1;
+		if (world->button == 2) world->button = 0;
 	}
-
-	if (game->map->isValid(target))
-		player->pos.y += player->speed_fall;
-
-	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
-	{
+	if (Input::wasKeyPressed(SDL_SCANCODE_UP) && menu == true){
+		world->button -= 1;
+		if (world->button == -1) world->button = 0;
+	}
+	if (Input::isKeyPressed(SDL_SCANCODE_RETURN) && world->button == 0 && menu == true) {
+		world->saveGameInfo();
+		menu = false;
+	}
+	if (Input::isKeyPressed(SDL_SCANCODE_RETURN) && game->world->button == 1 && menu == true)
+		game->must_exit = true;
+	
+	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)){  //if key right
 		target.x += world->player_velocity * seconds_elapsed;
 		player->ismoving = 1;
 		player->dir = eDirection::RIGHT;
 
 	}
-	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
-	{
+	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)){ //if key left
 		target.x -= world->player_velocity * seconds_elapsed;
 		player->ismoving = 1;
 		player->dir = eDirection::LEFT;
 
 	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && !player->isjumping) //jump action
-	{
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && !player->isjumping){ //jump action
 		player->isjumping = true;
 		player->jumpAngle = 0;
 		player->startY = player->pos.y;
-		player->posYMax = player->pos.y - 40;
+		player->posYMax = 30;
 		game->synth.playSample("data/jump.wav", 20, false);
-
+	
 	}
 
-
 	if (player->isjumping) {
-		std::cout << toString(player->jumpAngle) << "\n";
 		if (player->jumpAngle == 180)
 		{
 			player->isjumping = false;
-			player->pos.y = player->startY;
 		}
-		else
-			player->pos.y = int(player->startY - (player->startY - player->posYMax) * sin(3.14159f * player->jumpAngle / 180));
+		else{
+			player->pos.y = int(player->startY - player->posYMax * sin(3.14159f * player->jumpAngle / 180));
+			if (player->jumpAngle > 90)
+				player->isjumping = !game->map->isValid(player->pos);
+				player->pos.y += player->speed_fall;
 
+		}
 		if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 		{
 			target.x += world->player_velocity * seconds_elapsed;
@@ -205,11 +228,20 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 
 		}
 		player->jumpAngle += 1;
-	}
 
+	}
 
 	if (game->map->isValid(Vector2(target.x, player->pos.y-1)))
 		player->pos.x = target.x;
+
+	if (game->map->isValid(target))
+		player->pos.y +=  player->speed_fall;
+
+	//std::cout << player->falldistance<< "," << player->pos.y << "\n";
+	//if (10 >  player->pos.y - player->falldistance > 40) {// life system
+	//		player->health -= 1;
+	//		player->falldistance = player->pos.y;
+	//}
 
 };
 
@@ -217,11 +249,15 @@ void PlayStage::restart() { //Restart the game
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 	
-	player->pos = Vector2(50, 0);
 	world->camera.position = Vector2(0, 0);
+	player->pos = Vector2(100, -12);
 	player->dir = eDirection::RIGHT;
 	player->health = 6;
 	world->button = 0;
+	player->speed_fall = 1;
+	player->isjumping = false;
+	player->jumpAngle = 0;
+	player->posYMax = 0;
 };
 
 void OverStage::render(Image& framebuffer) {
@@ -270,18 +306,23 @@ void OverStage::update(double seconds_elapsed) {
 void OverStage::restart() { //Restart the game
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
-	player->pos = Vector2(80, 0);
+
 	world->camera.position = Vector2(0, 0);
+	player->pos = Vector2(100, -12);
 	player->dir = eDirection::RIGHT;
 	player->health = 6;
 	world->button = 0;
+	player->speed_fall = 1;
+	player->isjumping = false;
+	player->jumpAngle = 0;
+	player->posYMax = 0;
 	
 };
 
 World::World() {
 
 	this->camera.position = Vector2(0, 0);
-	this->myGame.players[0].pos = Vector2(80, 0);
+	this->myGame.players[0].pos = Vector2(100, -12);
 	this->myGame.players[0].dir = eDirection::RIGHT;
 	this->myGame.players[0].health = 6;
 	this->button = 0;
@@ -289,6 +330,7 @@ World::World() {
 	this->myGame.players[0].isjumping = false;
 	this->myGame.players[0].jumpAngle = 0;
 	this->myGame.players[0].posYMax = 0;
+	this->myGame.players[0].falldistance = 0;
 };
 
 GameMap::GameMap()
@@ -339,9 +381,6 @@ GameMap* GameMap::loadGameMap(const char* filename)
 	return map;
 };
 
-
-
-
 bool GameMap::isValid(Vector2 target) {
 
 	Game* game = Game::instance;
@@ -350,28 +389,67 @@ bool GameMap::isValid(Vector2 target) {
 
 	int cs = world->tileset.width / 16; //size of cellin tileset
 	int celdax[2];
-	int celday[2];
-	
-	for (int i = 0; i < 2; i++){
-	
-		celdax[i] = (target.x + (13 * i) ) / cs;
-		celday[i] = (target.y + (20 * i) ) / cs;
+	int celday;
 
+	celday = (target.y + (20)) / cs;
+	for (int i = 0; i < 2; i++) {
+		celdax[i] = (target.x + (13 * i)) / cs;
 	}
 
 	for (int i = 0; i < 2; i++)
 	{
-		for (int j = 0; j < 2; j++)
-		{
-			sCell aux = game->map->getCell(celdax[i], celday[j]);
-			//std::cout << toString(aux.type) << "\n";
-			if (0 < aux.type && aux.type < 9) //floor
-				return false;
-			else if (9 < aux.type && aux.type < 21)//wall
-				return false;
+		sCell aux = game->map->getCell(celdax[i], celday);
+		//std::cout << toString(aux.type) << "\n";
+		if (0 < aux.type && aux.type < 9) //floor
+			return false;
+		else if (9 < aux.type && aux.type < 21)//wall
+			return false;
 
-		}
 	}
 	return true;
 
+}
+
+void World::saveGameInfo()
+{
+
+	World* world = Game::instance->world;
+	sPlayer* player = &Game::instance->world->myGame.players[0];
+
+	sGameInfo game_info;
+	//fill here game_info with all game data
+	//...
+	game_info.player.pos = player->pos;
+	game_info.player.health = player->health;
+	game_info.player.dir = player->dir;
+	//save to file
+	FILE* fp = fopen("savegame.bin", "wb");
+	fwrite(&game_info, sizeof(sGameInfo), 1, fp);
+	fclose(fp);
+}
+
+bool World::loadGameInfo()
+{
+	World* world = Game::instance->world;
+	sPlayer* player = &Game::instance->world->myGame.players[0];
+
+	sGameInfo game_info;
+
+	//load file
+	FILE* fp = fopen("savegame.bin", "rb");
+	if (fp == NULL) //no savegame found
+		return false;
+	else 
+		std::cout << " + Game loaded: " << "savegame.bin" << "\n ";
+
+	fread(&game_info, sizeof(sGameInfo), 1, fp);
+	fclose(fp);
+
+	//transfer data from game_info to Game
+	//…
+	player->pos = game_info.player.pos;
+	player->health = game_info.player.health;
+	player->dir = game_info.player.dir;
+
+	return true;
 }

@@ -33,6 +33,7 @@ struct sPlayer {
 	int jumpAngle;
 	int startY ;
 	int posYMax ;
+	int falldistance;
 
 };
 struct sAnimation {
@@ -55,6 +56,21 @@ struct sGameData {
 	sItem items; //available 
 	sPlayer players[2];
 };
+struct sCharacterInfo {
+	Vector2 pos;
+	int health;
+	eDirection dir;
+};
+
+struct sGameInfo {
+	sCharacterInfo player;
+	//int num_items;
+	//ItemInfo items[MAX_ITEMS];
+	//int level;
+	//int num_enemies;
+	//sCharacterInfo enemies[MAX_ENEMIES];
+};
+
 class World {
 	public:
 	World();
@@ -70,6 +86,8 @@ class World {
 	sAnimation animation;
 	sCamera camera;
 	sGameData myGame; //instance of the whole game
+	void saveGameInfo();
+	bool loadGameInfo();
 
 };
 
@@ -82,8 +100,6 @@ class Stage {
 					
 class IntroStage : public Stage { 
 	public: 
-	
-	
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
 };
@@ -93,6 +109,7 @@ class PlayStage : public Stage {
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
 	virtual void restart();
+	bool menu;
 };
 
 class OverStage : public Stage {
