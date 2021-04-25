@@ -25,14 +25,14 @@ enum eDirection : uint8{
 };
 struct sPlayer {
 	Vector2 pos;
-	int health;
+	int health ;
 	eDirection dir;
-	bool ismoving;
+	bool ismoving = false;
 	int speed_fall;
-	bool isjumping;
+	bool isjumping = false;
 	int jumpAngle;
-	int startY;
-	int posYMax;
+	int startY ;
+	int posYMax ;
 
 };
 struct sAnimation {

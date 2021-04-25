@@ -152,15 +152,8 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		player->health = player->health - 1;
 	}
 
-	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && !player->isjumping) //jump action
-	{
-		player->isjumping = true;
-		player->jumpAngle = 0;
-		player->startY = player->pos.y;
-		player->posYMax = player->pos.y - 40;
-		game->synth.playSample("data/jump.wav", 20, false);
-
-	}
+	if (game->map->isValid(target))
+		player->pos.y += player->speed_fall;
 
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
@@ -176,9 +169,19 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		player->dir = eDirection::LEFT;
 
 	}
-	if (player->isjumping) {
-		player->jumpAngle += 2;
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && !player->isjumping) //jump action
+	{
+		player->isjumping = true;
+		player->jumpAngle = 0;
+		player->startY = player->pos.y;
+		player->posYMax = player->pos.y - 40;
+		game->synth.playSample("data/jump.wav", 20, false);
 
+	}
+
+
+	if (player->isjumping) {
+		std::cout << toString(player->jumpAngle) << "\n";
 		if (player->jumpAngle == 180)
 		{
 			player->isjumping = false;
@@ -201,16 +204,11 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 			player->dir = eDirection::LEFT;
 
 		}
-
-
-
+		player->jumpAngle += 1;
 	}
-		
-	
-	if (game->map->isValid(target)) 
-		player->pos.y += player->speed_fall;
 
-	if (game->map->isValid(Vector2(target.x, player->pos.y - 1)))
+
+	if (game->map->isValid(Vector2(target.x, player->pos.y-1)))
 		player->pos.x = target.x;
 
 };
@@ -277,6 +275,7 @@ void OverStage::restart() { //Restart the game
 	player->dir = eDirection::RIGHT;
 	player->health = 6;
 	world->button = 0;
+	
 };
 
 World::World() {
@@ -286,7 +285,7 @@ World::World() {
 	this->myGame.players[0].dir = eDirection::RIGHT;
 	this->myGame.players[0].health = 6;
 	this->button = 0;
-	this->myGame.players[0].speed_fall = 2;
+	this->myGame.players[0].speed_fall = 1;
 	this->myGame.players[0].isjumping = false;
 	this->myGame.players[0].jumpAngle = 0;
 	this->myGame.players[0].posYMax = 0;
