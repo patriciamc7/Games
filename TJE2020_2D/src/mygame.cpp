@@ -74,7 +74,7 @@ void PlayStage::render(Image& framebuffer) {
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
 			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = (x * cs);// -world->camera.position.x; //place offset here if you want
+			int screenx = (x * cs);//-world->camera.position.x; //place offset here if you want
 			int screeny = (y * cs);// -world->camera.position.y;
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
@@ -141,25 +141,15 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
 	Vector2 target = player->pos;
+	//int jumpdistance = 0;
 
-	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
-	{
-		target.x += world->player_velocity * seconds_elapsed;
-		player->ismoving = 1;
-		player->dir = eDirection::RIGHT;
-
-	}
-	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
-	{	
-		target.x -= world->player_velocity * seconds_elapsed;
-		player->ismoving = 1;
-		player->dir = eDirection::LEFT;
-		
-	}
 	if (Input::isKeyPressed(SDL_SCANCODE_R)) //if key enter
 	{	
 		game->current_stage->restart();
 		game->current_stage = game->intro_stage;
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
+		player->health = player->health - 1;
 	}
 
 	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && !player->isjumping) //jump action
@@ -172,22 +162,28 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 
 	}
 
+	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
+	{
+		target.x += world->player_velocity * seconds_elapsed;
+		player->ismoving = 1;
+		player->dir = eDirection::RIGHT;
 
-	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
-		player->health  = player->health - 1;
 	}
+	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
+	{
+		target.x -= world->player_velocity * seconds_elapsed;
+		player->ismoving = 1;
+		player->dir = eDirection::LEFT;
 
+	}
 	if (player->isjumping) {
 		player->jumpAngle += 2;
+
 		if (player->jumpAngle == 180)
 		{
 			player->isjumping = false;
 			player->pos.y = player->startY;
-			//animations
 		}
-		//else if (player->jumpAngle > 90) {
-		//		target.y -= int(player->startY - (player->startY - 50) * sin(3.14159f * player->jumpAngle / 180));
-		//}
 		else
 			player->pos.y = int(player->startY - (player->startY - player->posYMax) * sin(3.14159f * player->jumpAngle / 180));
 
@@ -206,15 +202,15 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 
 		}
 
-		if (player->startY - player->pos.y > 40)
-			player->health -= 1;
-		
-	}
 
-	if (game->map->isValid(target))
+
+	}
+		
+	
+	if (game->map->isValid(target)) 
 		player->pos.y += player->speed_fall;
 
-	if (game->map->isValid(Vector2(target.x ,player->pos.y-1)))
+	if (game->map->isValid(Vector2(target.x, player->pos.y - 1)))
 		player->pos.x = target.x;
 
 };
@@ -369,7 +365,7 @@ bool GameMap::isValid(Vector2 target) {
 		for (int j = 0; j < 2; j++)
 		{
 			sCell aux = game->map->getCell(celdax[i], celday[j]);
-			std::cout << toString(aux.type) << "\n";
+			//std::cout << toString(aux.type) << "\n";
 			if (0 < aux.type && aux.type < 9) //floor
 				return false;
 			else if (9 < aux.type && aux.type < 21)//wall
