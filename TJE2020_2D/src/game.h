@@ -40,14 +40,20 @@ public:
 	Stage* play_stage;
 	Stage* current_stage;
 	Stage* over_stage;
-	
+	Stage* tutorial_stage;
 
-	//
+	//Maps
 	GameMap* map;
+	GameMap* tutorial;
+
 	//Sprite
 	Sprite* sprite;
+	Sprite* woman;
 	Sprite* menu;
 	Sprite* health;
+	Sprite* background;
+	Sprite* pozo;
+	Sprite* deadwoman;
 
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );

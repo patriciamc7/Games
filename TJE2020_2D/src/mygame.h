@@ -64,13 +64,24 @@ struct sCharacterInfo {
 
 struct sGameInfo {
 	sCharacterInfo player;
-	//int num_items;
-	//ItemInfo items[MAX_ITEMS];
-	//int level;
-	//int num_enemies;
-	//sCharacterInfo enemies[MAX_ENEMIES];
+	Vector2 PosCam;
 };
+class GameMap {
+public:
+	int width;
+	int height;
+	sCell* data;
 
+	GameMap();
+
+	GameMap(int w, int h);
+
+	sCell& getCell(int x, int y);
+
+	//example of parser of .map from rogued editor
+	GameMap* loadGameMap(const char* filename);
+	bool isValid(Vector2 target);
+};
 class World {
 	public:
 	World();
@@ -80,6 +91,9 @@ class World {
 	Image minifont;
 	Image fontWhite;
 	Image tileset;
+	Image tutorialTile;
+	float Playtime;
+	bool IsPlaytime;
 
 	const int player_velocity = 30;
 	
@@ -88,7 +102,7 @@ class World {
 	sGameData myGame; //instance of the whole game
 	void saveGameInfo();
 	bool loadGameInfo();
-
+	void ShowGameMap(GameMap* map, Image& framebuffer, Image& tileset);
 };
 
 class Stage { 
@@ -110,6 +124,14 @@ class PlayStage : public Stage {
 	virtual void update(double seconds_elapsed);
 	virtual void restart();
 	bool menu;
+	bool end;
+};
+
+class TutorialStage : public Stage {
+public:
+	virtual void render(Image& framebuffer);
+	virtual void update(double seconds_elapsed);
+
 };
 
 class OverStage : public Stage {
@@ -124,22 +146,6 @@ struct sMapHeader {
 	unsigned char extra[7]; //filling bytes, not used
 };
 
-class GameMap {
-public:
-	int width;
-	int height;
-	sCell* data;
-
-	GameMap();
-
-	GameMap(int w, int h);
-
-	sCell& getCell(int x, int y);
-	
-	//example of parser of .map from rogued editor
-	GameMap* loadGameMap(const char* filename);
-	bool isValid(Vector2 target);
-};
 
 class Sprite {
 public:

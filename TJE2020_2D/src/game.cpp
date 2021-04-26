@@ -21,17 +21,26 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	world = new World();
 	sprite = new Sprite();
 	menu = new Sprite();
+	woman = new Sprite();
 	health = new Sprite();
+	pozo = new Sprite();
+	deadwoman = new Sprite();
 
 	world->font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
 	world->fontWhite.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
-	world->minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
 	sprite->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
+	woman->sprite.loadTGA("data/Woman.tga");
+	deadwoman->sprite.loadTGA("data/deadwoman.tga");
+	deadwoman->sprite.scale(25, 25);
+	pozo->sprite.loadTGA("data/pozo.tga");
+	woman->sprite.scale(80, 80);
 	sprite->sprite.scale(80, 80);
 	menu->sprite.loadTGA("data/intro.tga"); 
 	world->tileset.loadTGA("data/tileset.tga");
+	world->tutorialTile.loadTGA("data/tutorialTile.tga");
 	health->sprite.loadTGA("data/health.tga");
 	health->sprite.scale(35,35);
+	tutorial = tutorial->loadGameMap("data/tutorialMap.map");
 	map = map->loadGameMap("data/mymap.map");
 
 	//enableAudio(); //enable this line if you plan to add audio to your application
@@ -41,6 +50,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	intro_stage = new IntroStage();
 	play_stage = new PlayStage();
 	over_stage = new OverStage();
+	tutorial_stage = new TutorialStage();
 	current_stage = intro_stage;
 
 }
@@ -50,18 +60,6 @@ void Game::render(void)
 {
 	////Create a new Image (or we could create a global one if we want to keep the previous frame)
 	Image framebuffer(160, 120); //do not change framebuffer size
-	
-	////add your code here to fill the framebuffer
-	////...
-
-	////some new useful functions
-							//fills the image with one color
-	////framebuffer.drawLine( 0, 0, 100,100, Color::RED );		//draws a line
-	////framebuffer.drawImage( sprite, 0, 0 );					//draws full image
-	////framebuffer.drawImage( sprite, 0, 0, framebuffer.width, framebuffer.height );			//draws a scaled image
-	//framebuffer.drawImage(sprite, 0, 0, Area(0, 0, 14, 18));	//draws only a part of an image
-	//framebuffer.drawText("Hello World", 0, 0, font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
-	////framebuffer.drawText( toString(time), 1, 10, minifont,4,6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
 	current_stage->render(framebuffer);
 //send image to screen
 	showFramebuffer(&framebuffer);
