@@ -61,7 +61,7 @@ void PlayStage::render(Image& framebuffer) {
 
 	//size in pixels of a cell, we assume every row has 16 cells so the cell size must be image.width / 16
 	int cs = world->tileset.width / 16; //size of cellin tileset
-
+	int screeny = 0 ;
 	Vector2 target_pos = player->pos - Vector2(80, 60);
 	world->camera.position += (target_pos - world->camera.position) * 0.06f;
 	//for every cell
@@ -77,8 +77,11 @@ void PlayStage::render(Image& framebuffer) {
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
 			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = (x * cs);//-world->camera.position.x; //place offset here if you want
-			int screeny = (y * cs);//-world->camera.position.y;
+			int screenx = (x * cs) + 15;//-world->camera.position.x; //place offset here if you want
+			if (game->time > 46.0f)
+				screeny = (y * cs) - 46.0*3;
+			else
+				screeny = (y * cs)  - game->time * 3;//-world->camera.position.y;
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
 				screeny < -cs || screeny > framebuffer.height)
@@ -86,7 +89,7 @@ void PlayStage::render(Image& framebuffer) {
 
 
 			//draw region of tileset inside framebuffer
-			framebuffer.drawImage(world->tileset, screenx, screeny , area);
+			framebuffer.drawImage(world->tileset, screenx  , screeny, area);
 
 		}
 
@@ -94,7 +97,7 @@ void PlayStage::render(Image& framebuffer) {
 		? (int(game->time * world->animation.velocity_animation) % world->animation.num_animations) : 0;
 	framebuffer.drawImage(game->sprite->sprite,
 		player->pos.x,
-		player->pos.y,
+		player->pos.y ,
 		Area(13 * world->animation.current_animation, 40 * (int)player->dir, 13, 40));	//draws only a part of an image
 	player->ismoving = 0;
 
@@ -152,6 +155,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	Game* game = Game::instance;
 	World* world = Game::instance->world;
 	sPlayer* player = &Game::instance->world->myGame.players[0];
+	player->pos.y -= seconds_elapsed * 3;
 	Vector2 target = player->pos;
 
 	if (Input::isKeyPressed(SDL_SCANCODE_R)) //if key enter
@@ -180,18 +184,28 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN) && game->world->button == 1 && menu == true)
 		game->must_exit = true;
 	
+	//movement
+	if (Input::wasKeyPressed(SDL_SCANCODE_LEFT)) {  //if key right
+		player->falldistance = player->pos.y;
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_RIGHT)) {  //if key right
+		player->falldistance = player->pos.y;
+	}
+
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)){  //if key right
 		target.x += world->player_velocity * seconds_elapsed;
 		player->ismoving = 1;
 		player->dir = eDirection::RIGHT;
 
 	}
+
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)){ //if key left
 		target.x -= world->player_velocity * seconds_elapsed;
 		player->ismoving = 1;
 		player->dir = eDirection::LEFT;
 
 	}
+
 	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && !player->isjumping){ //jump action
 		player->isjumping = true;
 		player->jumpAngle = 0;
@@ -231,17 +245,16 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 
 	}
 
-	if (game->map->isValid(Vector2(target.x, player->pos.y-1)))
+	if (game->map->isValid(Vector2(target.x-1, player->pos.y-1)))
 		player->pos.x = target.x;
 
 	if (game->map->isValid(target))
 		player->pos.y +=  player->speed_fall;
 
-	//std::cout << player->falldistance<< "," << player->pos.y << "\n";
-	//if (10 >  player->pos.y - player->falldistance > 40) {// life system
-	//		player->health -= 1;
-	//		player->falldistance = player->pos.y;
-	//}
+	if (player->pos.y - player->falldistance > 40) {// life system
+			player->health -= 1;
+			player->falldistance = player->pos.y;
+	}
 
 };
 
@@ -391,9 +404,9 @@ bool GameMap::isValid(Vector2 target) {
 	int celdax[2];
 	int celday;
 
-	celday = (target.y + (20)) / cs;
+	celday = (target.y + (20) + game->time *3) / cs;
 	for (int i = 0; i < 2; i++) {
-		celdax[i] = (target.x + (13 * i)) / cs;
+		celdax[i] = (target.x + (13 * i)-15) / cs;
 	}
 
 	for (int i = 0; i < 2; i++)
