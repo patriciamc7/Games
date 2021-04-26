@@ -54,6 +54,7 @@ public:
 	Sprite* background;
 	Sprite* pozo;
 	Sprite* deadwoman;
+	Sprite* mecanics;
 
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );

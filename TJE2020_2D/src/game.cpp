@@ -25,7 +25,10 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	health = new Sprite();
 	pozo = new Sprite();
 	deadwoman = new Sprite();
+	mecanics = new Sprite();
 
+	mecanics->sprite.loadTGA("data/mecanics.tga");
+	mecanics->sprite.scale(50,50);
 	world->font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
 	world->fontWhite.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
 	sprite->sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite

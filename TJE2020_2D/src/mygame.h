@@ -66,6 +66,7 @@ struct sGameInfo {
 	sCharacterInfo player;
 	Vector2 PosCam;
 };
+
 class GameMap {
 public:
 	int width;
@@ -93,7 +94,9 @@ class World {
 	Image tileset;
 	Image tutorialTile;
 	float Playtime;
+	float Gametime;
 	bool IsPlaytime;
+	bool overAudio;
 
 	const int player_velocity = 30;
 	
@@ -137,7 +140,6 @@ public:
 class OverStage : public Stage {
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
-	virtual void restart();
 };
 struct sMapHeader {
 	int w; //width of map
