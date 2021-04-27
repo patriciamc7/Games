@@ -107,12 +107,12 @@ void TutorialStage::update(double seconds_elapsed) {
 
 	player2->ismoving = 0;
 	//woman movement 
-	if (game->time > world->Playtime + 20.0){
+	if (game->time > world->Playtime + 8.0){
 		game->current_stage = game->play_stage;
 		game->current_stage->restart();
 	}
 			
-	if (game->time > world->Playtime+10.0) {
+	if (game->time > world->Playtime+ 5.0) {
 		if (player2->pos.x < 130) {
 			player2->ismoving = 1;
 			player2->pos.x += world->player_velocity * seconds_elapsed;
@@ -245,7 +245,6 @@ void PlayStage::render(Image& framebuffer) {
 	if (menu == true) {
 		Game* game = Game::instance;
 		framebuffer.drawImage(game->menu->sprite, 0, 0, 160, 120);
-		framebuffer.drawText("Hello world", 160 / 2 - 40, 10, game->world->font);		//draws some text using a bitmap font in an image (assuming every char is 7x9)
 		framebuffer.drawText("Save", 160 / 2 - 20, 40, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
 		framebuffer.drawText("Exit", 160 / 2 - 18, 50, game->world->font);				//draws some text using a bitmap font in an image (assuming every char is 7x9)
 		if (game->world->button == 0) framebuffer.drawTriangle(160 / 2 - 27, 40, 160 / 2 - 22, 45, 160 / 2 - 27, 50, Color(0, 0, 0));
@@ -337,18 +336,19 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		player->isjumping = true;
 		player->jumpAngle = 0;
 		player->startY = player->pos.y;
-		player->posYMax = 30;
+		player->posYMax = 35;
 		game->synth.playSample("data/jump.wav", 20, false);
 	
 	}
 
 	if (player->isjumping) {
+		player->jumpAngle += 1;
 		if (player->jumpAngle == 180)
 		{
 			player->isjumping = false;
 		}
 		else{
-			player->pos.y = int(player->startY - player->posYMax * sin(3.14159f * player->jumpAngle / 180));
+			player->pos.y = int(player->startY - player->posYMax * sin(3.14159f * player->jumpAngle / 180.0f));
 			if (player->jumpAngle > 90)
 				player->isjumping = !game->map->isValid(player->pos);
 				player->pos.y += player->speed_fall;
@@ -368,7 +368,6 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 			player->dir = eDirection::LEFT;
 
 		}
-		player->jumpAngle += 1;
 
 	}
 
@@ -444,7 +443,7 @@ void OverStage::update(double seconds_elapsed) {
 	if (Input::wasKeyPressed(SDL_SCANCODE_RIGHT)) //if key down 
 	{
 		world->button += 1;
-		if (world->button == 2) world->button = 0;
+		if (world->button >= 2) world->button = 0;
 
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_LEFT)) //if key left
@@ -463,7 +462,6 @@ void OverStage::update(double seconds_elapsed) {
 	}
 
 }
-
 
 World::World() {
 	Game* game = Game::instance;
@@ -648,9 +646,9 @@ bool GameMap::isValid(Vector2 target) {
 	{
 		if (game->current_stage == game->play_stage) { //PlayStage map
 			sCell aux = game->map->getCell(celdax[i], celday);
-			if (0 < aux.type && aux.type < 10) //floor
+			if (0 < aux.type && aux.type < 9) //floor
 				return false;
-			else if (10 < aux.type && aux.type < 22)//wall
+			else if (9 < aux.type && aux.type < 21)//wall
 				return false;
 		}
 		else { //tutorial map

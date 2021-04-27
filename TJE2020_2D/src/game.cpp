@@ -46,7 +46,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	tutorial = tutorial->loadGameMap("data/tutorialMap.map");
 	map = map->loadGameMap("data/mymap.map");
 
-	//enableAudio(); //enable this line if you plan to add audio to your application
+	enableAudio(); //enable this line if you plan to add audio to your application
 	synth.playSample("data/ambiente.wav", 10, true);
 	//synth.osc1.amplitude = 0.5;
 
