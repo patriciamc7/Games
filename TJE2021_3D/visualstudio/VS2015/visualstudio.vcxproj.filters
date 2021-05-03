@@ -61,6 +61,12 @@
     <ClCompile Include="..\..\src\animation.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Stage.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Scene.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -119,6 +125,12 @@
     <ClInclude Include="..\..\src\animation.h">
       <Filter>gfx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Stage.h">
+      <Filter>MyGame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Scene.h">
+      <Filter>MyGame</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">
@@ -132,6 +144,9 @@
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{feb78646-9d96-43df-8d00-2397429ea3ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MyGame">
+      <UniqueIdentifier>{277fbb57-524b-464c-b3b5-a7edac6da8c4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

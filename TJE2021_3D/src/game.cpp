@@ -6,7 +6,8 @@
 #include "shader.h"
 #include "input.h"
 #include "animation.h"
-
+#include "Stage.h"
+#include "Scene.h"
 #include <cmath>
 
 //some globals
