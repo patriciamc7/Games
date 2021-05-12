@@ -17,10 +17,10 @@ public:
 	int id; 
 	string name; 
 	Matrix44 model;
-	Entity* parent; 
-	vector<Entity*> children; 
+	/*Entity* parent; 
+	vector<Entity*> children; */
 	//methods overwritten by derived classes
-	virtual void render(); //empty body 
+	virtual void render() {}; //empty body 
 	virtual void update(float elapsed_time) {}; //empty body 
 	void addChild(Entity* ent);
 	void removeChild(Entity* ent);

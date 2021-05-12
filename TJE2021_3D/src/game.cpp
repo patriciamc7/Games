@@ -47,24 +47,24 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	camera->setPerspective(70.f,window_width/(float)window_height,0.1f,10000.f); //set the projection, we want to be perspective
 
 	//Scene and stages
-	//IntroScene = new Scene();
+	intro_scene = new Scene();
 	//PlayScene = new Scene();
 	//PlaySceneMirror = new Scene();
 
-	//intro_stage = new IntroStage();
+	intro_stage = new IntroStage();
 	//play_stage = new PlayStage();
-	//current_stage = intro_stage;
+	current_stage = intro_stage;
 
-	//intro_stage->createEntities();
+	current_stage->createEntities();
 
 	//load one texture without using the Texture Manager (Texture::Get would use the manager)
-	texture = new Texture();
- 	texture->load("data/Door_BaseColor.tga");
+	//texture = new Texture();
+ //	texture->load("data/Door_BaseColor.tga");
 
 
 
 	// example of shader loading using the shaders manager
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	//shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -91,26 +91,26 @@ void Game::render(void)
 	Matrix44 m;
 	//m.rotate(angle*DEG2RAD, Vector3(0, 1, 0));
 
-	if(shader)
-	{
-		//enable shader
-		shader->enable();
+	//if(shader)
+	//{
+	//	//enable shader
+	//	shader->enable();
 
-		//upload uniforms
-		shader->setUniform("u_color", Vector4(1,1,1,1));
-		shader->setUniform("u_viewprojection", camera->viewprojection_matrix );
-		shader->setUniform("u_texture", texture, 0);
-		shader->setUniform("u_model", m);
-		shader->setUniform("u_time", time);
+	//	//upload uniforms
+	//	shader->setUniform("u_color", Vector4(1,1,1,1));
+	//	shader->setUniform("u_viewprojection", camera->viewprojection_matrix );
+	//	shader->setUniform("u_texture", texture, 0);
+	//	shader->setUniform("u_model", m);
+	//	shader->setUniform("u_time", time);
 
+	//	shader->disable();
 		//do the draw call
-		/*RightDoor->render(GL_TRIANGLES);
+	/*	RightDoor->render(GL_TRIANGLES);
 		LeftDoor->render(GL_TRIANGLES);
 		ArcDoor->render(GL_TRIANGLES);*/
-
+		current_stage->render();
 		//disable shader
-		shader->disable();
-	}
+	/*}*/
 
 	//Draw the floor grid
 	drawGrid();

@@ -40,7 +40,7 @@ public:
 	//Stage
 	Stage* intro_stage;
 	//Stage* play_stage;
-	//Stage* current_stage;
+	Stage* current_stage;
 
 	//some vars
 	Camera* camera; //our global camera

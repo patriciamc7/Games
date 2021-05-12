@@ -2,6 +2,8 @@
 #ifndef STAGE_H
 #define STAGE_H
 
+#include "Scene.h"
+
 #define MAX_ENT_INTRO 3
 class Stage {
 public:
@@ -12,10 +14,7 @@ public:
 
 class IntroStage : public Stage {
 public:
-	//vector<EntityMesh*> aux;
-	//EntityMesh* RightDoor;
-	//EntityMesh* LeftDoor;
-	//EntityMesh* ArcDoor;
+	vector<EntityMesh*> aux;
 
 	virtual void createEntities();
 	virtual void render();
