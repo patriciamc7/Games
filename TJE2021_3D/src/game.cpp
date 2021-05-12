@@ -7,16 +7,19 @@
 #include "input.h"
 #include "animation.h"
 #include "Stage.h"
-#include "Scene.h"
 #include <cmath>
 
 //some globals
-Mesh* mesh = NULL;
+//Mesh* RightDoor = NULL;
+//Mesh* LeftDoor = NULL;
+//Mesh* ArcDoor = NULL;
+Scene* IntroScene = NULL;
+//IntroStage* intro_stage = NULL;
+
 Texture* texture = NULL;
 Shader* shader = NULL;
 Animation* anim = NULL;
-float angle = 0;
-float mouse_speed = 100.0f;
+float mouse_speed = 80.0f;
 FBO* fbo = NULL;
 
 Game* Game::instance = NULL;
@@ -44,12 +47,22 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	camera->lookAt(Vector3(0.f,100.f, 100.f),Vector3(0.f,0.f,0.f), Vector3(0.f,1.f,0.f)); //position the camera and point to 0,0,0
 	camera->setPerspective(70.f,window_width/(float)window_height,0.1f,10000.f); //set the projection, we want to be perspective
 
+	//Scene and stages
+	//IntroScene = new Scene();
+	//PlayScene = new Scene();
+	//PlaySceneMirror = new Scene();
+
+	//intro_stage = new IntroStage();
+	//play_stage = new PlayStage();
+	//current_stage = intro_stage;
+
+	//intro_stage->createEntities();
+
 	//load one texture without using the Texture Manager (Texture::Get would use the manager)
 	texture = new Texture();
- 	texture->load("data/texture.tga");
+ 	texture->load("data/Door_BaseColor.tga");
 
-	// example of loading Mesh from Mesh Manager
-	mesh = Mesh::Get("data/box.ASE");
+
 
 	// example of shader loading using the shaders manager
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
@@ -77,7 +90,7 @@ void Game::render(void)
    
 	//create model matrix for cube
 	Matrix44 m;
-	m.rotate(angle*DEG2RAD, Vector3(0, 1, 0));
+	//m.rotate(angle*DEG2RAD, Vector3(0, 1, 0));
 
 	if(shader)
 	{
@@ -92,7 +105,9 @@ void Game::render(void)
 		shader->setUniform("u_time", time);
 
 		//do the draw call
-		mesh->render( GL_TRIANGLES );
+		/*RightDoor->render(GL_TRIANGLES);
+		LeftDoor->render(GL_TRIANGLES);
+		ArcDoor->render(GL_TRIANGLES);*/
 
 		//disable shader
 		shader->disable();
@@ -113,7 +128,7 @@ void Game::update(double seconds_elapsed)
 	float speed = seconds_elapsed * mouse_speed; //the speed is defined by the seconds_elapsed so it goes constant
 
 	//example
-	angle += (float)seconds_elapsed * 10.0f;
+	//angle += (float)seconds_elapsed * 10.0f;
 
 	//mouse input to rotate the cam
 	if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked ) //is left button pressed?

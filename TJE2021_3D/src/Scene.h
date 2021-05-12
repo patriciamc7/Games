@@ -93,7 +93,7 @@ public:
 
 class Scene
 {
-private:
+
 
 public:
 	Scene();
