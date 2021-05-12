@@ -2,6 +2,7 @@
 #include "includes.h"
 #include "camera.h"
 #include "utils.h"
+#include "game.h"
 
 void IntroStage::createEntities()
 {

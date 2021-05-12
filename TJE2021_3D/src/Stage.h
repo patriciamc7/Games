@@ -2,7 +2,6 @@
 #ifndef STAGE_H
 #define STAGE_H
 
-#include "game.h"
 #define MAX_ENT_INTRO 3
 class Stage {
 public:
@@ -29,6 +28,7 @@ public:
 	virtual void render();
 	virtual void update(double seconds_elapsed);
 };
+
 
 
 #endif 

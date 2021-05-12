@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "utils.h"
 #include "Scene.h"
+#include "Stage.h"
 
 class Game
 {
@@ -29,14 +30,15 @@ public:
 	
 	//Scenes
 
-	//Scene* IntroScene;
+	//Scene* intro_scene;
+	Scene* intro_scene;
 	//Scene* PlayScene;
 	//Scene* PlaySceneMirror;
 	//Scene* CurrentScene;
 	//Scene* CurrentSceneMirror;
 
 	//Stage
-	//Stage* intro_stage;
+	Stage* intro_stage;
 	//Stage* play_stage;
 	//Stage* current_stage;
 

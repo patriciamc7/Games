@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "game.h"
 
 Entity::Entity()
 {
@@ -115,10 +116,10 @@ void EntityLight::update(float dt)
 {
 }
 
-Scene::Scene()
-{
-}
-
-Scene::~Scene()
-{
-}
+//Scene::Scene()
+//{
+//}
+//
+//Scene::~Scene()
+//{
+//}

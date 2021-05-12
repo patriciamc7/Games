@@ -6,14 +6,13 @@
 #include "shader.h"
 #include "input.h"
 #include "animation.h"
-#include "Stage.h"
 #include <cmath>
 
 //some globals
 //Mesh* RightDoor = NULL;
 //Mesh* LeftDoor = NULL;
-//Mesh* ArcDoor = NULL;
-Scene* IntroScene = NULL;
+////Mesh* ArcDoor = NULL;
+//Scene* IntroScene = NULL;
 //IntroStage* intro_stage = NULL;
 
 Texture* texture = NULL;

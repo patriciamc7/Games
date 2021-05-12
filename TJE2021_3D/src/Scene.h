@@ -1,10 +1,10 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "game.h"
 #include "mesh.h"
 #include "texture.h"
 #include "shader.h"
+#include "camera.h"
 class Prefab;
 using namespace std;
 
@@ -93,8 +93,6 @@ public:
 
 class Scene
 {
-
-
 public:
 	Scene();
 	~Scene();
