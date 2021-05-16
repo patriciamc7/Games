@@ -8,15 +8,6 @@
 #include "animation.h"
 #include <cmath>
 
-//some globals
-//Mesh* RightDoor = NULL;
-//Mesh* LeftDoor = NULL;
-////Mesh* ArcDoor = NULL;
-//Scene* IntroScene = NULL;
-//IntroStage* intro_stage = NULL;
-
-Texture* texture = NULL;
-Shader* shader = NULL;
 Animation* anim = NULL;
 float mouse_speed = 80.0f;
 FBO* fbo = NULL;
@@ -56,18 +47,11 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	current_stage = intro_stage;
 
 	current_stage->createEntities();
-
-	//load one texture without using the Texture Manager (Texture::Get would use the manager)
-	//texture = new Texture();
- //	texture->load("data/Door_BaseColor.tga");
-
-
-
-	// example of shader loading using the shaders manager
-	//shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	current_stage->createPlayer();
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+	free_camera = true;
 }
 
 //what to do when the image has to be draw
@@ -86,31 +70,11 @@ void Game::render(void)
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
-   
+
 	//create model matrix for cube
 	Matrix44 m;
-	//m.rotate(angle*DEG2RAD, Vector3(0, 1, 0));
 
-	//if(shader)
-	//{
-	//	//enable shader
-	//	shader->enable();
-
-	//	//upload uniforms
-	//	shader->setUniform("u_color", Vector4(1,1,1,1));
-	//	shader->setUniform("u_viewprojection", camera->viewprojection_matrix );
-	//	shader->setUniform("u_texture", texture, 0);
-	//	shader->setUniform("u_model", m);
-	//	shader->setUniform("u_time", time);
-
-	//	shader->disable();
-		//do the draw call
-	/*	RightDoor->render(GL_TRIANGLES);
-		LeftDoor->render(GL_TRIANGLES);
-		ArcDoor->render(GL_TRIANGLES);*/
-		current_stage->render();
-		//disable shader
-	/*}*/
+	current_stage->render();
 
 	//Draw the floor grid
 	drawGrid();
@@ -125,26 +89,29 @@ void Game::render(void)
 void Game::update(double seconds_elapsed)
 {
 	float speed = seconds_elapsed * mouse_speed; //the speed is defined by the seconds_elapsed so it goes constant
-
-	//example
-	//angle += (float)seconds_elapsed * 10.0f;
-
 	//mouse input to rotate the cam
-	if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked ) //is left button pressed?
-	{
-		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f,-1.0f,0.0f));
-		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector( Vector3(-1.0f,0.0f,0.0f)));
+	
+	if (free_camera) {
+		
+		if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked) //is left button pressed?
+		{
+			camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
+			camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
+		}
+		
+		//async input to move the camera around
+		if(Input::isKeyPressed(SDL_SCANCODE_LSHIFT) ) speed *= 10; //move faster with left shift
+		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) camera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) camera->move(Vector3(0.0f, 0.0f,-1.0f) * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) camera->move(Vector3(-1.0f, 0.0f, 0.0f) * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_E))  camera->move(Vector3(0.0f, 1.0f, 0.0f) * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_Q)) camera->move(Vector3(0.0f, -1.0f, 0.0f) * speed);
+		
 	}
-
-	//async input to move the camera around
-	if(Input::isKeyPressed(SDL_SCANCODE_LSHIFT) ) speed *= 10; //move faster with left shift
-	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) camera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) camera->move(Vector3(0.0f, 0.0f,-1.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) camera->move(Vector3(-1.0f, 0.0f, 0.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_E))  camera->move(Vector3(0.0f, 1.0f, 0.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_Q)) camera->move(Vector3(0.0f, -1.0f, 0.0f) * speed);
-
+	current_stage->update(seconds_elapsed);
+	
+	if (Input::wasKeyPressed(SDL_SCANCODE_TAB)) free_camera = !free_camera;
 	//to navigate with the mouse fixed in the middle
 	if (mouse_locked)
 		Input::centerMouse();

@@ -42,6 +42,8 @@ public:
 	//Stage* play_stage;
 	Stage* current_stage;
 
+	bool free_camera;
+
 	//some vars
 	Camera* camera; //our global camera
 	bool mouse_locked; //tells if the mouse is locked (not seen)

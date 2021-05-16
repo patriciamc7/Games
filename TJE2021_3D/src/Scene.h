@@ -5,6 +5,7 @@
 #include "texture.h"
 #include "shader.h"
 #include "camera.h"
+#include "input.h"
 class Prefab;
 using namespace std;
 
@@ -47,6 +48,24 @@ public:
 	virtual void render();
 	virtual void update(float dt);
 };
+class EntityPlayer :public Entity
+{
+public:
+	EntityPlayer(); //constructor
+	~EntityPlayer();
+	//Attrubutes of this class
+	float valor;
+	Mesh* mesh;
+	Texture* texture;
+	Shader* shader;
+	Vector4 color;
+	const float player_speed = 20.0f;
+	const float player_speed_rot = 1.0f;
+	//methods overwritten
+	virtual void render();
+	virtual void update(float dt);
+};
+
 
 class EntitySound :public Entity
 {
