@@ -72,7 +72,7 @@ void IntroStage::update(double seconds_elapsed)
 
 void PlayStage::createTextures()
 {
-	Scene* scene = Game::instance->intro_scene;
+	Scene* scene = Game::instance->PlayScene;
 	string texture = "data/mirror.tga";
 	string cad;
 	int found = -1;
@@ -85,7 +85,7 @@ void PlayStage::createTextures()
 			cad = texture.substr(init, found - init);
 		}
 
-		entities[i]->texture = Texture::Get(cad.c_str());
+		this->entities[i]->texture= Texture::Get(cad.c_str());
 	}
 }
 
@@ -94,11 +94,11 @@ void PlayStage::createTextures()
 void PlayStage::createEntities()
 {
 	Scene* scene = Game::instance->PlayScene;
-	string mesh = "data/mirrors.ASE";
+	string mesh = "data/mirror.ASE";
+	string mirror_mesh = "data/mirror.ASE";
 	string cad;
 	int found = -1;
 	int init = 0;
-	entities.clear();
 	for (int i = 0; i < MAX_ENT_PLAY; i++)
 	{
 		this->entities.push_back(new EntityMesh());
@@ -108,9 +108,24 @@ void PlayStage::createEntities()
 		this->entities[i]->mesh = Mesh::Get(cad.c_str());
 		this->entities[i]->id = i;
 		scene->entities.push_back(this->entities[i]);
+		this->entities_mirror.push_back(this->entities[i]);
+		this->entities_mirror[i]->model.translate(20.0f,0.0f,0.0f);
 	}
+
 	createTextures();
 	
+	for (int i = MAX_ENT_PLAY; i < MAX_ENT_PLAY_MIRR; i++) //mirrored objects
+	{
+		this->entities_mirror.push_back(new EntityMesh());
+		init = found + 1;
+		found = mesh.find(",", found + 1);
+		cad = mesh.substr(init, found - init);
+		this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
+		this->entities_mirror[i]->id = i;
+		scene->entities_mirror.push_back(this->entities_mirror[i]);
+	}
+//	createTextures();
+
 }
 
 void PlayStage::render()
