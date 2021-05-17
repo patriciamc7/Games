@@ -39,15 +39,14 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//Scene and stages
 	intro_scene = new Scene();
-	//PlayScene = new Scene();
-	//PlaySceneMirror = new Scene();
+	PlayScene = new Scene();
+	PlaySceneMirror = new Scene();
 
 	intro_stage = new IntroStage();
-	//play_stage = new PlayStage();
+	play_stage = new PlayStage();
 	current_stage = intro_stage;
 
 	current_stage->createEntities();
-	current_stage->createPlayer();
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse

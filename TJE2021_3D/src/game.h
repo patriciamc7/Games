@@ -32,14 +32,14 @@ public:
 
 	//Scene* intro_scene;
 	Scene* intro_scene;
-	//Scene* PlayScene;
-	//Scene* PlaySceneMirror;
+	Scene* PlayScene;
+	Scene* PlaySceneMirror;
 	//Scene* CurrentScene;
 	//Scene* CurrentSceneMirror;
 
 	//Stage
 	Stage* intro_stage;
-	//Stage* play_stage;
+	Stage* play_stage;
 	Stage* current_stage;
 
 	bool free_camera;

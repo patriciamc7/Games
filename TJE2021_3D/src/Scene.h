@@ -12,32 +12,22 @@ using namespace std;
 class Entity
 {
 public:
-	Entity(); //Constructor
-	virtual ~Entity(); //Destructor
+
 	//some attributes
 	int id; 
-	string name; 
 	Matrix44 model;
-	/*Entity* parent; 
-	vector<Entity*> children; */
+
 	//methods overwritten by derived classes
 	virtual void render() {}; //empty body 
 	virtual void update(float elapsed_time) {}; //empty body 
-	void addChild(Entity* ent);
-	void removeChild(Entity* ent);
-	void destroyLast();
-	Matrix44 getGlobalMatrix(); //returns transform in world coordinates
 	////some useful methods...
 	//Vector3 getPosition(); 
 };
-
-
-
 class EntityMesh :public Entity
 {
 public:
 	EntityMesh(); //constructor
-	~EntityMesh();
+
 	//Attrubutes of this class
 	Mesh* mesh; 
 	Texture* texture; 
@@ -52,38 +42,34 @@ class EntityPlayer :public Entity
 {
 public:
 	EntityPlayer(); //constructor
-	~EntityPlayer();
+
 	//Attrubutes of this class
-	float valor;
+	float center_value_y;
 	Mesh* mesh;
 	Texture* texture;
 	Shader* shader;
 	Vector4 color;
-	const float player_speed = 20.0f;
-	const float player_speed_rot = 1.0f;
+	float player_speed;
+	float player_speed_rot;
+
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
 };
-
-
 class EntitySound :public Entity
 {
 public:
 	EntitySound(); //constructor
-	~EntitySound();
+
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
 };
 
-
 class EntityLight :public Entity
 {
-public:
-	//function 
-	EntityLight();
-	~EntityLight();
+public: 
+	EntityLight(); //constructor
 
 	//attributes
 	Vector3 color;
@@ -97,6 +83,8 @@ public:
 	eLightType light_type;
 	Vector3 light_position;
 	Vector3 light_vector;
+
+	//Directional light
 	float spotCosineCutoff;
 	float max_distance;
 	float spotExponent;
@@ -105,6 +93,7 @@ public:
 	//Shadowmap
 	Camera* cameraLight;
 	float bias;
+
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
@@ -113,10 +102,11 @@ public:
 class Scene
 {
 public:
-	Scene();
-	~Scene();
-
+	Scene(); //constructor
+	void CreatePlayer();
 	vector<Entity*> entities;
+	vector<Entity*> entities_mirror;
+	vector<EntityPlayer*> characters;
 	Vector3 ambient;
 };
 
