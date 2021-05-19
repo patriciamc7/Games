@@ -33,6 +33,7 @@ public:
 	Texture* texture; 
 	Shader* shader; 
 	Vector4 color; 
+	bool alpha; 
 
 	//methods overwritten
 	virtual void render();
@@ -49,12 +50,17 @@ public:
 	Texture* texture;
 	Shader* shader;
 	Vector4 color;
-	float player_speed;
+	Vector3 pos;
+	float yaw;
+	float pitch; 
+	Vector3 player_speed;
 	float player_speed_rot;
 
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
+	void collisionMesh(float dt);
+
 };
 class EntitySound :public Entity
 {

@@ -41,6 +41,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	intro_scene = new Scene();
 	PlayScene = new Scene();
 	PlaySceneMirror = new Scene();
+	CurrentScene = intro_scene; 
 
 	intro_stage = new IntroStage();
 	play_stage = new PlayStage();

@@ -65,39 +65,30 @@ void IntroStage::update(double seconds_elapsed)
 	if (Input::isKeyPressed(SDL_SCANCODE_M))
 	{
 		game->current_stage = game->play_stage;
+		game->CurrentScene = game->PlayScene;
 		game->current_stage->createEntities();
 	}
 		
 }
 
-void PlayStage::createTextures( bool onlyMirror)
+void PlayStage::createTextures()
 {
 	Scene* scene = Game::instance->PlayScene;
 	string texture = "data/mirror.tga";
 	string cad;
 	int found = -1;
 	int init = 0;
-	int star = 0;
-	int end = 0;
-	if (onlyMirror == true) {
-		star = MAX_ENT_PLAY;
-		end = MAX_ENT_PLAY_MIRR; 
-		texture = "data/mirror.tga";
-
-	}
-	for (int i = (0+ star); i < (MAX_ENT_PLAY+ end); i++)
+	
+	for (int i = 0; i < MAX_ENT_PLAY; i++)
 	{
 		init = found + 1;
 		found = texture.find(",", found + 1);
 		cad = texture.substr(init, found - init);
-		
-		if(onlyMirror== true)
-			this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
-		if (onlyMirror == false) {
-			this->entities[i]->texture = Texture::Get(cad.c_str());
-			this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
+	
+		this->entities[i]->texture = Texture::Get(cad.c_str());
+		this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
 
-		}
+		
 	}
 }
 
@@ -132,42 +123,23 @@ void PlayStage::createEntities()
 			this->entities_mirror[i]->model.rotate(PI / 2, Vector3(0, 1, 0));
 		}
 		scene->entities.push_back(this->entities[i]);
-		//this->entities_mirror.push_back(this->entities[i]);
 		this->entities_mirror[i]->model.translate(0.0f, 0.0f, 20.0f);
 		this->entities_mirror[i]->model.rotate(PI, Vector3(0, 1, 0));
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
 
 	}
 
-	createTextures(false);
-	found = -1;
-	init = 0;
-	for (int i = MAX_ENT_PLAY; i < (MAX_ENT_PLAY+ MAX_ENT_PLAY_MIRR); i++) //mirrored objects
-	{
-		this->entities_mirror.push_back(new EntityMesh());
-		init = found + 1;
-		found = mesh.find(",", found + 1);
-		cad = mesh.substr(init, found - init);
-
-		this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
-
-		this->entities_mirror[i]->id = i+ playerNum;
-		this->entities_mirror[i]->model.translate(0.0f, 0.0f, 20.0f);
-		this->entities_mirror[i]->model.rotate(PI, Vector3(0, 1, 0));
-		scene->entities_mirror.push_back(this->entities_mirror[i]);
-
-	}
-	createTextures(true);
-
+	createTextures();
 }
 
 void PlayStage::render()
 {
 	Scene* scene = Game::instance->PlayScene;
-
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		scene->entities[i]->render();
+
+
 	}
 
 	for (int i = 0; i < scene->entities_mirror.size(); i++)

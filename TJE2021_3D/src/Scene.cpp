@@ -1,6 +1,6 @@
 #include "Scene.h"
 #include "game.h"
-
+#include "framework.h"
 
 EntityMesh::EntityMesh()
 {
@@ -8,15 +8,17 @@ EntityMesh::EntityMesh()
 	this->texture = new Texture();
 	this->shader = new Shader();
 	this->color =  Vector4(1, 1, 1, 1);
+	this->alpha = false; 
 }
 
 void EntityMesh::render()
 {
-
+	Game* game = Game::instance; 
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	
+	if(game->free_camera)
+		this->mesh->renderBounding(this->model); 
 	//enable shader and pass uniforms
 	shader->enable(); 
 	shader->setUniform("u_model", this->model);
@@ -33,6 +35,8 @@ void EntityMesh::render()
 void EntityMesh::update(float dt)
 {
 }
+
+
 
 EntitySound::EntitySound()
 {
@@ -95,12 +99,9 @@ void Scene::CreatePlayer()
 		this->characters[i]->mesh = Mesh::Get(cad.c_str());
 		this->characters[i]->id = i;
 		this->entities.push_back(this->characters[i]);
-		if (i == 0) {
-			this->characters[i]->model.translate(-20.0f, 0.0f, 0.0f);
-			this->characters[i]->model.rotate(PI / 2, Vector3(0, 1, 0));
+		if (i == 0) 
 			this->characters[i]->texture = Texture::Get("data/texture.tga");
-
-		}
+		
 	}
 }
 
@@ -110,18 +111,27 @@ EntityPlayer::EntityPlayer()
 	this->shader = new Shader();
 	this->texture = new Texture();
 	this->center_value_y = 20.0f;
-	this->player_speed = 20.0f;
-	this->player_speed_rot = 1.0f;
+	this->player_speed = Vector3(20.0f,0, 20.0f);
+	this->player_speed_rot = 50.0f;
+	this->yaw = 90; 
+	this->pos = Vector3(-20.0f, 0.0f, 0.0f);
+	this->pitch = 0.0f; 
 }
 
 
 void EntityPlayer::render()
 {
+	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-
-
+	//this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
+	this->model =  Matrix44(); 
+	this->model.translate(this->pos.x, this->pos.y, this->pos.z);
+	this->model.rotate(this->yaw * DEG2RAD, Vector3(0.0f, 1.0f, 0.0f));
+	
+	if (game->free_camera)
+		this->mesh->renderBounding(this->model);
 	//enable shader and pass uniforms
 	shader->enable();
 	shader->setUniform("u_model", this->model);
@@ -140,12 +150,17 @@ void EntityPlayer::update(float dt)
 	Game* game = Game::instance;
 	Camera* camera = Camera::current;
 	
-	float speed = this->player_speed * dt;
-	float rotation_speed = this->player_speed_rot * dt;
+
 	if (!game->free_camera) {
+		float speed = this->player_speed.x * dt;
+		float rotation_speed = this->player_speed_rot * dt;
 		//center camera ar player pos
+		Matrix44 playerRotate; 
+		playerRotate.setRotation(this->yaw *DEG2RAD, Vector3(0,1,0)); 
 		
-		
+		Vector3 playerFront = playerRotate.rotateVector(Vector3(0.0f, 0.0f, 1.0f));
+		Vector3 playerRight = playerRotate.rotateVector(Vector3(1.0f,0.0f,0.0f));
+		Vector3 playerSpeed; 
 		if ((Input::mouse_state & SDL_BUTTON_LEFT) || game->mouse_locked) //is left button pressed?
 		{
 			this->model.rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
@@ -154,12 +169,17 @@ void EntityPlayer::update(float dt)
 			if(Input::mouse_delta.y < 0)
 				center_value_y -= 0.05f;
 		}
-		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP))	this->model.translate(0.0f, 0.0f, -speed);
-		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN))  this->model.translate(0.0f, 0.0f, speed);
-		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT))  this->model.rotate(-PI / 2 * rotation_speed, Vector3(0.0f, 1.0f, 0.0f));;
-		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) this->model.rotate(PI / 2 * rotation_speed, Vector3(0.0f, 1.0f, 0.0f));;
+		//PLayer
+		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) playerSpeed = playerSpeed - (playerFront*speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) playerSpeed = playerSpeed + (playerFront * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) playerSpeed = playerSpeed - (playerRight * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) playerSpeed = playerSpeed + (playerRight * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_Q) ) this->yaw -= rotation_speed;
+		if (Input::isKeyPressed(SDL_SCANCODE_E) )this->yaw += rotation_speed;
 
-
+		Vector3 targetPos = this->pos + playerSpeed; 
+		this->pos = targetPos; 
+		//cout << this->pos.x << " " << this->pos.y << " " << this->pos.z << "\n"; 
 		camera->eye = this->model * Vector3(0.0f, 20.0f, -2.0f);
 		camera->center = this->model * Vector3(0.0f, center_value_y, -6.0f);
 		camera->up = this->model.rotateVector(Vector3(0.0f, 1.0f, 0.0f));
@@ -167,5 +187,43 @@ void EntityPlayer::update(float dt)
 		camera->lookAt(camera->eye, camera->center, camera->up);
 		camera->setPerspective(100.f, game->window_width / (float)game->window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
 
+		//Collition
+		this->collisionMesh(dt);
 	}
+}
+
+void EntityPlayer::collisionMesh(float dt)
+{
+	Scene* currentScene = Game::instance->CurrentScene; 
+	//// calculamos el centro de la esfera de colisión del player elevandola hasta la cintura
+	Vector3 character_center = this->pos + Vector3(0, 4, 0);
+	Vector3 col_point; 	//temp var para guardar el punto de colision si lo hay
+	Vector3 col_normal; 	//temp var para guardar la normal al punto de colision
+
+	//cout << character_center.x << " " << character_center.y << " " << character_center.z<<"\n"; 
+	////para cada objecto de la escena...
+	for  (int i = 1; i < currentScene->entities.size(); i++)
+	{
+
+		////comprobamos si colisiona el objeto con la esfera (radio 3)
+		if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 10, col_point, col_normal) == false) {
+			cout << "NO colisiona\n";
+			this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
+			continue; //si no colisiona, pasamos al siguiente objeto
+		}
+		/*else
+			cout << "Colisiona\n"; 
+		cout << col_normal.x <<" "<< col_normal.y << " " << col_normal.z << " " << "\n";*/
+
+		//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
+		Vector3 push_away = normalize(col_point - character_center) * dt;
+		this->pos = this->pos - push_away; //move to previous pos but a little bit further
+
+		////cuidado con la Y, si nuestro juego es 2D la ponemos a 0
+		this->pos.y = 0;
+
+		//reflejamos el vector velocidad para que de la sensacion de que rebota en la pared
+		this->player_speed = reflect(this->player_speed, col_normal) * 0.95;
+	}
+
 }

@@ -1227,6 +1227,12 @@ bool RaySphereCollision(const Vector3& center, const float& radius, const Vector
 	return true;
 }
 
+Vector3 reflect(const Vector3& I, const Vector3& N)
+{
+
+	return I-2.0f * dot(N,I)*N;
+}
+
 Vector3 normalize(Vector3 n)
 {
 	return n.normalize();

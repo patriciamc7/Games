@@ -33,10 +33,9 @@ public:
 class PlayStage : public Stage {
 public:
 	vector<EntityMesh*> entities;
-	vector<EntityMesh*> entities_mirror;/*
-	vector<EntityMesh&> entities_mirror_real;*/
+	vector<EntityMesh*> entities_mirror;
 
-	virtual void createTextures(bool onlyMirror);
+	virtual void createTextures();
 	virtual void createEntities();
 	virtual void render();
 	virtual void update(double seconds_elapsed);

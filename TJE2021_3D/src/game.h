@@ -34,7 +34,7 @@ public:
 	Scene* intro_scene;
 	Scene* PlayScene;
 	Scene* PlaySceneMirror;
-	//Scene* CurrentScene;
+	Scene* CurrentScene;
 	//Scene* CurrentSceneMirror;
 
 	//Stage
