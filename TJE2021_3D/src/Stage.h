@@ -7,8 +7,8 @@
 
 
 #define MAX_ENT_INTRO 3
-#define MAX_ENT_PLAY 1
-#define MAX_ENT_PLAY_MIRR 3
+#define MAX_ENT_PLAY 1 //comun mirror and reality
+#define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 class Stage {
 public:
@@ -36,7 +36,7 @@ public:
 	vector<EntityMesh*> entities_mirror;/*
 	vector<EntityMesh&> entities_mirror_real;*/
 
-	virtual void createTextures();
+	virtual void createTextures(bool onlyMirror);
 	virtual void createEntities();
 	virtual void render();
 	virtual void update(double seconds_elapsed);
