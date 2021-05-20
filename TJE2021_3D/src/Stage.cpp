@@ -7,7 +7,7 @@
 void IntroStage::createTextures()
 {
 	Scene* scene = Game::instance->intro_scene;
-	string texture = "data/Door_BaseColor.tga";
+	string texture = "data/Door_BaseColor.tga,data/cielo.tga,data/ground.tga";
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -26,24 +26,33 @@ void IntroStage::createTextures()
 void IntroStage::createEntities()
 {
 	Scene* scene = Game::instance->intro_scene;
-	string mesh = "data/RightDoor.ase,data/LeftDoor.ase,data/ArcDoor.ase";
+	string mesh = "data/RightDoor.ase,data/LeftDoor.ase,data/ArcDoor.ase,data/cielo.ASE";
 	string cad;
 	int found = -1;
 	int init = 0; 
 	for (int i = 0; i < MAX_ENT_INTRO; i++)
 	{
 		entities.push_back(new EntityMesh());
-		init = found + 1;
-		found = mesh.find(",", found + 1);
-		cad = mesh.substr(init, found - init);
-		entities[i]->mesh = Mesh::Get(cad.c_str());
+
+		if (i == 4) {
+			entities[i]->mesh->createPlane(2000);
+		}
+		else {
+			init = found + 1;
+			found = mesh.find(",", found + 1);
+			cad = mesh.substr(init, found - init);
+			entities[i]->mesh = Mesh::Get(cad.c_str());
+		}
+
 		entities[i]->id = i;
 		scene->entities.push_back(entities[i]);
-		if (i == 3)
-			scene->entities[i]->isColision = false;
 		if (i == 2)
-			scene->entities[i]->model.translate(0.0f,0.0f,-31.0f);
-		
+			scene->entities[i+1]->isColision = false;
+		if (i == 1)
+			scene->entities[i+1]->model.translate(0.0f,0.0f,-31.0f);
+	
+	
+
 	}
 	createTextures();
 }
@@ -51,10 +60,14 @@ void IntroStage::createEntities()
 
 void IntroStage::render()
 {
+
+	Camera* camera = Game::instance->camera;
 	Scene* scene = Game::instance->intro_scene;
+
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		scene->entities[i]->render();
+
 	}
 
 }

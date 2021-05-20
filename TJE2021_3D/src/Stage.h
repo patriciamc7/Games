@@ -6,7 +6,7 @@
 #include "framework.h"
 
 
-#define MAX_ENT_INTRO 3
+#define MAX_ENT_INTRO 5
 #define MAX_ENT_PLAY 1 //comun mirror and reality
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1

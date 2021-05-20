@@ -151,6 +151,7 @@ void EntityPlayer::render()
 void EntityPlayer::update(float dt)
 {
 	Game* game = Game::instance;
+	Scene* scene = Game::instance->CurrentScene;
 	Camera* camera = Camera::current;
 	
 
@@ -178,7 +179,9 @@ void EntityPlayer::update(float dt)
 			}
 
 		}
-		//PLayer
+		
+		
+		//Player
 		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) playerSpeed = playerSpeed - (playerFront*speed);
 		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) playerSpeed = playerSpeed + (playerFront * speed);
 		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) playerSpeed = playerSpeed - (playerRight * speed);
@@ -194,20 +197,21 @@ void EntityPlayer::update(float dt)
 
 		camera->lookAt(camera->eye, camera->center, camera->up);
 		camera->setPerspective(100.f, game->window_width / (float)game->window_height, 1.0f, 10000.f); //set the projection, we want to be perspective
-		
+		if (scene == game->intro_scene) {
+			scene->entities[4]->model.setIdentity();
+			scene->entities[4]->model.translate(camera->eye.x, camera->eye.y-10, camera->eye.z);
+		}
 		//Collision
 		this->collisionMesh(dt);
 		
-		if ((-25.0f < this->pos.z && this->pos.z < 1.0f && -11.0f < this->pos.x) || game->current_stage->Timeanimation != 0.0f)
-		{
-			if (game->current_stage == game->intro_stage)
+		if (game->current_stage == game->intro_stage) {  //animation intro
+			if ((-25.0f < this->pos.z && this->pos.z < 1.0f && -11.0f < this->pos.x) || game->current_stage->Timeanimation != 0.0f)
+			{
 				game->current_stage->animation = true;
-
+			}
+			else game->current_stage->animation = false;
 		}
-		else game->current_stage->animation = false;
 		
-		
-
 	}
 }
 
