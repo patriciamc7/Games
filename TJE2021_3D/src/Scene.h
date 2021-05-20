@@ -14,7 +14,8 @@ class Entity
 public:
 
 	//some attributes
-	int id; 
+	int id;
+	bool isColision;
 	Matrix44 model;
 
 	//methods overwritten by derived classes
@@ -34,7 +35,7 @@ public:
 	Shader* shader; 
 	Vector4 color; 
 	bool alpha; 
-
+	int radius_colision;
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
@@ -55,7 +56,7 @@ public:
 	float pitch; 
 	Vector3 player_speed;
 	float player_speed_rot;
-
+	Vector3 targetPos;
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);

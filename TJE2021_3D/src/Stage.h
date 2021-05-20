@@ -13,6 +13,9 @@
 class Stage {
 public:
 
+	bool animation = false;
+	float Timeanimation = 0.0f;
+	bool firstTime = true;
 	virtual void createEntities() {};
 	virtual void createTextures() {};
 	virtual void render() {}; //empty body 
@@ -21,9 +24,8 @@ public:
 
 class IntroStage : public Stage {
 public:
-
+	
 	vector<EntityMesh*> entities;
-
 	virtual void createTextures();
 	virtual void createEntities();
 	virtual void render();

@@ -26,7 +26,7 @@ void IntroStage::createTextures()
 void IntroStage::createEntities()
 {
 	Scene* scene = Game::instance->intro_scene;
-	string mesh = "data/RigtDoor.ASE,data/LeftDoor.ASE,data/ArcoDoor.ASE";
+	string mesh = "data/RightDoor.ase,data/LeftDoor.ase,data/ArcDoor.ase";
 	string cad;
 	int found = -1;
 	int init = 0; 
@@ -39,6 +39,11 @@ void IntroStage::createEntities()
 		entities[i]->mesh = Mesh::Get(cad.c_str());
 		entities[i]->id = i;
 		scene->entities.push_back(entities[i]);
+		if (i == 3)
+			scene->entities[i]->isColision = false;
+		if (i == 2)
+			scene->entities[i]->model.translate(0.0f,0.0f,-31.0f);
+		
 	}
 	createTextures();
 }
@@ -67,6 +72,22 @@ void IntroStage::update(double seconds_elapsed)
 		game->current_stage = game->play_stage;
 		game->CurrentScene = game->PlayScene;
 		game->current_stage->createEntities();
+	}
+	
+	if (this->animation)
+	{	
+		float radLeftDoor = -90 * DEG2RAD * seconds_elapsed;
+		float radRightDoor= 90 * DEG2RAD * seconds_elapsed;
+
+		if (this->firstTime) {
+			Timeanimation = game->time;
+			this->firstTime = false;
+		}
+		if (game->time - Timeanimation < 1.2f){
+			scene->entities[2]->model.rotate(radLeftDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities[1]->model.rotate(radRightDoor, Vector3(0.0f, 1.0f, 0.0f));
+		}
+	
 	}
 		
 }
@@ -122,6 +143,7 @@ void PlayStage::createEntities()
 			this->entities[i]->model.rotate(PI / 2, Vector3(0, 1, 0));
 			this->entities_mirror[i]->model.rotate(PI / 2, Vector3(0, 1, 0));
 		}
+		
 		scene->entities.push_back(this->entities[i]);
 		this->entities_mirror[i]->model.translate(0.0f, 0.0f, 20.0f);
 		this->entities_mirror[i]->model.rotate(PI, Vector3(0, 1, 0));
