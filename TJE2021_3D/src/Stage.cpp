@@ -36,6 +36,7 @@ void IntroStage::createEntities()
 
 		if (i == 4) {
 			entities[i]->mesh->createPlane(2000);
+			entities[i]->tiling = 40.0f;
 		}
 		else {
 			init = found + 1;
@@ -43,14 +44,15 @@ void IntroStage::createEntities()
 			cad = mesh.substr(init, found - init);
 			entities[i]->mesh = Mesh::Get(cad.c_str());
 		}
-
+	
 		entities[i]->id = i;
 		scene->entities.push_back(entities[i]);
-		if (i == 2)
+		if (i == 0)
 			scene->entities[i+1]->isColision = false;
 		if (i == 1)
 			scene->entities[i+1]->model.translate(0.0f,0.0f,-31.0f);
-	
+		
+
 	
 
 	}

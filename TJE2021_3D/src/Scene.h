@@ -34,6 +34,7 @@ public:
 	Texture* texture; 
 	Shader* shader; 
 	Vector4 color; 
+	float tiling;
 	bool alpha; 
 	int radius_colision;
 	//methods overwritten

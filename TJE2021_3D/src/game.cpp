@@ -71,9 +71,6 @@ void Game::render(void)
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
-	//create model matrix for cube
-	Matrix44 m;
-
 	current_stage->render();
 
 	//Draw the floor grid
@@ -112,6 +109,7 @@ void Game::update(double seconds_elapsed)
 	current_stage->update(seconds_elapsed);
 	
 	if (Input::wasKeyPressed(SDL_SCANCODE_TAB)) free_camera = !free_camera;
+
 	//to navigate with the mouse fixed in the middle
 	if (mouse_locked)
 		Input::centerMouse();
