@@ -7,7 +7,7 @@
 void IntroStage::createTextures()
 {
 	Scene* scene = Game::instance->intro_scene;
-	string texture = "data/Door_BaseColor.tga,data/cielo.tga,data/ground.tga";
+	string texture = "data/Door_BaseColor.tga,data/cielo.tga,data/ground.tga,data/intro.tga";
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -26,7 +26,7 @@ void IntroStage::createTextures()
 void IntroStage::createEntities()
 {
 	Scene* scene = Game::instance->intro_scene;
-	string mesh = "data/RightDoor.ase,data/LeftDoor.ase,data/ArcDoor.ase,data/cielo.ASE";
+	string mesh = "data/RightDoor.ase,data/LeftDoor.ase,data/ArcDoor.ase,data/cielo.ASE,data/intro.ase";
 	string cad;
 	int found = -1;
 	int init = 0; 
@@ -47,11 +47,16 @@ void IntroStage::createEntities()
 	
 		entities[i]->id = i;
 		scene->entities.push_back(entities[i]);
-		if (i == 0)
-			scene->entities[i+1]->isColision = false;
+
 		if (i == 1)
 			scene->entities[i+1]->model.translate(0.0f,0.0f,-31.0f);
-		
+		if (i == 5)
+		{
+			scene->entities[i + 1]->model.translate(11.0f, 0.0f, -12.0f);
+			
+		}
+			
+
 
 	
 
@@ -69,7 +74,6 @@ void IntroStage::render()
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		scene->entities[i]->render();
-
 	}
 
 }
@@ -124,7 +128,6 @@ void PlayStage::createTextures()
 		this->entities[i]->texture = Texture::Get(cad.c_str());
 		this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
 
-		
 	}
 }
 
@@ -175,8 +178,6 @@ void PlayStage::render()
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		scene->entities[i]->render();
-
-
 	}
 
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
@@ -199,4 +200,45 @@ void PlayStage::update(double seconds_elapsed)
 	{
 		scene->entities_mirror[i]->update(seconds_elapsed);
 	}
+}
+
+
+
+void TitleStage::createEntities()
+{
+	menu = new EntityMesh();
+	menu->mesh->createPlane(100);
+	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+	menu->texture = Texture::Get("data/inspeculo.tga");
+
+}
+
+
+void TitleStage::render()
+{
+	Camera* camera = new Camera();
+	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	menu->shader->enable();
+	menu->shader->setUniform("u_model", menu->model);
+	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+	menu->shader->setUniform("u_texture", menu->texture, 0);
+	menu->shader->setUniform("u_texture_tiling", 1.0f);
+
+	////render the 
+	menu->mesh->render(GL_TRIANGLES);
+	menu->shader->disable();
+
+}
+
+void TitleStage::update(double seconds_elapsed)
+{
+	Game* game = Game::instance;
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_I)) {
+		game->current_stage = game->intro_stage;
+		game->current_stage->createEntities();
+	}
+
 }

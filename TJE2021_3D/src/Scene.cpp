@@ -19,8 +19,8 @@ void EntityMesh::render()
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	if(game->free_camera)
-		this->mesh->renderBounding(this->model); 
+	/*if(game->free_camera)
+		this->mesh->renderBounding(this->model); */
 	//enable shader and pass uniforms
 	shader->enable(); 
 	shader->setUniform("u_model", this->model);
@@ -144,11 +144,11 @@ void EntityPlayer::render()
 		Vector3 forward = pitch.rotateVector(Vector3(0.0f, 0.0f, -1.0f));
 		forward = this->model.rotateVector(forward);
 
-		camera->eye = this->model * Vector3(0.0f, 20.0f, -0.5f);
+		camera->eye = this->model * Vector3(0.0f, 20.0f, -5.0f);
 
 		camera->center = camera->eye + forward;
 		camera->up = Vector3(0.0f, 1.0f, 0.0f);
-
+		
 		camera->lookAt(camera->eye, camera->center, camera->up);
 		camera->setPerspective(100.f, game->window_width / (float)game->window_height, 2.0f, 10000.f); //set the projection, we want to be perspective
 
@@ -156,8 +156,8 @@ void EntityPlayer::render()
 		SDL_ShowCursor(false);
 	
 	}
-	else
-		this->mesh->renderBounding(this->model);
+	/*else
+		this->mesh->renderBounding(this->model);*/
 
 	//enable shader and pass uniforms
 	shader->enable();
@@ -193,14 +193,13 @@ void EntityPlayer::update(float dt)
 
 		if ((Input::mouse_state & SDL_BUTTON_LEFT) || game->mouse_locked) //is left button pressed?
 		{
-			if(Input::mouse_delta.y > 0)
+			if (this->pitch > 60.0f)
+				this->pitch = 60.0f;
+			else if (this->pitch < -51.0f)
+				this->pitch = -51.0f;
+			else
 				this->pitch -= Input::mouse_delta.y * rotation_speed;
-
-			if (Input::mouse_delta.y < 0)	
-				this->pitch -= Input::mouse_delta.y * rotation_speed;
-			
 			this->yaw -= Input::mouse_delta.x * rotation_speed;
-			cout << Input::mouse_delta.y << "\n";
 		}
 		
 		
@@ -227,8 +226,16 @@ void EntityPlayer::update(float dt)
 				game->current_stage->animation = true;
 			}
 			else game->current_stage->animation = false;
+			if ( -25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f )
+			{
+
+				game->CurrentScene->entities.clear();
+				game->current_stage = game->play_stage;
+				game->CurrentScene = game->PlayScene;
+				game->current_stage->createEntities();
+			}
 		}
-		
+
 	}
 }
 
@@ -245,22 +252,23 @@ void EntityPlayer::collisionMesh(float dt)
 	////para cada objecto de la escena...
 	for  (int i = 1; i < currentScene->entities.size(); i++)
 	{
-		if (currentScene->entities[i]->isColision){
-			////comprobamos si colisiona el objeto con la esfera (radio 3)
-			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 10, col_point, col_normal) == false) {
-				this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
-				continue; //si no colisiona, pasamos al siguiente objeto
-			}
-			//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
-			Vector3 push_away = normalize(col_point - character_center) * dt;
-			this->targetPos = this->pos - push_away; //move to previous pos but a little bit further
+		
+		////comprobamos si colisiona el objeto con la esfera (radio 3)
+		if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 10, col_point, col_normal) == false) {
+			this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
+			continue; //si no colisiona, pasamos al siguiente objeto
 
-			////cuidado con la Y, si nuestro juego es 2D la ponemos a 0
-			this->targetPos.y = this->pos.y ;
-
-			//reflejamos el vector velocidad para que de la sensacion de que rebota en la pared
-			this->player_speed = reflect(this->player_speed, col_normal) * 0.96;
 		}
+		//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
+		Vector3 push_away = normalize(col_point - character_center) * dt;
+		this->pos = this->pos - push_away; //move to previous pos but a little bit further
+
+		////cuidado con la Y, si nuestro juego es 2D la ponemos a 0
+		this->pos.y = 0 ;
+
+		//reflejamos el vector velocidad para que de la sensacion de que rebota en la pared
+		this->player_speed = reflect(this->player_speed, col_normal) * 0.96;
+		
 	}
 
 }

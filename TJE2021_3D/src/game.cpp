@@ -43,9 +43,11 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	PlaySceneMirror = new Scene();
 	CurrentScene = intro_scene; 
 
+
+	title_stage = new TitleStage();
 	intro_stage = new IntroStage();
 	play_stage = new PlayStage();
-	current_stage = intro_stage;
+	current_stage = title_stage;
 
 	current_stage->createEntities();
 

@@ -38,10 +38,12 @@ public:
 	//Scene* CurrentSceneMirror;
 
 	//Stage
+
+	Stage* title_stage;
 	Stage* intro_stage;
 	Stage* play_stage;
 	Stage* current_stage;
-
+	
 	bool free_camera;
 
 	//some vars
