@@ -8,6 +8,8 @@
 #include "includes.h"
 #include "camera.h"
 #include "utils.h"
+#include "Scene.h"
+#include "Stage.h"
 
 class Game
 {
@@ -25,6 +27,24 @@ public:
 	float elapsed_time;
 	int fps;
 	bool must_exit;
+	
+	//Scenes
+
+	//Scene* intro_scene;
+	Scene* intro_scene;
+	Scene* PlayScene;
+	Scene* PlaySceneMirror;
+	Scene* CurrentScene;
+	//Scene* CurrentSceneMirror;
+
+	//Stage
+
+	Stage* title_stage;
+	Stage* intro_stage;
+	Stage* play_stage;
+	Stage* current_stage;
+	
+	bool free_camera;
 
 	//some vars
 	Camera* camera; //our global camera
