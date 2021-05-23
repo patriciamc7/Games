@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "game.h"
 
+
 void IntroStage::createTextures()
 {
 	Scene* scene = Game::instance->intro_scene;
@@ -210,18 +211,19 @@ void TitleStage::createEntities()
 	menu->mesh->createPlane(100);
 	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 	menu->texture = Texture::Get("data/inspeculo.tga");
-
 }
 
 
 void TitleStage::render()
 {
 	Camera* camera = new Camera();
+	
 	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	menu->shader->enable();
 	menu->shader->setUniform("u_model", menu->model);
 	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	//menu->shader->setUniform("u_time", Game::instance->time);
 
 	menu->shader->setUniform("u_texture", menu->texture, 0);
 	menu->shader->setUniform("u_texture_tiling", 1.0f);
@@ -231,6 +233,8 @@ void TitleStage::render()
 	menu->shader->disable();
 
 }
+
+
 
 void TitleStage::update(double seconds_elapsed)
 {
@@ -242,3 +246,38 @@ void TitleStage::update(double seconds_elapsed)
 	}
 
 }
+
+//BAÑO SHADER
+//Texture* tex1;
+//Texture* tex2;
+//void FirstRoom::createEntities()
+//{
+//	menu = new EntityMesh();
+//	menu->mesh->createPlane(100);
+//	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+//	tex1 = Texture::Get("data/imShader/water.tga");
+//	tex2 = Texture::Get("data/imShader/cloud.tga");
+//}
+
+//
+//void FirstRoom::render()
+//{
+//	Camera* camera = new Camera();
+//
+//	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/water.fs");
+//	menu->shader->enable();
+//	menu->shader->setUniform("u_model", menu->model);
+//	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+//	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+//	menu->shader->setUniform("u_time", Game::instance->time);
+//	//menu->shader->setUniform("u_resolution", Vector2(Game::instance->window_height, Game::instance->window_width));
+//
+//	menu->shader->setUniform("u_texture2", tex2, 0);
+//	menu->shader->setUniform("u_texture", tex1, 0);
+//	menu->shader->setUniform("u_texture_tiling", 1.0f);
+//
+//	////render the 
+//	menu->mesh->render(GL_TRIANGLES);
+//	menu->shader->disable();
+//
+//}
