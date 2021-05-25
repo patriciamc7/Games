@@ -55,10 +55,11 @@ class PlayStage : public Stage {
 public:
 	vector<EntityMesh*> entities;
 	vector<EntityMesh*> entities_mirror;
-
+	EntityMesh* water; 
 	virtual void createTextures();
 	virtual void createEntities();
 	virtual void render();
+	void renderWater(); 
 	virtual void update(double seconds_elapsed);
 };
 

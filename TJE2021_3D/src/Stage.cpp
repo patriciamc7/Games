@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "game.h"
 
-
+Texture* tex2;
 void IntroStage::createTextures()
 {
 	Scene* scene = Game::instance->intro_scene;
@@ -171,10 +171,43 @@ void PlayStage::createEntities()
 	}
 
 	createTextures();
+
+
+	water = new EntityMesh();
+	water->mesh->createPlane(50);
+	water->model.rotate(0 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+	//water->model.translate(0.0f, 0.0f, 0.0f);
+	
+	water->texture = Texture::Get("data/imShader/water.tga");
+	tex2 = Texture::Get("data/imShader/cloud.tga");
+}
+
+void PlayStage::renderWater()
+{
+	Camera* camera = Camera::current;
+
+	water->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/water.fs");
+	water->shader->enable();
+	water->shader->setUniform("u_model", water->model);
+	water->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	water->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	water->shader->setUniform("u_time", Game::instance->time);
+	//menu->shader->setUniform("u_resolution", Vector2(Game::instance->window_height, Game::instance->window_width));
+
+	water->shader->setUniform("u_texture2", tex2, 0);
+	water->shader->setUniform("u_texture", water->texture, 0);
+	water->shader->setUniform("u_texture_tiling", 1.0f);
+
+	////render the 
+	water->mesh->render(GL_TRIANGLES);
+	water->shader->disable();
+
 }
 
 void PlayStage::render()
 {
+	renderWater();
+
 	Scene* scene = Game::instance->PlayScene;
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
@@ -246,38 +279,3 @@ void TitleStage::update(double seconds_elapsed)
 	}
 
 }
-
-//BAÑO SHADER
-//Texture* tex1;
-//Texture* tex2;
-//void FirstRoom::createEntities()
-//{
-//	menu = new EntityMesh();
-//	menu->mesh->createPlane(100);
-//	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
-//	tex1 = Texture::Get("data/imShader/water.tga");
-//	tex2 = Texture::Get("data/imShader/cloud.tga");
-//}
-
-//
-//void FirstRoom::render()
-//{
-//	Camera* camera = new Camera();
-//
-//	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/water.fs");
-//	menu->shader->enable();
-//	menu->shader->setUniform("u_model", menu->model);
-//	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-//	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-//	menu->shader->setUniform("u_time", Game::instance->time);
-//	//menu->shader->setUniform("u_resolution", Vector2(Game::instance->window_height, Game::instance->window_width));
-//
-//	menu->shader->setUniform("u_texture2", tex2, 0);
-//	menu->shader->setUniform("u_texture", tex1, 0);
-//	menu->shader->setUniform("u_texture_tiling", 1.0f);
-//
-//	////render the 
-//	menu->mesh->render(GL_TRIANGLES);
-//	menu->shader->disable();
-//
-//}
