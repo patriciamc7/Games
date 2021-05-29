@@ -7,10 +7,12 @@
 
 
 #define MAX_ENT_INTRO 6
-#define MAX_ENT_PLAY 1 //comun mirror and reality
+#define MAX_ENT_PLAY 2 //comun mirror and reality
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
+#define MAX_LIGHTS 2
+
 class Stage {
 public:
 
@@ -43,8 +45,9 @@ public:
 
 class IntroStage : public Stage {
 public:
-	
+
 	vector<EntityMesh*> entities;
+
 	virtual void createTextures();
 	virtual void createEntities();
 	virtual void render();
@@ -53,13 +56,15 @@ public:
 
 class PlayStage : public Stage {
 public:
+
 	vector<EntityMesh*> entities;
 	vector<EntityMesh*> entities_mirror;
-	EntityMesh* water; 
+
+
 	virtual void createTextures();
 	virtual void createEntities();
 	virtual void render();
-	void renderWater(); 
+	void renderWater(int i); 
 	virtual void update(double seconds_elapsed);
 };
 

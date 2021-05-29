@@ -37,13 +37,17 @@ public:
 	Scene* CurrentScene;
 	//Scene* CurrentSceneMirror;
 
-	//Stage
-
+	//Stages
 	Stage* title_stage;
 	Stage* intro_stage;
 	Stage* play_stage;
 	Stage* current_stage;
-	
+
+	//Lights
+	EntityLight* directional;
+	EntityLight* spot;
+
+
 	bool free_camera;
 
 	//some vars

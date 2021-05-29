@@ -31,11 +31,12 @@ public:
 
 	//Attrubutes of this class
 	Mesh* mesh; 
-	Texture* texture; 
+	Texture* texture;
+	Texture* texture2;
 	Shader* shader; 
 	Vector4 color; 
 	float tiling;
-	bool alpha; 
+	int alpha; 
 	int radius_colision;
 	//methods overwritten
 	virtual void render();
@@ -88,6 +89,7 @@ public:
 		DIRECTIONAL
 	};
 
+	Shader* shader;
 	eLightType light_type;
 	Vector3 light_position;
 	Vector3 light_vector;
@@ -115,6 +117,8 @@ public:
 	vector<Entity*> entities;
 	vector<Entity*> entities_mirror;
 	vector<EntityPlayer*> characters;
+
+	vector<EntityLight*> lights;
 	Vector3 ambient;
 };
 

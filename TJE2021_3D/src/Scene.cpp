@@ -8,31 +8,56 @@ EntityMesh::EntityMesh()
 	this->texture = new Texture();
 	this->shader = new Shader();
 	this->color =  Vector4(1, 1, 1, 1);
-	this->alpha = false; 
+	this->alpha = 0; 
 	this->isColision = true;
 	this->tiling = 1.0f;
 }
 
 void EntityMesh::render()
 {
-	Game* game = Game::instance; 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Game* game = Game::instance;
+	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	/*if(game->free_camera)
-		this->mesh->renderBounding(this->model); */
+	this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	//if(game->free_camera)
+	//	this->mesh->renderBounding(this->model); 
+
 	//enable shader and pass uniforms
-	shader->enable(); 
-	shader->setUniform("u_model", this->model);
-	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	shader->setUniform("u_color", this->color);
-	shader->setUniform("u_texture_tiling", this->tiling);
+	this->shader->enable();
+	this->shader->setUniform("u_model", this->model);
+	this->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	this->shader->setUniform("u_color", this->color);
+	this->shader->setUniform("u_texture_tiling", this->tiling);
+	this->shader->setUniform("u_alpha", this->alpha);
+	this->shader->setUniform("u_texture", this->texture,0);
+	for (int i = 0; i < lights.size(); i++)
+	{
+		
 
-	shader->setUniform("u_texture", this->texture,0);
+		this->shader->setUniform("u_light_position", lights[i]->light_position);
+		this->shader->setUniform("u_light_direction", lights[i]->light_vector);
+		this->shader->setUniform("u_light_color", lights[i]->color);
+		this->shader->setUniform("u_light_type", lights[i]->light_type);
+		this->shader->setUniform("u_light_intensity", lights[i]->intensity);
+		this->shader->setUniform("u_light_ambient", vec3(0.1, 0.1, 0.1));
 
-	////render the 
-	mesh->render(GL_TRIANGLES);
-	shader->disable(); 
+		//if (game->current_stage == game->play_stage) { //si estamos en segunda sala, render de spot
+			if (game->CurrentScene->lights[i]->light_type == 1) { //si es una spot
+				this->shader->setUniform("u_light_maxdist", lights[i]->max_distance);
+				this->shader->setUniform("u_light_cutoffCos", lights[i]->spotCosineCutoff);
+				this->shader->setUniform("u_light_exponent", lights[i]->spotExponent);
+			}
+		//}
+		
+		////render the 
+		this->mesh->render(GL_TRIANGLES);
+	}
+	
+	this->shader->disable();
+	glDisable(GL_BLEND);
 }
 
 void EntityMesh::update(float dt)
@@ -56,25 +81,20 @@ void EntitySound::update(float dt)
 EntityLight::EntityLight()
 {
 	//General light
-	this->color = Vector3(0, 0, 0);
-	this->intensity = 20.f;
-	this->light_type = eLightType::SPOT;
+	this->color = Vector3(1.0f, 1.0f, 1.0f);
+	this->intensity = 1.0f;
+	this->light_type = eLightType::DIRECTIONAL;
 	this->light_position = Vector3(0,0,0);
-	this->light_vector = Vector3(0, 0, 0);
+	this->light_vector = Vector3(0.5, 0, -1);
 
-	//Spot
-	this->spotCosineCutoff= 10.f;
-	this->max_distance = 10.f;
-	this->spotExponent = 20.f;
-	this->flag = 0;
-
-	//Shadows
-	this->bias = 0.001f;
+	////Shadows
+	//this->bias = 0.001f;
 }
 
 
 void EntityLight::render()
 {
+
 }
 
 void EntityLight::update(float dt)
@@ -127,10 +147,11 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
+	
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
 
 	this->model =  Matrix44(); //set position
 	this->model.translate(this->pos.x, this->pos.y, this->pos.z);
@@ -228,7 +249,6 @@ void EntityPlayer::update(float dt)
 			else game->current_stage->animation = false;
 			if ( -25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f )
 			{
-
 				game->CurrentScene->entities.clear();
 				game->current_stage = game->play_stage;
 				game->CurrentScene = game->PlayScene;
