@@ -73,7 +73,6 @@ void EntityMesh::update(float dt)
 }
 
 
-
 EntitySound::EntitySound()
 {
 }
@@ -149,7 +148,6 @@ EntityPlayer::EntityPlayer()
 	this->targetPos = this->pos;
 	this->pitch = 0.0f;
 	
-
 }
 
 
