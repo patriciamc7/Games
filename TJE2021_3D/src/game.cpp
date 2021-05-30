@@ -49,7 +49,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	spot->light_type = spot->eLightType::SPOT;
 	//Scene and stages
 	intro_scene = new Scene();
-	//intro_scene->lights.push_back(directional);
+	intro_scene->lights.push_back(directional);
 	intro_scene->lights.push_back(spot);
 
 	PlayScene = new Scene();

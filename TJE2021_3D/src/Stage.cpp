@@ -38,6 +38,8 @@ void IntroStage::createEntities()
 		if (i == 4) {
 			entities[i]->mesh->createPlane(2000);
 			entities[i]->tiling = 40.0f;
+			entities[i]->isColision = false;
+
 		}
 		else {
 			init = found + 1;
@@ -48,6 +50,9 @@ void IntroStage::createEntities()
 		entities[i]->id = i;
 		scene->entities.push_back(entities[i]);
 
+		if (i == 3) {
+			entities[i]->isColision = false;
+		}
 		if (i == 1)
 			scene->entities[i+1]->model.translate(0.0f,0.0f,-31.0f);
 		if (i == 5)
@@ -108,7 +113,7 @@ void IntroStage::update(double seconds_elapsed)
 void PlayStage::createTextures()
 {
 	Scene* scene = Game::instance->PlayScene;
-	string texture = "data/mirror.tga,data/imShader/water.tga";
+	string texture = "data/mirror.tga,data/imShader/water.tga,data/imShader/noise.tga";
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -122,7 +127,9 @@ void PlayStage::createTextures()
 		if (this->entities[i]->id == 2){
 			this->entities[i]->texture2 = Texture::Get("data/imShader/cloud.tga");
 		}
-		
+		if (this->entities[i]->id == 3) 
+			this->entities[i]->texture2 = Texture::Get("data/imShader/gray.tga");
+
 		this->entities[i]->texture = Texture::Get(cad.c_str());
 		this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
 
@@ -130,7 +137,7 @@ void PlayStage::createTextures()
 }
 
 
-
+//0 mirror, 1 water plane, 2 transparent plane
 void PlayStage::createEntities()
 {
 	Scene* scene = Game::instance->PlayScene;
@@ -152,7 +159,7 @@ void PlayStage::createEntities()
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i+ playerNum;
 
-		if (this->entities[i]->id != 2) {
+		if (this->entities[i]->id != 2 && this->entities[i]->id != 3) {
 			this->entities[i]->mesh = Mesh::Get(cad.c_str());
 			this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
 		}
@@ -163,9 +170,16 @@ void PlayStage::createEntities()
 		if (this->entities[i]->id == 2) {
 			this->entities[i]->mesh->createPlane(50);
 			this->entities_mirror[i]->mesh->createPlane(50);
-			this->entities[i]->model.rotate(0 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
-			this->entities_mirror[i]->model.rotate(0 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
-		
+		}
+		if (this->entities[i]->id == 3) {
+			this->entities[i]->mesh->createPlane(20);
+			//this->entities[i]->model.rotate(270 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+			this->entities[i]->model.translate(-15,0,0);
+			this->entities[i]->model.scale(0.9,1, 0.5);
+
+
+			
 		}
 		scene->entities.push_back(this->entities[i]);
 		this->entities_mirror[i]->model.translate(0.0f, 0.0f, 20.0f);
@@ -203,6 +217,31 @@ void PlayStage::renderWater(int i)
 	glDisable(GL_BLEND);
 }
 
+void PlayStage::renderMirror(int i)
+{
+
+	EntityMesh* mirror;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Camera* camera = Camera::current;
+	mirror = this->entities[i - 1];
+	mirror->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/mirror.fs");
+	mirror->shader->enable();
+	mirror->shader->setUniform("u_model", mirror->model);
+	mirror->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	mirror->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+	mirror->shader->setUniform("u_texture2", mirror->texture2, 0);
+	mirror->shader->setUniform("u_texture", mirror->texture, 1);
+
+	////render the 
+	mirror->mesh->render(GL_TRIANGLES);
+	mirror->shader->disable();
+	glDisable(GL_BLEND);
+}
+
+
+
 void PlayStage::render()
 {
 	
@@ -213,13 +252,16 @@ void PlayStage::render()
 		if (scene->entities[i]->id == 2) {
 			renderWater(i);
 		}
+		if (scene->entities[i]->id == 3) {
+			renderMirror(i);
+		}
 		else
 			scene->entities[i]->render();
 	}
 
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
-		if (scene->entities_mirror[i]->id != 2) //2 es el suelo water, no lo renderizamos en la realidad mirror
+		if (scene->entities_mirror[i]->id != 2 && scene->entities_mirror[i]->id != 3)  //2 es el suelo water, no lo renderizamos en la realidad mirror
 			scene->entities_mirror[i]->render();
 	}
 

@@ -21,6 +21,7 @@ uniform float u_light_cutoffCos;
 uniform float u_light_exponent;
 uniform float u_light_intensity;
 
+
 vec3 L;
 float NdotL;
 vec3 N ;

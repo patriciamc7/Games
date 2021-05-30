@@ -15,28 +15,39 @@ EntityMesh::EntityMesh()
 
 void EntityMesh::render()
 {
+	//var for fog
+	Vector4 fogColor = Vector4(0.5f, 0.5f, 0.5f, 1.f);
+	float fogDensity = 0.025f;
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Game* game = Game::instance;
 	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
-	this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	//if(game->free_camera)
-	//	this->mesh->renderBounding(this->model); 
+	if (game->current_stage == game->intro_stage)
+		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/fog.fs");
+	else
+		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+
+	/*if(game->free_camera)
+		this->mesh->renderBounding(this->model); */
 
 	//enable shader and pass uniforms
 	this->shader->enable();
+
+	this->shader->setUniform("u_fogColor", fogColor);
+	this->shader->setUniform("u_fog_density", fogDensity);
+
 	this->shader->setUniform("u_model", this->model);
 	this->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	this->shader->setUniform("u_color", this->color);
 	this->shader->setUniform("u_texture_tiling", this->tiling);
 	this->shader->setUniform("u_alpha", this->alpha);
-	this->shader->setUniform("u_texture", this->texture,0);
+	this->shader->setUniform("u_texture", this->texture, 0);
+
 	for (int i = 0; i < lights.size(); i++)
 	{
-		
-
 		this->shader->setUniform("u_light_position", lights[i]->light_position);
 		this->shader->setUniform("u_light_direction", lights[i]->light_vector);
 		this->shader->setUniform("u_light_color", lights[i]->color);
@@ -55,7 +66,7 @@ void EntityMesh::render()
 		////render the 
 		this->mesh->render(GL_TRIANGLES);
 	}
-	
+
 	this->shader->disable();
 	glDisable(GL_BLEND);
 }
@@ -123,7 +134,7 @@ void Scene::CreatePlayer()
 		this->characters[i]->id = i;
 		this->entities.push_back(this->characters[i]);
 		if (i == 0) 
-			this->characters[i]->texture = Texture::Get("data/texture.tga");
+			this->characters[i]->texture = Texture::Get("data/UV.tga");
 		
 	}
 }
@@ -151,7 +162,7 @@ void EntityPlayer::render()
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
+	shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/phong.fs");
 
 	this->model =  Matrix44(); //set position
 	this->model.translate(this->pos.x, this->pos.y, this->pos.z);
@@ -190,7 +201,10 @@ void EntityPlayer::render()
 	shader->setUniform("u_texture_tiling", 1.0f);
 
 	////render the 
-	mesh->render(GL_TRIANGLES);
+	//mesh->render(GL_TRIANGLES);
+	Animation* idle = Animation::Get("data/animations_idle.skanim");
+	idle->assignTime(game->time);
+	Mesh::Get("data/player.mesh")->renderAnimated(GL_TRIANGLES, &idle->skeleton);
 	shader->disable();
 }
 
@@ -261,33 +275,35 @@ void EntityPlayer::update(float dt)
 
 void EntityPlayer::collisionMesh(float dt)
 {
+	
 	Scene* currentScene = Game::instance->CurrentScene; 
 	//// calculamos el centro de la esfera de colisión del player elevandola hasta la cintura
-	Vector3 character_center = this->pos + Vector3(0, 4, 0);
-	Vector3 col_point; 	//temp var para guardar el punto de colision si lo hay
-	Vector3 col_normal; 	//temp var para guardar la normal al punto de colision
-	float max_ray_dist = 10;
-	Vector3 ray_origin = this->pos;
-	Vector3 ray_dir = this->player_speed;
+	Vector3 character_center = this->pos + Vector3(0, 2, 0);
+
 	////para cada objecto de la escena...
 	for  (int i = 1; i < currentScene->entities.size(); i++)
 	{
+		Vector3 col_point; 	//temp var para guardar el punto de colision si lo hay
+		Vector3 col_normal; 	//temp var para guardar la normal al punto de colision
 		
 		////comprobamos si colisiona el objeto con la esfera (radio 3)
-		if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 10, col_point, col_normal) == false) {
-			this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
-			continue; //si no colisiona, pasamos al siguiente objeto
+		if (currentScene->entities[i]->isColision){
+			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 10, col_point, col_normal) == false) {
+				this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
+				continue; //si no colisiona, pasamos al siguiente objeto
+			}
+			
+			//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
+			Vector3 push_away = normalize(col_point - character_center) * dt;
+			this->pos = this->pos - push_away; //move to previous pos but a little bit further
+
+			////cuidado con la Y, si nuestro juego es 2D la ponemos a 0, nostras no tenemos el player a niguna altura nunca
+			this->pos.y = 0;
+
+			//reflejamos el vector velocidad para que de la sensacion de que rebota en la pared
+			this->player_speed = reflect(this->player_speed, col_normal) * 0.96;
 
 		}
-		//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
-		Vector3 push_away = normalize(col_point - character_center) * dt;
-		this->pos = this->pos - push_away; //move to previous pos but a little bit further
-
-		////cuidado con la Y, si nuestro juego es 2D la ponemos a 0
-		this->pos.y = 0 ;
-
-		//reflejamos el vector velocidad para que de la sensacion de que rebota en la pared
-		this->player_speed = reflect(this->player_speed, col_normal) * 0.96;
 		
 	}
 

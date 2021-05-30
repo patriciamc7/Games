@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "input.h"
+#include "animation.h"
 class Prefab;
 using namespace std;
 
@@ -15,7 +16,7 @@ public:
 
 	//some attributes
 	int id;
-	bool isColision;
+	bool isColision = true;
 	Matrix44 model;
 
 	//methods overwritten by derived classes
@@ -37,7 +38,6 @@ public:
 	Vector4 color; 
 	float tiling;
 	int alpha; 
-	int radius_colision;
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
