@@ -87,6 +87,7 @@ void IntroStage::update(double seconds_elapsed)
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_M))
 	{
+		game->CurrentScene->entities.clear();
 		game->current_stage = game->play_stage;
 		game->CurrentScene = game->PlayScene;
 		game->current_stage->createEntities();
@@ -173,7 +174,6 @@ void PlayStage::createEntities()
 		}
 		if (this->entities[i]->id == 3) {
 			this->entities[i]->mesh->createPlane(20);
-			//this->entities[i]->model.rotate(270 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
 			this->entities[i]->model.translate(-15,0,0);
 			this->entities[i]->model.scale(0.9,1, 0.5);
@@ -271,6 +271,7 @@ void PlayStage::update(double seconds_elapsed)
 {
 
 	Scene* scene = Game::instance->PlayScene;
+	Game* game = Game::instance;
 
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
@@ -280,9 +281,15 @@ void PlayStage::update(double seconds_elapsed)
 	{
 		scene->entities_mirror[i]->update(seconds_elapsed);
 	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_I)) {
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->end_stage;
+		game->CurrentScene = game->EndScene;
+		game->current_stage->createEntities();
+	}
+		
+
 }
-
-
 
 void TitleStage::createEntities()
 {
@@ -297,7 +304,7 @@ void TitleStage::render()
 {
 	Camera* camera = new Camera();
 	
-	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
+	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	menu->shader->enable();
 	menu->shader->setUniform("u_model", menu->model);
 	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
@@ -323,4 +330,40 @@ void TitleStage::update(double seconds_elapsed)
 		game->current_stage->createEntities();
 	}
 
+}
+
+void EndStage::createEntities()
+{
+	menu = new EntityMesh();
+	menu->mesh->createPlane(100);
+	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+	menu->texture = Texture::Get("data/end.tga");
+}
+
+void EndStage::render()
+{
+	Camera* camera = new Camera();
+
+	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	menu->shader->enable();
+	menu->shader->setUniform("u_model", menu->model);
+	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+	menu->shader->setUniform("u_texture", menu->texture, 0);
+	menu->shader->setUniform("u_texture_tiling", 1.0f);
+
+	////render the 
+	menu->mesh->render(GL_TRIANGLES);
+	menu->shader->disable();
+}
+
+void EndStage::update(double seconds_elapsed)
+{
+	Game* game = Game::instance;
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
+		game->current_stage = game->title_stage;
+		game->current_stage->createEntities();
+	}
 }

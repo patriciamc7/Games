@@ -28,7 +28,7 @@ void EntityMesh::render()
 	if (game->current_stage == game->intro_stage)
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/fog.fs");
 	else
-		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
 
 	/*if(game->free_camera)
 		this->mesh->renderBounding(this->model); */
@@ -55,14 +55,11 @@ void EntityMesh::render()
 		this->shader->setUniform("u_light_intensity", lights[i]->intensity);
 		this->shader->setUniform("u_light_ambient", vec3(0.1, 0.1, 0.1));
 
-		//if (game->current_stage == game->play_stage) { //si estamos en segunda sala, render de spot
 			if (game->CurrentScene->lights[i]->light_type == 1) { //si es una spot
 				this->shader->setUniform("u_light_maxdist", lights[i]->max_distance);
 				this->shader->setUniform("u_light_cutoffCos", lights[i]->spotCosineCutoff);
 				this->shader->setUniform("u_light_exponent", lights[i]->spotExponent);
 			}
-		//}
-		
 		////render the 
 		this->mesh->render(GL_TRIANGLES);
 	}
@@ -120,7 +117,7 @@ Scene::Scene()
 void Scene::CreatePlayer()
 {
 	
-	string text = "data/Character.ASE";
+	string text = "data/character.ASE";
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -162,6 +159,8 @@ void EntityPlayer::render()
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
+	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
+
 	shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/phong.fs");
 
 	this->model =  Matrix44(); //set position
@@ -199,12 +198,40 @@ void EntityPlayer::render()
 
 	shader->setUniform("u_texture", this->texture, 0);
 	shader->setUniform("u_texture_tiling", 1.0f);
+	
 
-	////render the 
-	//mesh->render(GL_TRIANGLES);
-	Animation* idle = Animation::Get("data/animations_idle.skanim");
-	idle->assignTime(game->time);
-	Mesh::Get("data/player.mesh")->renderAnimated(GL_TRIANGLES, &idle->skeleton);
+	for (int i = 0; i < lights.size(); i++)
+	{
+		this->shader->setUniform("u_light_position", lights[i]->light_position);
+		this->shader->setUniform("u_light_direction", lights[i]->light_vector);
+		this->shader->setUniform("u_light_color", lights[i]->color);
+		this->shader->setUniform("u_light_type", lights[i]->light_type);
+		this->shader->setUniform("u_light_intensity", lights[i]->intensity);
+		this->shader->setUniform("u_light_ambient", vec3(0.1, 0.1, 0.1));
+
+		if (game->CurrentScene->lights[i]->light_type == 1) { //si es una spot
+			this->shader->setUniform("u_light_maxdist", lights[i]->max_distance);
+			this->shader->setUniform("u_light_cutoffCos", lights[i]->spotCosineCutoff);
+			this->shader->setUniform("u_light_exponent", lights[i]->spotExponent);
+		}
+
+		////render the 
+		this->mesh->render(GL_TRIANGLES);
+	}
+
+	Animation* idle = Animation::Get("data/animation/animations_idle.skanim");
+	float t = fmod(game->time, idle->duration) / idle->duration; //norm duracion de la animacion
+	idle->assignTime(t * idle->duration);
+	Animation* walk = Animation::Get("data/animation/animations_walking.skanim");
+	walk->assignTime(t * idle->duration);
+
+	Skeleton skeleton;
+	/*if (this->pos.x  == this->targetPos.x && this->pos.z == this->targetPos.z)
+		blendSkeleton(&idle->skeleton, &walk->skeleton, 0.0f, &skeleton);
+	else*/
+		blendSkeleton(&idle->skeleton, &walk->skeleton, this->player_speed.x*0.1f, &skeleton); //si el jugador se mueve aplicar walk, si no idle
+
+	Mesh::Get("data/character.mesh")->renderAnimated(GL_TRIANGLES, &skeleton);
 	shader->disable();
 }
 
@@ -253,7 +280,7 @@ void EntityPlayer::update(float dt)
 			scene->entities[4]->model.translate(camera->eye.x, camera->eye.y-10, camera->eye.z);
 		}
 
-		this->collisionMesh(dt); 	//Collision
+		//this->collisionMesh(dt); 	//Collision
 		
 		if (game->current_stage == game->intro_stage) {  //animation intro
 			if ((-25.0f < this->pos.z && this->pos.z < 1.0f && -11.0f < this->pos.x) || game->current_stage->Timeanimation != 0.0f)

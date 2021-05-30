@@ -69,6 +69,24 @@ public:
 	virtual void update(double seconds_elapsed);
 };
 
+class EndStage : public Stage {
+public:
+	enum eButton {
+		START,
+		SAFE,
+		LOAD,
+		CONTROLS,
+		CONFIGURATION,
+		EXIT
+	};
+
+	eButton button_type;
+	EntityMesh* menu;
+	virtual void createEntities();
+	virtual void render();
+	virtual void update(double seconds_elapsed);
+};
+
 
 
 #endif 
