@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "game.h"
 #include "framework.h"
-
+float vel_factor=0;
 EntityMesh::EntityMesh()
 {
 	this->mesh = new Mesh();
@@ -159,7 +159,10 @@ void EntityPlayer::render()
 	Camera* camera = Camera::current;
 	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
 
-	shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/phong.fs");
+	if (game->current_stage == game->intro_stage)
+		shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/fog.fs");
+	else
+		shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/phong.fs");
 
 	this->model =  Matrix44(); //set position
 	this->model.translate(this->pos.x, this->pos.y, this->pos.z);
@@ -170,10 +173,10 @@ void EntityPlayer::render()
 		Matrix44 pitch;
 		pitch.rotate(this->pitch * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 
-		Vector3 forward = pitch.rotateVector(Vector3(0.0f, 0.0f, -1.0f));
+		Vector3 forward = pitch.rotateVector(Vector3(0.0f, 0.0f, 1.0f));
 		forward = this->model.rotateVector(forward);
 
-		camera->eye = this->model * Vector3(0.0f, 20.0f, -5.0f);
+		camera->eye = this->model * Vector3(0.0f, 20.0f, 5.0f);
 
 		camera->center = camera->eye + forward;
 		camera->up = Vector3(0.0f, 1.0f, 0.0f);
@@ -214,22 +217,26 @@ void EntityPlayer::render()
 		}
 
 		////render the 
-		this->mesh->render(GL_TRIANGLES);
+		//this->mesh->render(GL_TRIANGLES);
 	}
 
 	Animation* idle = Animation::Get("data/animation/animations_idle.skanim");
 	float t = fmod(game->time, idle->duration) / idle->duration; //norm duracion de la animacion
 	idle->assignTime(t * idle->duration);
 	Animation* walk = Animation::Get("data/animation/animations_walking.skanim");
-	walk->assignTime(t * idle->duration);
+	walk->assignTime(t * walk->duration);
 
 	Skeleton skeleton;
-	/*if (this->pos.x  == this->targetPos.x && this->pos.z == this->targetPos.z)
-		blendSkeleton(&idle->skeleton, &walk->skeleton, 0.0f, &skeleton);
-	else*/
-		blendSkeleton(&idle->skeleton, &walk->skeleton, this->player_speed.x*0.1f, &skeleton); //si el jugador se mueve aplicar walk, si no idle
+	
+	if (this->playerSpeed.length() == 0) {
+		vel_factor -= 0.01;
+		if (vel_factor < 0)
+			vel_factor = 0;
+	}
+	vel_factor += this->playerSpeed.length()*0.1;
+	blendSkeleton(&idle->skeleton, &walk->skeleton, vel_factor, &skeleton); //si el jugador se mueve aplicar walk, si no idle
 
-	Mesh::Get("data/character.mesh")->renderAnimated(GL_TRIANGLES, &skeleton);
+	Mesh::Get("data/animation/character.mesh")->renderAnimated(GL_TRIANGLES, &skeleton);
 	shader->disable();
 }
 
@@ -249,7 +256,8 @@ void EntityPlayer::update(float dt)
 		
 		Vector3 playerFront = playerRotate.rotateVector(Vector3(0.0f, 0.0f, 1.0f));
 		Vector3 playerRight = playerRotate.rotateVector(Vector3(1.0f,0.0f,0.0f));
-		Vector3 playerSpeed; 
+		playerSpeed = Vector3(0,0,0);
+
 
 		if ((Input::mouse_state & SDL_BUTTON_LEFT) || game->mouse_locked) //is left button pressed?
 		{
@@ -258,16 +266,16 @@ void EntityPlayer::update(float dt)
 			else if (this->pitch < -51.0f)
 				this->pitch = -51.0f;
 			else
-				this->pitch -= Input::mouse_delta.y * rotation_speed;
+				this->pitch += Input::mouse_delta.y * rotation_speed;
 			this->yaw -= Input::mouse_delta.x * rotation_speed;
 		}
 		
 		
 		//Player
-		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) playerSpeed = playerSpeed - (playerFront*speed);
-		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) playerSpeed = playerSpeed + (playerFront * speed);
-		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) playerSpeed = playerSpeed - (playerRight * speed);
-		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) playerSpeed = playerSpeed + (playerRight * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) playerSpeed = playerSpeed + (playerFront*speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) playerSpeed = playerSpeed - (playerFront * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) playerSpeed = playerSpeed + (playerRight * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) playerSpeed = playerSpeed - (playerRight * speed);
 
 		this->targetPos = this->pos + playerSpeed; 
 		this->pos = this->targetPos;

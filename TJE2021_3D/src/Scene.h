@@ -59,6 +59,7 @@ public:
 	Vector3 player_speed;
 	float player_speed_rot;
 	Vector3 targetPos;
+	Vector3 playerSpeed;
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
