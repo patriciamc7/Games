@@ -255,6 +255,9 @@ class Matrix44
 		void multGL();
 		void loadGL();
 
+		//reflexion
+		Matrix44 relfexion_x();
+
 		Matrix44 operator * (const Matrix44& matrix) const;
 };
 

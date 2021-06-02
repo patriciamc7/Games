@@ -7,7 +7,7 @@
 
 
 #define MAX_ENT_INTRO 6
-#define MAX_ENT_PLAY 3 //comun mirror and reality
+#define MAX_ENT_PLAY 8 //comun mirror and reality
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
@@ -19,6 +19,7 @@ public:
 	bool animation = false;
 	float Timeanimation = 0.0f;
 	bool firstTime = true;
+	bool animation2 = true;
 	virtual void createEntities() {};
 	virtual void createTextures() {};
 	virtual void render() {}; //empty body 
@@ -54,12 +55,12 @@ public:
 	virtual void update(double seconds_elapsed);
 };
 
-class PlayStage : public Stage {
+class BodyStage : public Stage {
 public:
 
 	vector<EntityMesh*> entities;
 	vector<EntityMesh*> entities_mirror;
-
+	
 
 	virtual void createTextures();
 	virtual void createEntities();

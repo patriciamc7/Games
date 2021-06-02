@@ -40,7 +40,7 @@ public:
 	//Stages
 	Stage* title_stage;
 	Stage* intro_stage;
-	Stage* play_stage;
+	Stage* body_stage;
 	Stage* end_stage;
 	Stage* current_stage;
 

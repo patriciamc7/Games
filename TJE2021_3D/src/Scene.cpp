@@ -19,8 +19,8 @@ void EntityMesh::render()
 	Vector4 fogColor = Vector4(0.5f, 0.5f, 0.5f, 1.f);
 	float fogDensity = 0.025f;
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	/*glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 	Game* game = Game::instance;
 	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
 	//get the last camera thet was activated
@@ -64,8 +64,8 @@ void EntityMesh::render()
 		this->mesh->render(GL_TRIANGLES);
 	}
 
-	this->shader->disable();
-	glDisable(GL_BLEND);
+	this->shader->disable();/*
+	glDisable(GL_BLEND);*/
 }
 
 void EntityMesh::update(float dt)
@@ -297,10 +297,37 @@ void EntityPlayer::update(float dt)
 			if ( -25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f )
 			{
 				game->CurrentScene->entities.clear();
-				game->current_stage = game->play_stage;
+				game->current_stage = game->body_stage;
 				game->CurrentScene = game->PlayScene;
 				game->current_stage->createEntities();
 			}
+		}
+
+		if (game->current_stage == game->body_stage) {  //animation bodystage
+			cout << this->pos.x << " " << this->pos.z << " \n";
+			if ((-4.0f < this->pos.x && this->pos.x < 6.0f && -14.0f < this->pos.z  && -5.f > this->pos.z) || game->current_stage->Timeanimation != 0.0f )
+			{
+				game->current_stage->animation = true;
+				
+			}
+			//else game->current_stage->animation = false;
+			if ((-4.0f < this->pos.x && this->pos.x < 6.0f && 6.f < this->pos.z && game->body_stage->animation2))
+			{
+				game->current_stage->animation = true;
+				game->current_stage->firstTime = true;
+				game->body_stage->animation2 = false;
+				cout << "cierra \n";
+
+			}
+			//else game->current_stage->animation = false;
+
+			/*if (-4.0f < this->pos.x && this->pos.x < 4.0f && -12.0f > this->pos.z) //cambio stage
+			{
+				game->CurrentScene->entities.clear();
+				game->current_stage = game->body_stage;
+				game->CurrentScene = game->PlayScene;
+				game->current_stage->createEntities();
+			}*/
 		}
 
 	}

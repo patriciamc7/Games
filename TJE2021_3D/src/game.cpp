@@ -69,9 +69,9 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	title_stage = new TitleStage();
 	intro_stage = new IntroStage();
-	play_stage = new PlayStage();
+	body_stage = new BodyStage();
 	end_stage = new EndStage();
-	current_stage = title_stage;
+	current_stage = intro_stage;
 
 	current_stage->createEntities();
 	//hide the cursor
