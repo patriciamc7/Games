@@ -78,7 +78,7 @@ void main()
 {
 	vec2 uv = v_uv;
 	  vec3 v;
-    vec3 p = 4.*vec3(uv,0.)+u_time*(.1,.7,1.2);
+    vec3 p = 4.*vec3(uv,0.)+u_time*0.2*(.1,.7,1.2);
     float x = myfbm(p);
     //v = vec3(x);
     v = (.5+.5*sin(x*vec3(30.,20.,10.)*SCALE))/SCALE;

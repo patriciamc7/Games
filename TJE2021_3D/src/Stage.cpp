@@ -53,6 +53,10 @@ void IntroStage::createEntities()
 		if (i == 3) {
 			entities[i]->isColision = false;
 		}
+		if (i == 2) {
+			scene->entities[i + 1]->model.translate(0.0f, 0.0f, -15.5f);
+
+		}
 		if (i == 1)
 			scene->entities[i+1]->model.translate(0.0f,0.0f,-31.0f);
 		if (i == 5)
@@ -87,7 +91,6 @@ void IntroStage::update(double seconds_elapsed)
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_M))
 	{
-
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
 		game->current_stage = game->body_stage;
@@ -107,7 +110,6 @@ void IntroStage::update(double seconds_elapsed)
 		if (game->time - Timeanimation < 1.2f){
 			scene->entities[2]->model.rotate(radLeftDoor, Vector3(0.0f, 1.0f, 0.0f));
 			scene->entities[1]->model.rotate(radRightDoor, Vector3(0.0f, 1.0f, 0.0f));
-			this->firstTime = true;
 		}
 	
 	}
@@ -117,7 +119,8 @@ void IntroStage::update(double seconds_elapsed)
 void BodyStage::createTextures()
 {
 	Scene* scene = Game::instance->PlayScene;
-	string texture = "data/imShader/water.tga,data/bathroom/ceiling.tga,data/bathroom/curtain.tga,data/bathroom/sink.tga,data/bathroom/towel.tga,data/bathroom/wall.tga,data/bathroom/bath.tga,data/bathroom/door.tga";
+	string texture = "data/imShader/wateA2.tga,data/bathroom/ceiling.tga,data/bathroom/wall.tga,data/bathroom/bath.tga,data/bathroom/door.tga,data/bathroom/sink.tga,data/bathroom/sink.tga,data/bathroom/cabinet.tga,data/bathroom/cabinet.tga";
+
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -131,9 +134,6 @@ void BodyStage::createTextures()
 		if (this->entities[i]->id == 1){
 			this->entities[i]->texture2 = Texture::Get("data/imShader/cloud.tga");
 		}
-		/*if (this->entities[i]->id == 3) 
-			this->entities[i]->texture2 = Texture::Get("data/imShader/gray.tga");
-		data / imShader / noise.tga*/
 
 		this->entities[i]->texture = Texture::Get(cad.c_str());
 		this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
@@ -142,12 +142,13 @@ void BodyStage::createTextures()
 }
 
 
-//0 mirror, 1 water plane, 2 transparent plane
+//0 water 1celling 2 wall 3 bath 4 door 5 sink 6 sink1 7 cabin 8 cabin 1
 void BodyStage::createEntities()
 {
 	Scene* scene = Game::instance->PlayScene;
 	
-	string mesh= "data/bathroom/ceiling.ASE,data/bathroom/curtain.ASE,data/bathroom/sink.ASE,data/bathroom/towel.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE";
+	string mesh= "data/bathroom/ceiling.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE,data/bathroom/sink.ASE,data/bathroom/sink1.ASE,data/bathroom/cabinet.ASE,data/bathroom/cabinet1.ASE";
+	//data/bathroom/sink.ASE
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -174,6 +175,8 @@ void BodyStage::createEntities()
 			this->entities_mirror[i]->model.rotate(PI, Vector3(0, 1, 0));
 		}*/
 		if (this->entities[i]->id == 1) {
+			this->entities[i]->isColision = false;
+
 			this->entities[i]->mesh->createPlane(30);
 			this->entities[i]->model.translate(-8, 0, 30);
 			this->entities[i]->model.scale(1.3,1,0.9);
@@ -185,14 +188,14 @@ void BodyStage::createEntities()
 		//	this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
 		//	this->entities[i]->model.translate(-15,0,0);
 		//	this->entities[i]->model.scale(0.9,1, 0.5);
-		
-		if (this->entities[i]->id < 9 && this->entities[i]->id > 3) {
-			this->entities[i]->alpha = 0;
+		if (this->entities[i]->id < 8 && this->entities[i]->id > 0) {
 			this->entities_mirror[i]->model = this->entities_mirror[i]->model.relfexion_x();
-
+		}
+		if (this->entities[i]->id > 7) {
+			this->entities[i]->alpha = 1;
+			this->entities_mirror[i]->model = this->entities_mirror[i]->model.relfexion_x();
 		}
 		scene->entities.push_back(this->entities[i]);
-
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
 
 	}
@@ -218,7 +221,7 @@ void BodyStage::renderWater(int i)
 
 	water->shader->setUniform("u_texture2", water->texture, 1);
 	water->shader->setUniform("u_texture", water->texture2, 0);
-	water->shader->setUniform("u_texture_tiling", 1.0f);
+	water->shader->setUniform("u_texture_tiling", 0.2f);
 
 	////render the 
 	water->mesh->render(GL_TRIANGLES);
@@ -296,13 +299,13 @@ void BodyStage::update(double seconds_elapsed)
 			this->firstTime = false;
 		}
 		if (game->time - Timeanimation < 1.2f && game->current_stage->animation2) {
-			scene->entities[8]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
-			scene->entities_mirror[7]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities[5]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities_mirror[4]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
 		
 		}
 		if (game->time - Timeanimation < 1.2f && !game->current_stage->animation2) {
-			scene->entities[8]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
-			scene->entities_mirror[7]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities[5]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities_mirror[4]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
 		}
 
 	}

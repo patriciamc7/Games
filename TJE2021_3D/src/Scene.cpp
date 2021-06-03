@@ -19,8 +19,8 @@ void EntityMesh::render()
 	Vector4 fogColor = Vector4(0.5f, 0.5f, 0.5f, 1.f);
 	float fogDensity = 0.025f;
 
-	/*glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Game* game = Game::instance;
 	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
 	//get the last camera thet was activated
@@ -30,8 +30,8 @@ void EntityMesh::render()
 	else
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
 
-	/*if(game->free_camera)
-		this->mesh->renderBounding(this->model); */
+	if(game->free_camera)
+		this->mesh->renderBounding(this->model); 
 
 	//enable shader and pass uniforms
 	this->shader->enable();
@@ -64,8 +64,8 @@ void EntityMesh::render()
 		this->mesh->render(GL_TRIANGLES);
 	}
 
-	this->shader->disable();/*
-	glDisable(GL_BLEND);*/
+	this->shader->disable();
+	glDisable(GL_BLEND);
 }
 
 void EntityMesh::update(float dt)
@@ -94,8 +94,6 @@ EntityLight::EntityLight()
 	this->light_position = Vector3(0,0,0);
 	this->light_vector = Vector3(0.5, 0, -1);
 
-	////Shadows
-	//this->bias = 0.001f;
 }
 
 
@@ -286,7 +284,7 @@ void EntityPlayer::update(float dt)
 			scene->entities[4]->model.translate(camera->eye.x, camera->eye.y-10, camera->eye.z);
 		}
 
-		//this->collisionMesh(dt); 	//Collision
+		this->collisionMesh(dt); 	//Collision
 		
 		if (game->current_stage == game->intro_stage) {  //animation intro
 			if ((-25.0f < this->pos.z && this->pos.z < 1.0f && -11.0f < this->pos.x) || game->current_stage->Timeanimation != 0.0f)
@@ -304,30 +302,18 @@ void EntityPlayer::update(float dt)
 		}
 
 		if (game->current_stage == game->body_stage) {  //animation bodystage
-			cout << this->pos.x << " " << this->pos.z << " \n";
-			if ((-4.0f < this->pos.x && this->pos.x < 6.0f && -14.0f < this->pos.z  && -5.f > this->pos.z) || game->current_stage->Timeanimation != 0.0f )
+			if ((-4.0f < this->pos.x && this->pos.x < 6.0f && -20.0f < this->pos.z  && -5.f > this->pos.z) || game->current_stage->Timeanimation != 0.0f )
 			{
 				game->current_stage->animation = true;
 				
 			}
-			//else game->current_stage->animation = false;
 			if ((-4.0f < this->pos.x && this->pos.x < 6.0f && 6.f < this->pos.z && game->body_stage->animation2))
 			{
 				game->current_stage->animation = true;
 				game->current_stage->firstTime = true;
 				game->body_stage->animation2 = false;
-				cout << "cierra \n";
 
 			}
-			//else game->current_stage->animation = false;
-
-			/*if (-4.0f < this->pos.x && this->pos.x < 4.0f && -12.0f > this->pos.z) //cambio stage
-			{
-				game->CurrentScene->entities.clear();
-				game->current_stage = game->body_stage;
-				game->CurrentScene = game->PlayScene;
-				game->current_stage->createEntities();
-			}*/
 		}
 
 	}
@@ -346,18 +332,18 @@ void EntityPlayer::collisionMesh(float dt)
 		Vector3 col_point; 	//temp var para guardar el punto de colision si lo hay
 		Vector3 col_normal; 	//temp var para guardar la normal al punto de colision
 		
-		////comprobamos si colisiona el objeto con la esfera (radio 3)
+		//comprobamos si colisiona el objeto con la esfera (radio 3)
 		if (currentScene->entities[i]->isColision){
 			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 10, col_point, col_normal) == false) {
 				this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
 				continue; //si no colisiona, pasamos al siguiente objeto
 			}
-			
+			cout << i << "\n" ;
 			//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
 			Vector3 push_away = normalize(col_point - character_center) * dt;
 			this->pos = this->pos - push_away; //move to previous pos but a little bit further
 
-			////cuidado con la Y, si nuestro juego es 2D la ponemos a 0, nostras no tenemos el player a niguna altura nunca
+			//cuidado con la Y, si nuestro juego es 2D la ponemos a 0, nostras no tenemos el player a niguna altura nunca
 			this->pos.y = 0;
 
 			//reflejamos el vector velocidad para que de la sensacion de que rebota en la pared

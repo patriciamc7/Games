@@ -7,7 +7,7 @@
 
 
 #define MAX_ENT_INTRO 6
-#define MAX_ENT_PLAY 8 //comun mirror and reality
+#define MAX_ENT_PLAY 9 //comun mirror and reality
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
@@ -60,7 +60,7 @@ public:
 
 	vector<EntityMesh*> entities;
 	vector<EntityMesh*> entities_mirror;
-	
+	bool glass = false; 
 
 	virtual void createTextures();
 	virtual void createEntities();
