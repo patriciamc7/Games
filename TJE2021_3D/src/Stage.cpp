@@ -54,6 +54,7 @@ void IntroStage::createEntities()
 			entities[i]->isColision = false;
 		}
 		if (i == 2) {
+			entities[i]->isColision = false;
 			scene->entities[i + 1]->model.translate(0.0f, 0.0f, -15.5f);
 
 		}
@@ -62,6 +63,7 @@ void IntroStage::createEntities()
 		if (i == 5)
 		{
 			scene->entities[i + 1]->model.translate(11.0f, 0.0f, -12.0f);
+			entities[i]->isColision = false;
 		}
 	}
 	createTextures();
@@ -119,7 +121,7 @@ void IntroStage::update(double seconds_elapsed)
 void BodyStage::createTextures()
 {
 	Scene* scene = Game::instance->PlayScene;
-	string texture = "data/imShader/wateA2.tga,data/bathroom/ceiling.tga,data/bathroom/wall.tga,data/bathroom/bath.tga,data/bathroom/door.tga,data/bathroom/sink.tga,data/bathroom/sink.tga,data/bathroom/cabinet.tga,data/bathroom/cabinet.tga";
+	string texture = "data/imShader/wateA2.tga,data/bathroom/ceiling.tga,data/bathroom/wall.tga,data/bathroom/bath.tga,data/bathroom/door.tga,data/bathroom/sink.tga,data/bathroom/sink.tga,data/bathroom/cabinet.tga,data/bathroom/cabinet.tga,data/bathroom/passage.tga,data/bathroom/passagePlane.tga";
 
 	string cad;
 	int found = -1;
@@ -147,7 +149,7 @@ void BodyStage::createEntities()
 {
 	Scene* scene = Game::instance->PlayScene;
 	
-	string mesh= "data/bathroom/ceiling.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE,data/bathroom/sink.ASE,data/bathroom/sink1.ASE,data/bathroom/cabinet.ASE,data/bathroom/cabinet1.ASE";
+	string mesh= "data/bathroom/ceiling.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE,data/bathroom/sink.ASE,data/bathroom/sink1.ASE,data/bathroom/cabinet.ASE,data/bathroom/cabinet1.ASE,data/bathroom/passage.ASE";
 	//data/bathroom/sink.ASE
 	string cad;
 	int found = -1;
@@ -161,7 +163,7 @@ void BodyStage::createEntities()
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i+ playerNum;
 
-		if (this->entities[i]->id != 1 ) {
+		if (this->entities[i]->id != 1  && this->entities[i]->id != 11) {
 			init = found + 1;
 			found = mesh.find(",", found + 1);
 			cad = mesh.substr(init, found - init);
@@ -191,9 +193,22 @@ void BodyStage::createEntities()
 		if (this->entities[i]->id < 8 && this->entities[i]->id > 0) {
 			this->entities_mirror[i]->model = this->entities_mirror[i]->model.relfexion_x();
 		}
-		if (this->entities[i]->id > 7) {
+		if (this->entities[i]->id > 7 ) {
 			this->entities[i]->alpha = 1;
 			this->entities_mirror[i]->model = this->entities_mirror[i]->model.relfexion_x();
+		}
+		if (this->entities[i]->id == 10) {
+			this->entities_mirror[i]->alpha = 1;
+			this->entities[i]->alpha = 0;
+			this->entities[i]->model.translate(5,0,0);
+		}
+		if (this->entities[i]->id == 11) {
+			this->entities[i]->mesh->createPlane(20);
+			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(1.0f, 0.0f,0.0f));
+			this->entities_mirror[i]->alpha = 1;
+			this->entities[i]->alpha = 0;
+			this->entities[i]->model.translate(5, 40, 20);
 		}
 		scene->entities.push_back(this->entities[i]);
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
@@ -257,7 +272,7 @@ void BodyStage::render()
 	Scene* scene = Game::instance->PlayScene;
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
-		if ( scene->entities_mirror[i]->id != 1)  //2 es el suelo water, no lo renderizamos en la realidad mirror
+		if ( scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 11)  //2 es el suelo water, no lo renderizamos en la realidad mirror
 			scene->entities_mirror[i]->render();
 	}
  	for (int i = 0; i < scene->entities.size(); i++)
