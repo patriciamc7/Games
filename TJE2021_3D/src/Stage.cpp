@@ -200,7 +200,7 @@ void BodyStage::createEntities()
 		if (this->entities[i]->id == 10) {
 			this->entities_mirror[i]->alpha = 1;
 			this->entities[i]->alpha = 0;
-			this->entities[i]->model.translate(5,0,0);
+			this->entities[i]->model.translate(5,0,-20);
 		}
 		if (this->entities[i]->id == 11) {
 			this->entities[i]->mesh->createPlane(20);
