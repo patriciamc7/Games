@@ -32,4 +32,5 @@ void main()
 
 	//calcule the position of the vertex using the matrices
 	gl_Position = u_viewprojection * vec4( v_world_position, 1.0 );
+	
 }

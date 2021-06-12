@@ -423,6 +423,14 @@ Vector3 Matrix44::project(const Vector3& v)
 }
 
 
+Matrix44 Matrix44::relfexion_x()
+{
+	Matrix44 ident;
+	ident.setIdentity();
+	ident.M[1][1] = -1;
+	return ident.operator*(m);
+}
+
 //Multiply a matrix by another and returns the result
 Matrix44 Matrix44::operator*(const Matrix44& matrix) const
 {
@@ -1230,7 +1238,7 @@ bool RaySphereCollision(const Vector3& center, const float& radius, const Vector
 Vector3 reflect(const Vector3& I, const Vector3& N)
 {
 
-	return I-2.0f * dot(N,I)*N;
+	return I-2.0f * I.dot(N)*N;
 }
 
 Vector3 normalize(Vector3 n)

@@ -78,7 +78,7 @@ void main()
 {
 	vec2 uv = v_uv;
 	  vec3 v;
-    vec3 p = 4.*vec3(uv,0.)+u_time*(.1,.7,1.2);
+    vec3 p = 4.*vec3(uv,0.)+u_time*0.2*(.1,.7,1.2);
     float x = myfbm(p);
     //v = vec3(x);
     v = (.5+.5*sin(x*vec3(30.,20.,10.)*SCALE))/SCALE;
@@ -86,18 +86,19 @@ void main()
     g = pow(length(v),1.);
     g =  .5*noise(8.*m*m*m*p)+.5; g = 2.*pow(g,3.);
     v *= g;
-    vec3 Ti = texture2D(u_texture2,.02*v.xy+uv * u_texture_tiling).rgb*1.-.2;
-    vec3 Tf = texture2D(u_texture,.02*v.xy+uv * u_texture_tiling).rgb; 
-    vec3 T=Ti;
+    vec4 Ti = texture2D(u_texture2,.02*v.xy+uv * u_texture_tiling)*1.-.2;
+    vec4 Tf = texture2D(u_texture,.02*v.xy+uv * u_texture_tiling); 
+    vec3 T=Ti.rgb;
     //T = Ti+(1.-Ti)*(Tf*0.5); 
     vec3 T1,T2;
     T1 = vec3(0.,0.,1.); T1 *= .5*(T+1.);
     T2 = vec3(1.,1.,1.); //T2 = 1.2*Ti*vec3(0.,.0,.0)-.2;
-    v = mix(mix(T1+(T2*0.2),1.*Tf,.5),T2,T*0.9);   
+    v = mix(mix(T1+(T2*0.2),1.*Tf.rgb,.5),T2,T*0.9);   
+	vec4 color = vec4(v,Ti.a);
 
-	/* vec4 color = texture2D(u_texture_0, uv, 0.0);
-	vec4 color1 = texture2D(u_texture_1, uv, 0.0);
-	*/
-  gl_FragColor = vec4(v,1.0);
+    if(color.a < 0.1)
+		discard;
+    
+    gl_FragColor = color;
 	//gl_FragColor = u_color * texture2D( u_texture, uv * u_texture_tiling );
 }

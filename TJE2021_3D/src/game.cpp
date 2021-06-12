@@ -37,20 +37,43 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	camera->lookAt(Vector3(0.f,100.f, 100.f),Vector3(0.f,0.f,0.f), Vector3(0.f,1.f,0.f)); //position the camera and point to 0,0,0
 	camera->setPerspective(70.f,window_width/(float)window_height,0.1f,10000.f); //set the projection, we want to be perspective
 
+	directional = new EntityLight();
+	
+	spot = new EntityLight();
+	spot->light_position = Vector3(-50.0f, 50.0f, 0.0f);
+	spot->color = Vector3(1.0f, 0.0f, 0.0f);
+	spot->light_vector = Vector3(0.5f,-1.0f,0.0f);
+	spot->spotCosineCutoff= cos(1*DEG2RAD);
+	spot->max_distance = 1.f;
+	spot->spotExponent = 5.f;
+	spot->intensity = 0.2f;
+	spot->light_type = spot->eLightType::SPOT;
+
+	point = new EntityLight();
+	point->light_type = point->eLightType::POINT;
+	point->light_position = Vector3(-50.0f, 50.0f, 0.0f);
+	point->color = Vector3(0.0f, 0.0f, 1.0f);
 	//Scene and stages
 	intro_scene = new Scene();
+	intro_scene->lights.push_back(directional);
+	intro_scene->lights.push_back(spot);
+	intro_scene->lights.push_back(point);
+
 	PlayScene = new Scene();
+	PlayScene->lights.push_back(directional);
+	PlayScene->lights.push_back(spot);
+
 	PlaySceneMirror = new Scene();
 	CurrentScene = intro_scene; 
 
 
 	title_stage = new TitleStage();
 	intro_stage = new IntroStage();
-	play_stage = new PlayStage();
-	current_stage = title_stage;
+	body_stage = new BodyStage();
+	end_stage = new EndStage();
+	current_stage = intro_stage;
 
 	current_stage->createEntities();
-
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 	free_camera = true;
@@ -74,9 +97,6 @@ void Game::render(void)
 	glDisable(GL_CULL_FACE);
 
 	current_stage->render();
-
-	//Draw the floor grid
-	//drawGrid();
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);

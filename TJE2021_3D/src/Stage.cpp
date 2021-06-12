@@ -4,7 +4,6 @@
 #include "utils.h"
 #include "game.h"
 
-
 void IntroStage::createTextures()
 {
 	Scene* scene = Game::instance->intro_scene;
@@ -24,6 +23,7 @@ void IntroStage::createTextures()
 	}
 }
 
+// 0 der puerta ,1  iz puerta ,2 arco puerta ,3 cielo ,4 suelo ,5 iglesia
 void IntroStage::createEntities()
 {
 	Scene* scene = Game::instance->intro_scene;
@@ -31,13 +31,15 @@ void IntroStage::createEntities()
 	string cad;
 	int found = -1;
 	int init = 0; 
-	for (int i = 0; i < MAX_ENT_INTRO; i++)
+	for (int i = 0; i < MAX_ENT_INTRO; i++) 
 	{
 		entities.push_back(new EntityMesh());
 
 		if (i == 4) {
 			entities[i]->mesh->createPlane(2000);
 			entities[i]->tiling = 40.0f;
+			entities[i]->isColision = false;
+
 		}
 		else {
 			init = found + 1;
@@ -45,22 +47,24 @@ void IntroStage::createEntities()
 			cad = mesh.substr(init, found - init);
 			entities[i]->mesh = Mesh::Get(cad.c_str());
 		}
-	
 		entities[i]->id = i;
 		scene->entities.push_back(entities[i]);
 
+		if (i == 3) {
+			entities[i]->isColision = false;
+		}
+		if (i == 2) {
+			entities[i]->isColision = false;
+			scene->entities[i + 1]->model.translate(0.0f, 0.0f, -15.5f);
+
+		}
 		if (i == 1)
 			scene->entities[i+1]->model.translate(0.0f,0.0f,-31.0f);
 		if (i == 5)
 		{
 			scene->entities[i + 1]->model.translate(11.0f, 0.0f, -12.0f);
-			
+			entities[i]->isColision = false;
 		}
-			
-
-
-	
-
 	}
 	createTextures();
 }
@@ -89,7 +93,9 @@ void IntroStage::update(double seconds_elapsed)
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_M))
 	{
-		game->current_stage = game->play_stage;
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->body_stage;
 		game->CurrentScene = game->PlayScene;
 		game->current_stage->createEntities();
 	}
@@ -112,10 +118,11 @@ void IntroStage::update(double seconds_elapsed)
 		
 }
 
-void PlayStage::createTextures()
+void BodyStage::createTextures()
 {
 	Scene* scene = Game::instance->PlayScene;
-	string texture = "data/mirror.tga";
+	string texture = "data/imShader/wateA2.tga,data/bathroom/ceiling.tga,data/bathroom/wall.tga,data/bathroom/bath.tga,data/bathroom/door.tga,data/bathroom/sink.tga,data/bathroom/sink.tga,data/bathroom/cabinet.tga,data/bathroom/cabinet.tga,data/bathroom/passage.tga,data/bathroom/passagePlane.tga";
+
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -125,7 +132,11 @@ void PlayStage::createTextures()
 		init = found + 1;
 		found = texture.find(",", found + 1);
 		cad = texture.substr(init, found - init);
-	
+
+		if (this->entities[i]->id == 1){
+			this->entities[i]->texture2 = Texture::Get("data/imShader/cloud.tga");
+		}
+
 		this->entities[i]->texture = Texture::Get(cad.c_str());
 		this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
 
@@ -133,12 +144,13 @@ void PlayStage::createTextures()
 }
 
 
-
-void PlayStage::createEntities()
+//0 water 1celling 2 wall 3 bath 4 door 5 sink 6 sink1 7 cabin 8 cabin 1
+void BodyStage::createEntities()
 {
 	Scene* scene = Game::instance->PlayScene;
-	string mesh = "data/mirror.ASE";
-	string mirror_mesh = "data/mirror.ASE";
+	
+	string mesh= "data/bathroom/ceiling.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE,data/bathroom/sink.ASE,data/bathroom/sink1.ASE,data/bathroom/cabinet.ASE,data/bathroom/cabinet1.ASE,data/bathroom/passage.ASE";
+	//data/bathroom/sink.ASE
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -148,50 +160,136 @@ void PlayStage::createEntities()
 		this->entities.push_back(new EntityMesh());
 		this->entities_mirror.push_back(new EntityMesh());
 
-		init = found + 1;
-		found = mesh.find(",", found + 1);
-		cad = mesh.substr(init, found - init);
-
-		this->entities[i]->mesh = Mesh::Get(cad.c_str());
-		this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
-
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i+ playerNum;
 
-		if (this->entities[i]->id == 1) {
+		if (this->entities[i]->id != 1  && this->entities[i]->id != 11) {
+			init = found + 1;
+			found = mesh.find(",", found + 1);
+			cad = mesh.substr(init, found - init);
+			this->entities[i]->mesh = Mesh::Get(cad.c_str());
+			this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
+		}
+		/*if (this->entities[i]->id == 1) {
 			this->entities[i]->model.rotate(PI / 2, Vector3(0, 1, 0));
 			this->entities_mirror[i]->model.rotate(PI / 2, Vector3(0, 1, 0));
+			this->entities_mirror[i]->model.translate(0.0f, 0.0f, 20.0f);
+			this->entities_mirror[i]->model.rotate(PI, Vector3(0, 1, 0));
+		}*/
+		if (this->entities[i]->id == 1) {
+			this->entities[i]->isColision = false;
+
+			this->entities[i]->mesh->createPlane(30);
+			this->entities[i]->model.translate(-8, 0, 30);
+			this->entities[i]->model.scale(1.3,1,0.9);
+			this->entities_mirror[i]->mesh->createPlane(25);
 		}
-		
+		//if (this->entities[i]->id == 2) {
+		//	this->entities[i]->mesh->createPlane(20);
+		//	//this->entities_mirror[i] = this->entities[i];
+		//	this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+		//	this->entities[i]->model.translate(-15,0,0);
+		//	this->entities[i]->model.scale(0.9,1, 0.5);
+		if (this->entities[i]->id < 8 && this->entities[i]->id > 0) {
+			this->entities_mirror[i]->model = this->entities_mirror[i]->model.relfexion_x();
+		}
+		if (this->entities[i]->id > 7 ) {
+			this->entities[i]->alpha = 1;
+			this->entities_mirror[i]->model = this->entities_mirror[i]->model.relfexion_x();
+		}
+		if (this->entities[i]->id == 10) {
+			this->entities_mirror[i]->alpha = 1;
+			this->entities[i]->alpha = 0;
+			this->entities[i]->model.translate(5,0,-20);
+		}
+		if (this->entities[i]->id == 11) {
+			this->entities[i]->mesh->createPlane(20);
+			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(1.0f, 0.0f,0.0f));
+			this->entities_mirror[i]->alpha = 1;
+			this->entities[i]->alpha = 0;
+			this->entities[i]->model.translate(5, 40, 20);
+		}
 		scene->entities.push_back(this->entities[i]);
-		this->entities_mirror[i]->model.translate(0.0f, 0.0f, 20.0f);
-		this->entities_mirror[i]->model.rotate(PI, Vector3(0, 1, 0));
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
 
 	}
-
 	createTextures();
+	
+
 }
 
-void PlayStage::render()
+void BodyStage::renderWater(int i)
+{
+
+	EntityMesh* water;
+	glEnable(GL_BLEND); 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Camera* camera = Camera::current;
+	water = this->entities[i - 1];
+	water->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/water.fs");
+	water->shader->enable();
+	water->shader->setUniform("u_model", water->model);
+	water->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	water->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	water->shader->setUniform("u_time", Game::instance->time);
+
+	water->shader->setUniform("u_texture2", water->texture, 1);
+	water->shader->setUniform("u_texture", water->texture2, 0);
+	water->shader->setUniform("u_texture_tiling", 0.2f);
+
+	////render the 
+	water->mesh->render(GL_TRIANGLES);
+	water->shader->disable();
+	glDisable(GL_BLEND);
+}
+
+void BodyStage::renderMirror(int i)
+{
+
+	EntityMesh* mirror;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Camera* camera = Camera::current;
+	mirror = this->entities[i - 1];
+	mirror->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/mirror.fs");
+	mirror->shader->enable();
+	mirror->shader->setUniform("u_model", mirror->model);
+	mirror->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	mirror->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+	mirror->shader->setUniform("u_texture2", mirror->texture2, 0);
+	mirror->shader->setUniform("u_texture", mirror->texture, 1);
+
+	////render the 
+	mirror->mesh->render(GL_TRIANGLES);
+	mirror->shader->disable();
+	glDisable(GL_BLEND);
+}
+
+void BodyStage::render()
 {
 	Scene* scene = Game::instance->PlayScene;
-	for (int i = 0; i < scene->entities.size(); i++)
-	{
-		scene->entities[i]->render();
-	}
-
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
-		scene->entities_mirror[i]->render();
+		if ( scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 11)  //2 es el suelo water, no lo renderizamos en la realidad mirror
+			scene->entities_mirror[i]->render();
 	}
-
+ 	for (int i = 0; i < scene->entities.size(); i++)
+	{
+		if (scene->entities[i]->id == 1) {
+			renderWater(i);
+		}
+		else
+			scene->entities[i]->render();
+	}
 }
 
-void PlayStage::update(double seconds_elapsed)
+void BodyStage::update(double seconds_elapsed)
 {
 
 	Scene* scene = Game::instance->PlayScene;
+	Game* game = Game::instance;
 
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
@@ -201,9 +299,33 @@ void PlayStage::update(double seconds_elapsed)
 	{
 		scene->entities_mirror[i]->update(seconds_elapsed);
 	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_I)) {
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->end_stage;
+		game->CurrentScene = game->EndScene;
+		game->current_stage->createEntities();
+	}
+	if (this->animation)
+	{
+		float radDoor = 90 * DEG2RAD * seconds_elapsed;
+
+		if (this->firstTime) {
+			Timeanimation = game->time;
+			this->firstTime = false;
+		}
+		if (game->time - Timeanimation < 1.2f && game->current_stage->animation2) {
+			scene->entities[5]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities_mirror[4]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
+		
+		}
+		if (game->time - Timeanimation < 1.2f && !game->current_stage->animation2) {
+			scene->entities[5]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities_mirror[4]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
+		}
+
+	}
+
 }
-
-
 
 void TitleStage::createEntities()
 {
@@ -212,7 +334,6 @@ void TitleStage::createEntities()
 	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 	menu->texture = Texture::Get("data/inspeculo.tga");
 }
-
 
 void TitleStage::render()
 {
@@ -223,7 +344,6 @@ void TitleStage::render()
 	menu->shader->setUniform("u_model", menu->model);
 	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-	//menu->shader->setUniform("u_time", Game::instance->time);
 
 	menu->shader->setUniform("u_texture", menu->texture, 0);
 	menu->shader->setUniform("u_texture_tiling", 1.0f);
@@ -233,8 +353,6 @@ void TitleStage::render()
 	menu->shader->disable();
 
 }
-
-
 
 void TitleStage::update(double seconds_elapsed)
 {
@@ -247,37 +365,38 @@ void TitleStage::update(double seconds_elapsed)
 
 }
 
-//BAÑO SHADER
-//Texture* tex1;
-//Texture* tex2;
-//void FirstRoom::createEntities()
-//{
-//	menu = new EntityMesh();
-//	menu->mesh->createPlane(100);
-//	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
-//	tex1 = Texture::Get("data/imShader/water.tga");
-//	tex2 = Texture::Get("data/imShader/cloud.tga");
-//}
+void EndStage::createEntities()
+{
+	menu = new EntityMesh();
+	menu->mesh->createPlane(100);
+	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+	menu->texture = Texture::Get("data/end.tga");
+}
 
-//
-//void FirstRoom::render()
-//{
-//	Camera* camera = new Camera();
-//
-//	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/water.fs");
-//	menu->shader->enable();
-//	menu->shader->setUniform("u_model", menu->model);
-//	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-//	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-//	menu->shader->setUniform("u_time", Game::instance->time);
-//	//menu->shader->setUniform("u_resolution", Vector2(Game::instance->window_height, Game::instance->window_width));
-//
-//	menu->shader->setUniform("u_texture2", tex2, 0);
-//	menu->shader->setUniform("u_texture", tex1, 0);
-//	menu->shader->setUniform("u_texture_tiling", 1.0f);
-//
-//	////render the 
-//	menu->mesh->render(GL_TRIANGLES);
-//	menu->shader->disable();
-//
-//}
+void EndStage::render()
+{
+	Camera* camera = new Camera();
+
+	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	menu->shader->enable();
+	menu->shader->setUniform("u_model", menu->model);
+	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+	menu->shader->setUniform("u_texture", menu->texture, 0);
+	menu->shader->setUniform("u_texture_tiling", 1.0f);
+
+	////render the 
+	menu->mesh->render(GL_TRIANGLES);
+	menu->shader->disable();
+}
+
+void EndStage::update(double seconds_elapsed)
+{
+	Game* game = Game::instance;
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
+		game->current_stage = game->title_stage;
+		game->current_stage->createEntities();
+	}
+}

@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "input.h"
+#include "animation.h"
 class Prefab;
 using namespace std;
 
@@ -15,7 +16,7 @@ public:
 
 	//some attributes
 	int id;
-	bool isColision;
+	bool isColision = true;
 	Matrix44 model;
 
 	//methods overwritten by derived classes
@@ -31,12 +32,12 @@ public:
 
 	//Attrubutes of this class
 	Mesh* mesh; 
-	Texture* texture; 
+	Texture* texture;
+	Texture* texture2;
 	Shader* shader; 
 	Vector4 color; 
 	float tiling;
-	bool alpha; 
-	int radius_colision;
+	int alpha; 
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
@@ -58,6 +59,7 @@ public:
 	Vector3 player_speed;
 	float player_speed_rot;
 	Vector3 targetPos;
+	Vector3 playerSpeed;
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
@@ -88,6 +90,7 @@ public:
 		DIRECTIONAL
 	};
 
+	Shader* shader;
 	eLightType light_type;
 	Vector3 light_position;
 	Vector3 light_vector;
@@ -115,6 +118,8 @@ public:
 	vector<Entity*> entities;
 	vector<Entity*> entities_mirror;
 	vector<EntityPlayer*> characters;
+
+	vector<EntityLight*> lights;
 	Vector3 ambient;
 };
 
