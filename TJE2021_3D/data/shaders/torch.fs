@@ -51,6 +51,7 @@ void main()
 {
 	//vec2 uv = gl_FragCoord.xy / u_resolution;
 	vec2 uv = v_uv;
+	//vec2 uv = gl_FragCoord.xy / (u_resolution);
 	vec2 q = uv;
 	q.x *= 1.; // antorchas horizontal 
 	q.y *= 2.; // altura

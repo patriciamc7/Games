@@ -69,6 +69,7 @@ public:
 	void renderWater(int i);
 	void renderTorch(int i);
 	void renderMirror(int i);
+	void renderGui(); 
 	virtual void update(double seconds_elapsed);
 };
 

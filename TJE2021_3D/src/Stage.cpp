@@ -167,7 +167,7 @@ void BodyStage::createEntities()
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i + playerNum;
 
-		if (this->entities[i]->id != 1 && this->entities[i]->id != 11) {
+		if (this->entities[i]->id != 1 && this->entities[i]->id != 11 && this->entities[i]->id != 13) {
 			init = found + 1;
 			found = mesh.find(",", found + 1);
 			cad = mesh.substr(init, found - init);
@@ -276,16 +276,18 @@ void BodyStage::createEntities()
 			this->entities[i]->isInteractive = true;
 		}
 		if (this->entities[i]->id == 13) { //plano para antorchas
-			this->entities[i]->mesh->createPlane(5);
-			
+			this->entities[i]->mesh->createPlane(20);
+
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
 
-			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
+			//this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
 
 			this->entities[i]->model.translate(-90, -25, -1);
 
 		}
+
+		
 		scene->entities.push_back(this->entities[i]);
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
 
@@ -331,7 +333,10 @@ void BodyStage::renderTorch(int i)
 	torch->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	torch->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 	torch->shader->setUniform("u_time", Game::instance->time);
-
+	//torch->shader->setUniform("u_resolution", Vector2(Game::instance->window_width, Game::instance->window_height));
+	/*torch->shader->setUniform("u_texture2", torch->texture2, 1);
+	torch->shader->setUniform("u_texture", torch->texture, 0);
+	torch->shader->setUniform("u_texture_tiling", 1.0f);*/
 	////render the 
 	torch->mesh->render(GL_TRIANGLES);
 	torch->shader->disable();
@@ -397,6 +402,39 @@ void BodyStage::render()
 		if (scene->entities[i]->id != 1 && scene->entities[i]->id != 12 && scene->entities[i]->id != 13 )
 			scene->entities[i]->render();
 	}
+	renderGui(); 
+}
+
+void BodyStage::renderGui() {
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	Game* game = Game::instance;
+
+	Camera* cam2D = new Camera();
+	cam2D->setOrthographic(0, game->window_width, game->window_height, 0, -1, 1);
+
+	Mesh quad;
+	quad.createQuad(100, 100, 100, 100, false);
+	cam2D->enable();
+
+	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	shader->enable();
+
+	shader->setUniform("u_model", Matrix44());
+	shader->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
+	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader->setUniform("u_texture_tiling", 1.0f);
+	shader->setUniform("u_texture", Texture::Get("data/inspeculo.tga"), 0);
+
+	quad.render(GL_TRIANGLES);
+
+	shader->disable();
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
 }
 
 void BodyStage::update(double seconds_elapsed)
