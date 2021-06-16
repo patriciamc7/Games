@@ -271,16 +271,21 @@ void BodyStage::createEntities()
 		}
 		if (this->entities[i]->id == 12) { //trozo de espejo
 			this->entities[i]->model.translate(-30, 0, 20);
-			//this->entities[i]->model.scale(0.2f,0.2f,0.2f);
+			this->entities[i]->model.scale(0.2f, 0.2f, 0.2f);
+			this->entities[i]->model.rotate(-45, Vector3(0,1,0));
 			this->entities[i]->isInteractive = true;
 		}
-		if (this->entities[i]->id == 13) { //trozo de espejo
-			this->entities[i]->mesh->createPlane(50);
-			this->entities[i]->model.scale(0.2f, 1.0f, 1.0f);
+		if (this->entities[i]->id == 13) { //plano para antorchas
+			this->entities[i]->mesh->createPlane(5);
+			
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+
+			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
+
+			this->entities[i]->model.translate(-90, -25, -1);
 
 		}
-
-		
 		scene->entities.push_back(this->entities[i]);
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
 
@@ -312,6 +317,27 @@ void BodyStage::renderWater(int i)
 	water->shader->disable();
 	glDisable(GL_BLEND);
 }
+void BodyStage::renderTorch(int i)
+{
+
+	EntityMesh* torch;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Camera* camera = Camera::current;
+	torch = this->entities[i - 1];
+	torch->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/torch.fs");
+	torch->shader->enable();
+	torch->shader->setUniform("u_model", torch->model);
+	torch->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	torch->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	torch->shader->setUniform("u_time", Game::instance->time);
+
+	////render the 
+	torch->mesh->render(GL_TRIANGLES);
+	torch->shader->disable();
+	glDisable(GL_BLEND);
+}
+
 
 void BodyStage::renderMirror(int i)
 {
@@ -352,7 +378,7 @@ void BodyStage::render()
 	Scene* scene = Game::instance->PlayScene;
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
-		if ( scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id != 12)  //2 es el suelo water, no lo renderizamos en la realidad mirror
+		if ( scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id != 12 && scene->entities_mirror[i]->id != 13)  //2 es el suelo water, no lo renderizamos en la realidad mirror
 			scene->entities_mirror[i]->render();
 		
 	}
@@ -361,15 +387,14 @@ void BodyStage::render()
 		if (scene->entities[i]->id == 1) {
 			renderWater(i);
 		}
-		
+		if (scene->entities[i]->id == 13) {
+			renderTorch(i);
+		}
 		if (scene->entities[i]->id == 12) {
 			renderMirror(i);
 		}
-		/*if (scene->entities[i]->id == 13) { para mostrar linea con camera center
-			this->entities[i]->model.translate(camera->center.x, camera->center.y, camera->center.z);
-		}*/
 
-		if (scene->entities[i]->id != 1 && scene->entities[i]->id != 12)
+		if (scene->entities[i]->id != 1 && scene->entities[i]->id != 12 && scene->entities[i]->id != 13 )
 			scene->entities[i]->render();
 	}
 }

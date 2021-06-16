@@ -67,6 +67,7 @@ public:
 	virtual void createEntities();
 	virtual void render();
 	void renderWater(int i);
+	void renderTorch(int i);
 	void renderMirror(int i);
 	virtual void update(double seconds_elapsed);
 };

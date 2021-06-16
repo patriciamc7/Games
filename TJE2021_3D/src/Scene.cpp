@@ -151,7 +151,7 @@ EntityPlayer::EntityPlayer()
 void EntityPlayer::render()
 {
 	
-	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -383,27 +383,20 @@ void EntityPlayer::Interaction()
 
 		float max_ray_dist = 100;
 		if (currentScene->entities[i]->isInteractive){
-			if (this->mesh->testRayCollision(currentScene->entities[i]->model, ray_origin, ray_dir, col_point, col_normal, max_ray_dist) == false) {
-				cout << currentScene->entities[i]->id << "\n ";
-				continue; //si no colisiona, pasamos al siguiente objeto
+			//if (this->mesh->testRayCollision(currentScene->entities[i]->model, ray_origin, ray_dir, col_point, col_normal, max_ray_dist) == false) {
+			//	cout << currentScene->entities[i]->id << "\n ";
+			//	continue; //si no colisiona, pasamos al siguiente objeto
 
-			}
-			//if (Input::mouse_state & SDL_BUTTON_LEFT) //is left button pressed?
-			/*if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
-			{
-			*/	
+			//}
+
 			if (currentStage == game->body_stage) {
 				if (currentScene->entities[i]->id == 12) {
-
-					currentScene->entities[i]->alpha = 1;
-					game->body_stage->animation2 = true;
-					cout << "HOLAAAAAAA \n ";
-					//hacer una nueva prefab grande si coisiona es 1 entonces en update el cristal de verdad alpa a 1
+					if (this->pos.x > -32 && this->pos.x < -25 && this->pos.z > 2 && this->pos.x < 7) { //estoy mirando si el player esta cerca de el cristal lo pongo en alpha 1 si aprieto shift
+						if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
+							currentScene->entities[i]->alpha = 1;
+					}
 				}
 			}
-				/*currentScene->entities[i]->model.translate(this->pos.x, this->pos.y, this->pos.z);
-				cout << currentScene->entities[i]->id << "\n ";*/
-			//}
 		}
 	}
 }
