@@ -17,8 +17,10 @@ public:
 	//some attributes
 	int id;
 	bool isColision = true;
+	bool isInteractive = false;
 	Matrix44 model;
 
+	int alpha;
 	//methods overwritten by derived classes
 	virtual void render() {}; //empty body 
 	virtual void update(float elapsed_time) {}; //empty body 
@@ -37,7 +39,6 @@ public:
 	Shader* shader; 
 	Vector4 color; 
 	float tiling;
-	int alpha; 
 	//methods overwritten
 	virtual void render();
 	virtual void update(float dt);
@@ -64,6 +65,8 @@ public:
 	virtual void render();
 	virtual void update(float dt);
 	void collisionMesh(float dt);
+	void Interaction();
+	
 
 };
 class EntitySound :public Entity

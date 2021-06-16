@@ -141,22 +141,29 @@ EntityPlayer::EntityPlayer()
 	this->center_value_y = 20.0f;
 	this->player_speed = Vector3(20.0f,0, 20.0f);
 	this->player_speed_rot = 50.0f;
-	this->yaw = 90; 
+	this->yaw = -90; 
 	this->pos = Vector3(-20.0f, 0.0f, 0.0f);
 	this->targetPos = this->pos;
 	this->pitch = 0.0f;
-	
 }
 
 
 void EntityPlayer::render()
 {
 	
+	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
 	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
 
+	if (game->current_stage == game->body_stage){
+		if (game->body_stage->InitStageBody) {
+			this->pos = Vector3(6, 0, -65);
+			this->yaw = 0;
+			game->body_stage->InitStageBody = false;
+		}
+	}
 	if (game->current_stage == game->intro_stage)
 		shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/fog.fs");
 	else
@@ -236,6 +243,7 @@ void EntityPlayer::render()
 
 	Mesh::Get("data/animation/character.mesh")->renderAnimated(GL_TRIANGLES, &skeleton);
 	shader->disable();
+
 }
 
 void EntityPlayer::update(float dt)
@@ -285,7 +293,8 @@ void EntityPlayer::update(float dt)
 		}
 
 		this->collisionMesh(dt); 	//Collision
-		
+		this->Interaction();
+
 		if (game->current_stage == game->intro_stage) {  //animation intro
 			if ((-25.0f < this->pos.z && this->pos.z < 1.0f && -11.0f < this->pos.x) || game->current_stage->Timeanimation != 0.0f)
 			{
@@ -302,20 +311,20 @@ void EntityPlayer::update(float dt)
 		}
 
 		if (game->current_stage == game->body_stage) {  //animation bodystage
-			if ((-4.0f < this->pos.x && this->pos.x < 6.0f && -20.0f < this->pos.z  && -5.f > this->pos.z) || game->current_stage->Timeanimation != 0.0f )
+
+			if ((-7.0f < this->pos.x && this->pos.x < 14.0f && -42.0f < this->pos.z  && -20.f > this->pos.z) || game->current_stage->Timeanimation != 0.0f )
 			{
 				game->current_stage->animation = true;
-				
 			}
-			if ((-4.0f < this->pos.x && this->pos.x < 6.0f && 6.f < this->pos.z && game->body_stage->animation2))
+			if ((-7.0f < this->pos.x && this->pos.x < 14.0f && -11.f < this->pos.z && game->body_stage->animation2))
 			{
+
 				game->current_stage->animation = true;
 				game->current_stage->firstTime = true;
 				game->body_stage->animation2 = false;
 
 			}
 		}
-
 	}
 }
 
@@ -325,7 +334,7 @@ void EntityPlayer::collisionMesh(float dt)
 	Scene* currentScene = Game::instance->CurrentScene; 
 	//// calculamos el centro de la esfera de colisión del player elevandola hasta la cintura
 	Vector3 character_center = this->pos + Vector3(0, 2, 0);
-
+	this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
 	////para cada objecto de la escena...
 	for  (int i = 1; i < currentScene->entities.size(); i++)
 	{
@@ -334,11 +343,10 @@ void EntityPlayer::collisionMesh(float dt)
 		
 		//comprobamos si colisiona el objeto con la esfera (radio 3)
 		if (currentScene->entities[i]->isColision){
-			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 10, col_point, col_normal) == false) {
-				this->player_speed = Vector3(20.0f, 0.0f, 20.0f);
+			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 7, col_point, col_normal) == false) {
 				continue; //si no colisiona, pasamos al siguiente objeto
 			}
-			cout << i << "\n" ;
+			//cout << currentScene->entities[i]->id << "\n";
 			//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
 			Vector3 push_away = normalize(col_point - character_center) * dt;
 			this->pos = this->pos - push_away; //move to previous pos but a little bit further
@@ -347,10 +355,55 @@ void EntityPlayer::collisionMesh(float dt)
 			this->pos.y = 0;
 
 			//reflejamos el vector velocidad para que de la sensacion de que rebota en la pared
-			this->player_speed = reflect(this->player_speed, col_normal) * 0.96;
+			this->player_speed = reflect(this->player_speed, col_normal) * 0.95;
 
 		}
 		
 	}
 
+}
+
+void EntityPlayer::Interaction()
+{
+
+	Scene* currentScene = Game::instance->CurrentScene;
+	Stage* currentStage = Game::instance->current_stage;
+	Game* game = Game::instance;
+
+	//// calculamos el centro de la esfera de colisión del player elevandola hasta la cintura
+	Camera* camera = Camera::current;
+
+	Vector3 ray_origin = camera->eye;
+	Vector3 ray_dir = camera->center;
+	////para cada objecto de la escena...
+	for (int i = 1; i < currentScene->entities.size(); i++)
+	{
+		Vector3 col_point; 	//temp var para guardar el punto de colision si lo hay
+		Vector3 col_normal; 	//temp var para guardar la normal al punto de colision
+
+		float max_ray_dist = 100;
+		if (currentScene->entities[i]->isInteractive){
+			if (this->mesh->testRayCollision(currentScene->entities[i]->model, ray_origin, ray_dir, col_point, col_normal, max_ray_dist) == false) {
+				cout << currentScene->entities[i]->id << "\n ";
+				continue; //si no colisiona, pasamos al siguiente objeto
+
+			}
+			//if (Input::mouse_state & SDL_BUTTON_LEFT) //is left button pressed?
+			/*if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
+			{
+			*/	
+			if (currentStage == game->body_stage) {
+				if (currentScene->entities[i]->id == 12) {
+
+					currentScene->entities[i]->alpha = 1;
+					game->body_stage->animation2 = true;
+					cout << "HOLAAAAAAA \n ";
+					//hacer una nueva prefab grande si coisiona es 1 entonces en update el cristal de verdad alpa a 1
+				}
+			}
+				/*currentScene->entities[i]->model.translate(this->pos.x, this->pos.y, this->pos.z);
+				cout << currentScene->entities[i]->id << "\n ";*/
+			//}
+		}
+	}
 }
