@@ -13,12 +13,12 @@ void IntroStage::createTextures()
 	int init = 0;
 	for (int i = 0; i < MAX_ENT_INTRO; i++)
 	{
-		if (i==0 || i>2) {
+		if (i == 0 || i > 2) {
 			init = found + 1;
 			found = texture.find(",", found + 1);
 			cad = texture.substr(init, found - init);
 		}
-		
+
 		entities[i]->texture = Texture::Get(cad.c_str());
 	}
 }
@@ -30,8 +30,8 @@ void IntroStage::createEntities()
 	string mesh = "data/RightDoor.ase,data/LeftDoor.ase,data/ArcDoor.ase,data/cielo.ASE,data/intro.ase";
 	string cad;
 	int found = -1;
-	int init = 0; 
-	for (int i = 0; i < MAX_ENT_INTRO; i++) 
+	int init = 0;
+	for (int i = 0; i < MAX_ENT_INTRO; i++)
 	{
 		entities.push_back(new EntityMesh());
 
@@ -59,7 +59,7 @@ void IntroStage::createEntities()
 
 		}
 		if (i == 1)
-			scene->entities[i+1]->model.translate(0.0f,0.0f,-31.0f);
+			scene->entities[i + 1]->model.translate(0.0f, 0.0f, -31.0f);
 		if (i == 5)
 		{
 			scene->entities[i + 1]->model.translate(11.0f, 0.0f, -12.0f);
@@ -99,23 +99,23 @@ void IntroStage::update(double seconds_elapsed)
 		game->CurrentScene = game->PlayScene;
 		game->current_stage->createEntities();
 	}
-	
+
 	if (this->animation)
-	{	
+	{
 		float radLeftDoor = -90 * DEG2RAD * seconds_elapsed;
-		float radRightDoor= 90 * DEG2RAD * seconds_elapsed;
+		float radRightDoor = 90 * DEG2RAD * seconds_elapsed;
 
 		if (this->firstTime) {
 			Timeanimation = game->time;
 			this->firstTime = false;
 		}
-		if (game->time - Timeanimation < 1.2f){
+		if (game->time - Timeanimation < 1.2f) {
 			scene->entities[2]->model.rotate(radLeftDoor, Vector3(0.0f, 1.0f, 0.0f));
 			scene->entities[1]->model.rotate(radRightDoor, Vector3(0.0f, 1.0f, 0.0f));
 		}
-	
+
 	}
-		
+
 }
 
 void BodyStage::createTextures()
@@ -126,14 +126,14 @@ void BodyStage::createTextures()
 	string cad;
 	int found = -1;
 	int init = 0;
-	
+
 	for (int i = 0; i < MAX_ENT_PLAY; i++)
 	{
 		init = found + 1;
 		found = texture.find(",", found + 1);
 		cad = texture.substr(init, found - init);
 
-		if (this->entities[i]->id == 1){
+		if (this->entities[i]->id == 1) {
 			this->entities[i]->texture2 = Texture::Get("data/imShader/cloud.tga");
 		}
 		if (this->entities[i]->id == 12) {
@@ -151,13 +151,13 @@ void BodyStage::createEntities()
 {
 	Scene* scene = Game::instance->PlayScene;
 
-	string mesh= "data/bathroom/ceiling.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE,data/bathroom/sink.ASE,data/bathroom/sink1.ASE,data/bathroom/cabinet.ASE,data/bathroom/cabinet1.ASE,data/bathroom/passage.ASE,data/glassBody.ASE";
+	string mesh = "data/bathroom/ceiling.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE,data/bathroom/sink.ASE,data/bathroom/sink1.ASE,data/bathroom/cabinet.ASE,data/bathroom/cabinet1.ASE,data/bathroom/passage.ASE,data/glassBody.ASE";
 
 	string cad;
 
 	int found = -1;
 	int init = 0;
-	int playerNum = scene->entities.size(); 
+	int playerNum = scene->entities.size();
 	this->InitStageBody = true;
 	for (int i = 0; i < MAX_ENT_PLAY; i++)
 	{
@@ -167,7 +167,7 @@ void BodyStage::createEntities()
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i + playerNum;
 
-		if (this->entities[i]->id != 1 && this->entities[i]->id != 11 && this->entities[i]->id != 13) {
+		if (this->entities[i]->id != 1 && this->entities[i]->id != 11 && this->entities[i]->id < 13) {
 			init = found + 1;
 			found = mesh.find(",", found + 1);
 			cad = mesh.substr(init, found - init);
@@ -196,8 +196,8 @@ void BodyStage::createEntities()
 			this->entities_mirror[i]->mesh->createPlane(30);
 			this->entities_mirror[i]->alpha = 1;
 		}
-		
-		
+
+
 		if (this->entities[i]->id == 2) //techo
 		{
 			this->entities[i]->model.translate(5, 0, -25);
@@ -234,7 +234,7 @@ void BodyStage::createEntities()
 		if (this->entities[i]->id == 8) //cabinet
 		{
 			this->entities[i]->model.translate(-10, 0, 19);
-			this->entities[i]->model.rotate( -45*DEG2RAD, Vector3 (0, 1, 0));
+			this->entities[i]->model.rotate(-45 * DEG2RAD, Vector3(0, 1, 0));
 			this->entities_mirror[i]->model.translate(-10, 0, 19);
 			this->entities_mirror[i]->model.rotate(-45 * DEG2RAD, Vector3(0, 1, 0));
 
@@ -257,13 +257,13 @@ void BodyStage::createEntities()
 			this->entities[i]->alpha = 0;
 			this->entities[i]->isColision = false;
 			this->entities[i]->model.translate(5, 0, -55);
-			this->entities_mirror[i]->model.translate(5,0,-55);
+			this->entities_mirror[i]->model.translate(5, 0, -55);
 
 		}
 		if (this->entities[i]->id == 11) {
 			this->entities[i]->mesh->createPlane(20);
 			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
-			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(1.0f, 0.0f,0.0f));
+			this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities_mirror[i]->alpha = 1;
 			this->entities[i]->alpha = 0;
 			this->entities[i]->model.translate(5, 80, 20);
@@ -272,7 +272,7 @@ void BodyStage::createEntities()
 		if (this->entities[i]->id == 12) { //trozo de espejo
 			this->entities[i]->model.translate(-30, 0, 20);
 			this->entities[i]->model.scale(0.2f, 0.2f, 0.2f);
-			this->entities[i]->model.rotate(-45, Vector3(0,1,0));
+			this->entities[i]->model.rotate(-45, Vector3(0, 1, 0));
 			this->entities[i]->isInteractive = true;
 		}
 		if (this->entities[i]->id == 13) { //plano para antorchas
@@ -280,14 +280,37 @@ void BodyStage::createEntities()
 
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
-
-			//this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
-
-			this->entities[i]->model.translate(-90, -25, -1);
+			this->entities[i]->model.translate(-50, 15, 30);
+			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
 
 		}
+		if (this->entities[i]->id == 14) { //plano para antorchas
+			this->entities[i]->mesh->createPlane(20);
 
-		
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+			this->entities[i]->model.translate(-35, 15, 30);
+			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
+
+		}
+		if (this->entities[i]->id == 15) { //plano para antorchas
+			this->entities[i]->mesh->createPlane(20);
+
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+			this->entities[i]->model.translate(-50, -5, 30);
+			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
+
+		}
+		if (this->entities[i]->id == 16) { //plano para antorchas
+			this->entities[i]->mesh->createPlane(20);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+			this->entities[i]->model.translate(-35, -5, 30);
+			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
+		}
+
+
 		scene->entities.push_back(this->entities[i]);
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
 
@@ -299,7 +322,7 @@ void BodyStage::renderWater(int i)
 {
 
 	EntityMesh* water;
-	glEnable(GL_BLEND); 
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Camera* camera = Camera::current;
 	water = this->entities[i - 1];
@@ -333,10 +356,6 @@ void BodyStage::renderTorch(int i)
 	torch->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	torch->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 	torch->shader->setUniform("u_time", Game::instance->time);
-	//torch->shader->setUniform("u_resolution", Vector2(Game::instance->window_width, Game::instance->window_height));
-	/*torch->shader->setUniform("u_texture2", torch->texture2, 1);
-	torch->shader->setUniform("u_texture", torch->texture, 0);
-	torch->shader->setUniform("u_texture_tiling", 1.0f);*/
 	////render the 
 	torch->mesh->render(GL_TRIANGLES);
 	torch->shader->disable();
@@ -347,15 +366,15 @@ void BodyStage::renderTorch(int i)
 void BodyStage::renderMirror(int i)
 {
 	Scene* scene = Game::instance->PlayScene;
-	
+
 	if (!animation2)
 		glDisable(GL_DEPTH_TEST);
 	EntityMesh* mirror;
-	
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Camera* camera = Camera::current;
-	mirror = this->entities[i-1];
+	mirror = this->entities[i - 1];
 	mirror->mesh->renderBounding(mirror->model);
 	mirror->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/mirror.fs");
 	mirror->shader->enable();
@@ -383,26 +402,26 @@ void BodyStage::render()
 	Scene* scene = Game::instance->PlayScene;
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
-		if ( scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id != 12 && scene->entities_mirror[i]->id != 13)  //2 es el suelo water, no lo renderizamos en la realidad mirror
+		if (scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id != 12 && scene->entities_mirror[i]->id < 13)  //2 es el suelo water, no lo renderizamos en la realidad mirror
 			scene->entities_mirror[i]->render();
-		
+
 	}
- 	for (int i = 0; i < scene->entities.size(); i++)
+	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		if (scene->entities[i]->id == 1) {
 			renderWater(i);
 		}
-		if (scene->entities[i]->id == 13) {
+		if (scene->entities[i]->id > 12) {
 			renderTorch(i);
 		}
 		if (scene->entities[i]->id == 12) {
 			renderMirror(i);
 		}
 
-		if (scene->entities[i]->id != 1 && scene->entities[i]->id != 12 && scene->entities[i]->id != 13 )
+		if (scene->entities[i]->id != 1 && scene->entities[i]->id != 12 && scene->entities[i]->id < 13)
 			scene->entities[i]->render();
 	}
-	renderGui(); 
+	renderGui();
 }
 
 void BodyStage::renderGui() {
@@ -470,7 +489,7 @@ void BodyStage::update(double seconds_elapsed)
 			game->CurrentScene->entities[5]->isColision = false;
 			scene->entities[5]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
 			scene->entities_mirror[4]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
-		
+
 		}
 		if (game->time - Timeanimation < 1.2f && !game->current_stage->animation2) {
 
@@ -494,7 +513,7 @@ void TitleStage::createEntities()
 void TitleStage::render()
 {
 	Camera* camera = new Camera();
-	
+
 	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	menu->shader->enable();
 	menu->shader->setUniform("u_model", menu->model);

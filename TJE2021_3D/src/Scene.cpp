@@ -316,9 +316,8 @@ void EntityPlayer::update(float dt)
 			{
 				game->current_stage->animation = true;
 			}
-			if ((-7.0f < this->pos.x && this->pos.x < 14.0f && -11.f < this->pos.z && game->body_stage->animation2))
+			if ((-7.0f < this->pos.x && this->pos.x < 14.0f && -11.f < this->pos.z && game->body_stage->animation2) && game->current_stage->glassCount==0)
 			{
-
 				game->current_stage->animation = true;
 				game->current_stage->firstTime = true;
 				game->body_stage->animation2 = false;
@@ -392,8 +391,10 @@ void EntityPlayer::Interaction()
 			if (currentStage == game->body_stage) {
 				if (currentScene->entities[i]->id == 12) {
 					if (this->pos.x > -32 && this->pos.x < -25 && this->pos.z > 2 && this->pos.x < 7) { //estoy mirando si el player esta cerca de el cristal lo pongo en alpha 1 si aprieto shift
-						if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
+						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+							game->body_stage->glassCount += 1;
 							currentScene->entities[i]->alpha = 1;
+						}
 					}
 				}
 			}

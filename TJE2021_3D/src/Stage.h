@@ -7,7 +7,7 @@
 
 
 #define MAX_ENT_INTRO 6
-#define MAX_ENT_PLAY 13 //comun mirror and reality
+#define MAX_ENT_PLAY 16 //comun mirror and reality
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
@@ -15,7 +15,8 @@
 
 class Stage {
 public:
-
+	bool doorOpen2 = true;
+	int glassCount = 0;
 	bool animation = false;
 	float Timeanimation = 0.0f;
 	bool firstTime = true;
