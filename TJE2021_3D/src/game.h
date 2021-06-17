@@ -30,7 +30,7 @@ public:
 	
 	//Scenes
 
-	//Scene* intro_scene;
+	Scene* mind_scene;
 	Scene* intro_scene;
 	Scene* PlayScene;
 	Scene* EndScene;
@@ -40,6 +40,7 @@ public:
 	//Stages
 	Stage* title_stage;
 	Stage* intro_stage;
+	Stage* mind_stage;
 	Stage* body_stage;
 	Stage* end_stage;
 	Stage* current_stage;

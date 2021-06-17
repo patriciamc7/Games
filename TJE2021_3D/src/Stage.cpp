@@ -69,7 +69,6 @@ void IntroStage::createEntities()
 	createTextures();
 }
 
-
 void IntroStage::render()
 {
 
@@ -121,7 +120,7 @@ void IntroStage::update(double seconds_elapsed)
 void BodyStage::createTextures()
 {
 	Scene* scene = Game::instance->PlayScene;
-	string texture = "data/imShader/water.tga,data/bathroom/ceiling.tga,data/bathroom/wall.tga,data/bathroom/bath.tga,data/bathroom/door.tga,data/bathroom/sink.tga,data/bathroom/sink.tga,data/bathroom/cabinet.tga,data/bathroom/cabinet.tga,data/bathroom/passage.tga,data/bathroom/passagePlane.tga,data/imShader/noise.tga";
+	string texture = "data/imShader/water.tga,data/bathroom/ceiling.tga,data/bathroom/wall.tga,data/bathroom/bath.tga,data/bathroom/door.tga,data/bathroom/sink.tga,data/bathroom/sink.tga,data/bathroom/cabinet.tga,data/bathroom/cabinet.tga,data/bathroom/passage.tga,data/bathroom/passagePlane.tga,data/imShader/noise.tga,data/bathroom/torch.tga,data/bathroom/torch.tga,data/bathroom/torch.tga,data/bathroom/torch.tga";
 
 	string cad;
 	int found = -1;
@@ -129,29 +128,29 @@ void BodyStage::createTextures()
 
 	for (int i = 0; i < MAX_ENT_PLAY; i++)
 	{
-		init = found + 1;
-		found = texture.find(",", found + 1);
-		cad = texture.substr(init, found - init);
-
 		if (this->entities[i]->id == 1) {
 			this->entities[i]->texture2 = Texture::Get("data/imShader/cloud.tga");
 		}
 		if (this->entities[i]->id == 12) {
 			this->entities[i]->texture2 = Texture::Get("data/imShader/gray.tga");
 		}
-		this->entities[i]->texture = Texture::Get(cad.c_str());
-		this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
-
+		if (this->entities[i]->id > 16 || this->entities[i]->id < 13) {
+			init = found + 1;
+			found = texture.find(",", found + 1);
+			cad = texture.substr(init, found - init);
+			this->entities[i]->texture = Texture::Get(cad.c_str());
+			this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
+		}
+		
 	}
 }
-
 
 //0 water 1celling 2 wall 3 bath 4 door 5 sink 6 sink1 7 cabin 8 cabin 1 9 passage 10 plano 11 mirror
 void BodyStage::createEntities()
 {
 	Scene* scene = Game::instance->PlayScene;
 
-	string mesh = "data/bathroom/ceiling.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE,data/bathroom/sink.ASE,data/bathroom/sink1.ASE,data/bathroom/cabinet.ASE,data/bathroom/cabinet1.ASE,data/bathroom/passage.ASE,data/glassBody.ASE";
+	string mesh = "data/bathroom/ceiling.ASE,data/bathroom/wall.ASE,data/bathroom/bath.ASE,data/bathroom/door.ASE,data/bathroom/sink.ASE,data/bathroom/sink1.ASE,data/bathroom/cabinet.ASE,data/bathroom/cabinet1.ASE,data/bathroom/passage.ASE,data/glassBody.ASE,data/bathroom/torch.ASE,data/bathroom/torch.ASE,data/bathroom/torch.ASE,data/bathroom/torch.ASE";
 
 	string cad;
 
@@ -167,26 +166,13 @@ void BodyStage::createEntities()
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i + playerNum;
 
-		if (this->entities[i]->id != 1 && this->entities[i]->id != 11 && this->entities[i]->id < 13) {
+		if (this->entities[i]->id != 1 && this->entities[i]->id != 11 &&( this->entities[i]->id < 13 || this->entities[i]->id > 16)) {
 			init = found + 1;
 			found = mesh.find(",", found + 1);
 			cad = mesh.substr(init, found - init);
 			this->entities[i]->mesh = Mesh::Get(cad.c_str());
 			this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
 		}
-		/*if (this->entities[i]->id == 1) {
-			this->entities[i]->model.rotate(PI / 2, Vector3(0, 1, 0));
-			this->entities_mirror[i]->model.rotate(PI / 2, Vector3(0, 1, 0));
-			this->entities_mirror[i]->model.translate(0.0f, 0.0f, 20.0f);
-			this->entities_mirror[i]->model.rotate(PI, Vector3(0, 1, 0));
-		}*/
-		//if (this->entities[i]->id == 2) { //espejo
-		//	this->entities[i]->mesh->createPlane(20);
-		//	//this->entities_mirror[i] = this->entities[i];
-		//	this->entities[i]->model.setRotation(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
-		//	this->entities[i]->model.translate(-15,0,0);
-		//	this->entities[i]->model.scale(0.9,1, 0.5);
-		//}
 		if (this->entities[i]->id == 1) {
 			this->entities[i]->isColision = false;
 
@@ -256,8 +242,8 @@ void BodyStage::createEntities()
 			this->entities_mirror[i]->alpha = 1;
 			this->entities[i]->alpha = 0;
 			this->entities[i]->isColision = false;
-			this->entities[i]->model.translate(5, 0, -55);
-			this->entities_mirror[i]->model.translate(5, 0, -55);
+			this->entities[i]->model.translate(9, 0, -55);
+			this->entities_mirror[i]->model.translate(9, 0, -55);
 
 		}
 		if (this->entities[i]->id == 11) {
@@ -280,7 +266,7 @@ void BodyStage::createEntities()
 
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
-			this->entities[i]->model.translate(-50, 15, 30);
+			this->entities[i]->model.translate(-50, 19, 30);
 			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
 
 		}
@@ -289,7 +275,7 @@ void BodyStage::createEntities()
 
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
-			this->entities[i]->model.translate(-35, 15, 30);
+			this->entities[i]->model.translate(-35, 19, 30);
 			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
 
 		}
@@ -298,7 +284,7 @@ void BodyStage::createEntities()
 
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
-			this->entities[i]->model.translate(-50, -5, 30);
+			this->entities[i]->model.translate(-50, 0, 30);
 			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
 
 		}
@@ -306,11 +292,27 @@ void BodyStage::createEntities()
 			this->entities[i]->mesh->createPlane(20);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
-			this->entities[i]->model.translate(-35, -5, 30);
+			this->entities[i]->model.translate(-35, 0, 30);
 			this->entities[i]->model.scale(0.5f, 0.5f, 0.5f);
 		}
 
+		if (this->entities[i]->id == 17) { //plano para antorchas
+			this->entities[i]->model.translate(-2, 10, -35);
+		}
+		if (this->entities[i]->id == 20) { //plano para antorchas
+			this->entities[i]->model.translate(-2, 10, -50);
+		}
 
+		if (this->entities[i]->id == 18) { //plano para antorchas
+			this->entities[i]->model.rotate(180 * DEG2RAD, Vector3(0.0f, 1.0f, 0.0f));
+			this->entities[i]->model.translate(-20, 10, 35);
+
+		}
+		if (this->entities[i]->id == 19) { //plano para antorchas
+			this->entities[i]->model.rotate(180 * DEG2RAD, Vector3(0.0f, 1.0f, 0.0f));
+			this->entities[i]->model.translate(-20, 10, 50);
+		}
+		
 		scene->entities.push_back(this->entities[i]);
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
 
@@ -342,6 +344,7 @@ void BodyStage::renderWater(int i)
 	water->shader->disable();
 	glDisable(GL_BLEND);
 }
+
 void BodyStage::renderTorch(int i)
 {
 
@@ -361,7 +364,6 @@ void BodyStage::renderTorch(int i)
 	torch->shader->disable();
 	glDisable(GL_BLEND);
 }
-
 
 void BodyStage::renderMirror(int i)
 {
@@ -411,14 +413,14 @@ void BodyStage::render()
 		if (scene->entities[i]->id == 1) {
 			renderWater(i);
 		}
-		if (scene->entities[i]->id > 12) {
+		if (scene->entities[i]->id > 12 && scene->entities[i]->id < 17) {
 			renderTorch(i);
 		}
 		if (scene->entities[i]->id == 12) {
 			renderMirror(i);
 		}
 
-		if (scene->entities[i]->id != 1 && scene->entities[i]->id != 12 && scene->entities[i]->id < 13)
+		if (scene->entities[i]->id != 1 && scene->entities[i]->id != 12 && (scene->entities[i]->id < 13 || scene->entities[i]->id>16))
 			scene->entities[i]->render();
 	}
 	renderGui();
@@ -436,7 +438,7 @@ void BodyStage::renderGui() {
 	cam2D->setOrthographic(0, game->window_width, game->window_height, 0, -1, 1);
 
 	Mesh quad;
-	quad.createQuad(100, 100, 100, 100, false);
+	quad.createQuad(100, 100, 100, 100, true);
 	cam2D->enable();
 
 	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
@@ -446,7 +448,14 @@ void BodyStage::renderGui() {
 	shader->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
 	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 	shader->setUniform("u_texture_tiling", 1.0f);
-	shader->setUniform("u_texture", Texture::Get("data/inspeculo.tga"), 0);
+	if (this->glassCount == 0)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI0.tga"), 0);
+	if (this->glassCount == 1)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI1.tga"), 0);
+	if (this->glassCount == 2)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI2.tga"), 0);
+	if (this->glassCount == 3)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI3.tga"), 0);
 
 	quad.render(GL_TRIANGLES);
 
@@ -472,8 +481,8 @@ void BodyStage::update(double seconds_elapsed)
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_I)) {
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->end_stage;
-		game->CurrentScene = game->EndScene;
+		game->current_stage = game->mind_stage;
+		game->CurrentScene = game->mind_scene;
 		game->current_stage->createEntities();
 	}
 	if (this->animation)
@@ -499,9 +508,82 @@ void BodyStage::update(double seconds_elapsed)
 		}
 
 	}
+	if (this->glassCount == 3)
+		game->current_stage = game->end_stage;
+	if (this->glassCount == 1 && this->doorOpen2) {
 
+		this->doorOpen2 = false;
+		game->current_stage->animation2 = true;
+		this->animation = true;
+		this->firstTime = true;
+	}
 }
 
+void MindStage::createTextures()
+{
+	Scene* scene = Game::instance->PlayScene;
+	string texture = "data/mind/sala.tga,data/mind/suelo.tga";
+
+	string cad;
+	int found = -1;
+	int init = 0;
+
+	for (int i = 0; i < MAX_ENT_MIND; i++)
+	{
+		init = found + 1;
+		found = texture.find(",", found + 1);
+		cad = texture.substr(init, found - init);
+		this->entities[i]->texture = Texture::Get(cad.c_str());
+		this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
+		
+	}
+}
+
+void MindStage::createEntities() {
+	Scene* scene = Game::instance->PlayScene;
+
+	string mesh = "data/mind/sala.ASE,data/mind/suelo.ASE";
+
+	string cad;
+
+	int found = -1;
+	int init = 0;
+	int playerNum = scene->entities.size();
+
+	for (int i = 0; i < MAX_ENT_MIND; i++)
+	{
+		this->entities.push_back(new EntityMesh());
+		this->entities_mirror.push_back(new EntityMesh());
+
+		this->entities[i]->id = i + playerNum;
+		this->entities_mirror[i]->id = i + playerNum;
+
+		init = found + 1;
+		found = mesh.find(",", found + 1);
+		cad = mesh.substr(init, found - init);
+		this->entities[i]->mesh = Mesh::Get(cad.c_str());
+		this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
+
+	}
+	createTextures();
+}
+void MindStage::render()
+{
+	Camera* camera = Camera::current;
+	Scene* scene = Game::instance->mind_scene;
+	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	{
+		scene->entities_mirror[i]->render();
+	}
+	for (int i = 0; i < scene->entities.size(); i++)
+	{
+		scene->entities[i]->render();
+	}
+	//renderGui();
+}
+void MindStage::update(double seconds_elapsed)
+{
+}
 void TitleStage::createEntities()
 {
 	menu = new EntityMesh();

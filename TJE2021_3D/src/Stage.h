@@ -7,7 +7,8 @@
 
 
 #define MAX_ENT_INTRO 6
-#define MAX_ENT_PLAY 16 //comun mirror and reality
+#define MAX_ENT_PLAY 20 //comun mirror and reality
+#define MAX_ENT_MIND 20 //comun mirror and reality
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
@@ -71,6 +72,21 @@ public:
 	void renderTorch(int i);
 	void renderMirror(int i);
 	void renderGui(); 
+	virtual void update(double seconds_elapsed);
+};
+
+class MindStage : public Stage {
+public:
+
+	vector<EntityMesh*> entities;
+	vector<EntityMesh*> entities_mirror;
+	bool glass = false;
+	virtual void createTextures();
+	virtual void createEntities();
+	virtual void render();
+	/*void renderTorch(int i);
+	void renderMirror(int i);
+	void renderGui();*/
 	virtual void update(double seconds_elapsed);
 };
 
