@@ -540,7 +540,7 @@ void MindStage::createTextures()
 }
 
 void MindStage::createEntities() {
-	Scene* scene = Game::instance->PlayScene;
+	Scene* scene = Game::instance->mind_scene;
 
 	string mesh = "data/mind/sala.ASE,data/mind/suelo.ASE";
 
@@ -563,18 +563,25 @@ void MindStage::createEntities() {
 		cad = mesh.substr(init, found - init);
 		this->entities[i]->mesh = Mesh::Get(cad.c_str());
 		this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
-
+		if (this->entities[i]->id == 1) 
+		{
+			this->entities[i]->model.scale(4, 4, 4); 
+		}
+		scene->entities.push_back(this->entities[i]);
+		scene->entities_mirror.push_back(this->entities_mirror[i]);
 	}
+
 	createTextures();
 }
 void MindStage::render()
 {
 	Camera* camera = Camera::current;
 	Scene* scene = Game::instance->mind_scene;
-	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	/*for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
-		scene->entities_mirror[i]->render();
-	}
+		if(scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 2)
+			scene->entities_mirror[i]->render();
+	}*/
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		scene->entities[i]->render();
@@ -583,6 +590,16 @@ void MindStage::render()
 }
 void MindStage::update(double seconds_elapsed)
 {
+	/*Scene* scene = Game::instance->PlayScene;
+
+	for (int i = 0; i < scene->entities.size(); i++)
+	{
+		scene->entities[i]->update(seconds_elapsed);
+	}
+	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	{
+		scene->entities_mirror[i]->update(seconds_elapsed);
+	}*/
 }
 void TitleStage::createEntities()
 {

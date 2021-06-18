@@ -29,7 +29,7 @@ void EntityMesh::render()
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/fog.fs");
 	else
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
-
+	
 	if(game->free_camera)
 		if (this->id == 17)
 		this->mesh->renderBounding(this->model); 
