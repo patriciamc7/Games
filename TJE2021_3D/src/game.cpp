@@ -48,6 +48,16 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	spot->spotExponent = 5.f;
 	spot->intensity = 0.2f;
 	spot->light_type = spot->eLightType::SPOT;
+
+	spot2 = new EntityLight();
+	spot2->light_position = Vector3(-50.0f, 50.0f, 0.0f);
+	spot2->color = Vector3(0.0f, 1.0f, 0.0f);
+	spot2->light_vector = Vector3(0.5f, -1.0f, 0.0f);
+	spot2->spotCosineCutoff = cos(1 * DEG2RAD);
+	spot2->max_distance = 1.f;
+	spot2->spotExponent = 5.f;
+	spot2->intensity = 0.8f;
+	spot2->light_type = spot2->eLightType::SPOT;
 	
 
 	point = new EntityLight();
@@ -63,7 +73,9 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	PlaySceneMirror = new Scene();
 	mind_scene = new Scene();
+	mind_scene->lights.push_back(spot2);
 	mind_scene->lights.push_back(spot);
+	mind_scene->lightsMirror.push_back(spot);
 
 	CurrentScene = mind_scene;
 

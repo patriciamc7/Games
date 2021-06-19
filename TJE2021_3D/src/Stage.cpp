@@ -682,7 +682,7 @@ void MindStage::render()
 	{
 		//no renerizamos el epejo/ el marco ni el trozo de espejo
 		if (scene->entities[i]->id != 9 && scene->entities[i]->id != 10 && scene->entities[i]->id != 12)
-			scene->entities_mirror[i]->render();
+			scene->entities_mirror[i]->render(true);
 	}
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
@@ -718,13 +718,18 @@ void MindStage::ChangePosLight()
 	Game* game = Game::instance; 
 	if (this->glassCount != 2) {
 		if (((int)game->time % 3) == 0 && timeSpot != (int)game->time) {
-			scene->lights[0]->light_position = Vector3(rand() % 110 - 90, 25, rand() % 110 - 30); //spot reality world
+			//scene->lights[0]->light_position = Vector3(rand() % 110 - 90, 25, rand() % 110 - 30); //spot reality world
+			scene->lights[0]->light_position = Vector3(-100, 50, 0); //spot mirror  world
+			scene->lights[1]->light_position = Vector3(-50, 50, 0); //spot mirror  world
+			scene->lightsMirror[0]->light_position = Vector3(-50, 50, 0); //spot mirror  world
+			//scene->lights[1]->light_position = Vector3(-50, 50, 0); //spot mirror  world
 			timeSpot = (int)game->time;
 		}
 	}
 	else 
 	{
-		scene->lights[0]->light_position = Vector3(-50, 25, 0); //spot reality world
+		//scene->lights[0]->light_position = Vector3(-50, 50, 0); //spot reality world
+		//scene->lights[1]->light_position = Vector3(-50, 25, 0); //spot reality world
 	}
 
 }

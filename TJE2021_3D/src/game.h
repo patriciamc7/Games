@@ -48,6 +48,7 @@ public:
 	//Lights
 	EntityLight* directional;
 	EntityLight* spot;
+	EntityLight* spot2;
 	EntityLight* point;
 
 

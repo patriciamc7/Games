@@ -12,7 +12,7 @@
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 3
 
 class Stage {
 public:

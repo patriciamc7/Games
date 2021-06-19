@@ -13,16 +13,21 @@ EntityMesh::EntityMesh()
 	this->tiling = 1.0f;
 }
 
-void EntityMesh::render()
+void EntityMesh::render(bool mirror)
 {
 	//var for fog
 	Vector4 fogColor = Vector4(0.5f, 0.5f, 0.5f, 1.f);
 	float fogDensity = 0.025f;
-
+	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Game* game = Game::instance;
-	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
+	
+	vector<EntityLight*> lights; 
+	if (mirror == true)
+		lights = game->CurrentScene->lightsMirror; 
+	else
+		lights = Game::instance->CurrentScene->lights;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
 	if (game->current_stage == game->intro_stage)
@@ -50,6 +55,13 @@ void EntityMesh::render()
 
 	for (int i = 0; i < lights.size(); i++)
 	{
+		
+		if (i != 0)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+		}
+
 		this->shader->setUniform("u_light_position", lights[i]->light_position);
 		this->shader->setUniform("u_light_direction", lights[i]->light_vector);
 		this->shader->setUniform("u_light_color", lights[i]->color);
@@ -57,7 +69,7 @@ void EntityMesh::render()
 		this->shader->setUniform("u_light_intensity", lights[i]->intensity);
 		this->shader->setUniform("u_light_ambient", vec3(0.1, 0.1, 0.1));
 
-			if (game->CurrentScene->lights[i]->light_type == 1) { //si es una spot
+			if (lights[i]->light_type == 1) { //si es una spot
 				this->shader->setUniform("u_light_maxdist", lights[i]->max_distance);
 				this->shader->setUniform("u_light_cutoffCos", lights[i]->spotCosineCutoff);
 				this->shader->setUniform("u_light_exponent", lights[i]->spotExponent);
@@ -79,7 +91,7 @@ EntitySound::EntitySound()
 {
 }
 
-void EntitySound::render()
+void EntitySound::render(bool mirror )
 {
 }
 
@@ -99,7 +111,7 @@ EntityLight::EntityLight()
 }
 
 
-void EntityLight::render()
+void EntityLight::render(bool mirror )
 {
 
 }
@@ -150,7 +162,7 @@ EntityPlayer::EntityPlayer()
 }
 
 
-void EntityPlayer::render()
+void EntityPlayer::render(bool mirror)
 {
 	
 	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
@@ -158,6 +170,8 @@ void EntityPlayer::render()
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
 	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
+	
+	glDepthFunc(GL_LEQUAL);
 
 	if (game->current_stage == game->body_stage){
 		if (game->body_stage->InitStageBody) {
@@ -208,8 +222,30 @@ void EntityPlayer::render()
 	shader->setUniform("u_texture_tiling", 1.0f);
 	
 
+	Animation* idle = Animation::Get("data/animation/animations_idle.skanim");
+	float t = fmod(game->time, idle->duration) / idle->duration; //norm duracion de la animacion
+	idle->assignTime(t * idle->duration);
+	Animation* walk = Animation::Get("data/animation/animations_walking.skanim");
+	walk->assignTime(t * walk->duration);
+
+	Skeleton skeleton;
+
+	if (this->playerSpeed.length() == 0) {
+		vel_factor -= 0.01;
+		if (vel_factor < 0)
+			vel_factor = 0;
+	}
+	vel_factor += this->playerSpeed.length() * 0.1;
+	blendSkeleton(&idle->skeleton, &walk->skeleton, vel_factor, &skeleton); //si el jugador se mueve aplicar walk, si no idle
+
+
 	for (int i = 0; i < lights.size(); i++)
 	{
+		if (i != 0)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+		}
 		this->shader->setUniform("u_light_position", lights[i]->light_position);
 		this->shader->setUniform("u_light_direction", lights[i]->light_vector);
 		this->shader->setUniform("u_light_color", lights[i]->color);
@@ -224,27 +260,13 @@ void EntityPlayer::render()
 		}
 
 		////render the 
-		//this->mesh->render(GL_TRIANGLES);
+		Mesh::Get("data/animation/character.mesh")->renderAnimated(GL_TRIANGLES, &skeleton);
+
 	}
 
-	Animation* idle = Animation::Get("data/animation/animations_idle.skanim");
-	float t = fmod(game->time, idle->duration) / idle->duration; //norm duracion de la animacion
-	idle->assignTime(t * idle->duration);
-	Animation* walk = Animation::Get("data/animation/animations_walking.skanim");
-	walk->assignTime(t * walk->duration);
-
-	Skeleton skeleton;
-	
-	if (this->playerSpeed.length() == 0) {
-		vel_factor -= 0.01;
-		if (vel_factor < 0)
-			vel_factor = 0;
-	}
-	vel_factor += this->playerSpeed.length()*0.1;
-	blendSkeleton(&idle->skeleton, &walk->skeleton, vel_factor, &skeleton); //si el jugador se mueve aplicar walk, si no idle
-
-	Mesh::Get("data/animation/character.mesh")->renderAnimated(GL_TRIANGLES, &skeleton);
 	shader->disable();
+	glDisable(GL_BLEND);
+
 
 }
 
