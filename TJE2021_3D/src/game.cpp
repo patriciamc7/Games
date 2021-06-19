@@ -65,7 +65,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	PlaySceneMirror = new Scene();
 	mind_scene = new Scene();
-	mind_scene->lights.push_back(directional);
+	mind_scene->lights.push_back(spot);
 
 	CurrentScene = mind_scene;
 

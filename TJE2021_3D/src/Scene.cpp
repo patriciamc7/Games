@@ -29,7 +29,8 @@ void EntityMesh::render()
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/fog.fs");
 	else
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
-	
+	if (game->current_stage == game->mind_stage)
+		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/fog2.fs");
 	if(game->free_camera)
 		if (this->id == 17)
 		this->mesh->renderBounding(this->model); 
@@ -39,6 +40,8 @@ void EntityMesh::render()
 
 	this->shader->setUniform("u_fogColor", fogColor);
 	this->shader->setUniform("u_fog_density", fogDensity);
+	this->shader->setUniform("u_camera_position", camera->eye);
+	this->shader->setUniform("u_fog_settings", Vector2(0.0f, 500.0f));
 
 	this->shader->setUniform("u_model", this->model);
 	this->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
