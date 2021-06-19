@@ -56,12 +56,9 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//Scene and stages
 	intro_scene = new Scene();
 	intro_scene->lights.push_back(directional);
-	intro_scene->lights.push_back(spot);
-	intro_scene->lights.push_back(point);
 
 	PlayScene = new Scene();
 	PlayScene->lights.push_back(directional);
-	PlayScene->lights.push_back(spot);
 
 	PlaySceneMirror = new Scene();
 	mind_scene = new Scene();

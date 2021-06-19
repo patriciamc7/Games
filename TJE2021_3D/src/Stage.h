@@ -8,7 +8,7 @@
 
 #define MAX_ENT_INTRO 6
 #define MAX_ENT_PLAY 20 //comun mirror and reality
-#define MAX_ENT_MIND 20 //comun mirror and reality
+#define MAX_ENT_MIND 13 //comun mirror and reality
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
@@ -28,6 +28,8 @@ public:
 	virtual void createTextures() {};
 	virtual void render() {}; //empty body 
 	virtual void update(double seconds_elapsed) {}; //empty body 
+	void renderMirror(int i , vector<EntityMesh*> entities);
+
 };
 
 class TitleStage : public Stage {
@@ -70,7 +72,6 @@ public:
 	virtual void render();
 	void renderWater(int i);
 	void renderTorch(int i);
-	void renderMirror(int i);
 	void renderGui(); 
 	virtual void update(double seconds_elapsed);
 };
@@ -84,6 +85,7 @@ public:
 	virtual void createTextures();
 	virtual void createEntities();
 	virtual void render();
+
 	/*void renderTorch(int i);
 	void renderMirror(int i);
 	void renderGui();*/
