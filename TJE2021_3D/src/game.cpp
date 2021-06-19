@@ -38,16 +38,17 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	camera->setPerspective(70.f,window_width/(float)window_height,0.1f,10000.f); //set the projection, we want to be perspective
 
 	directional = new EntityLight();
-	
+
 	spot = new EntityLight();
 	spot->light_position = Vector3(-50.0f, 50.0f, 0.0f);
 	spot->color = Vector3(1.0f, 0.0f, 0.0f);
-	spot->light_vector = Vector3(0.5f,-1.0f,0.0f);
-	spot->spotCosineCutoff= cos(1*DEG2RAD);
+	spot->light_vector = Vector3(0.5f, -1.0f, 0.0f);
+	spot->spotCosineCutoff = cos(1 * DEG2RAD);
 	spot->max_distance = 1.f;
 	spot->spotExponent = 5.f;
 	spot->intensity = 0.2f;
 	spot->light_type = spot->eLightType::SPOT;
+	
 
 	point = new EntityLight();
 	point->light_type = point->eLightType::POINT;

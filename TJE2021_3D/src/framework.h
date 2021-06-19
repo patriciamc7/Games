@@ -257,6 +257,7 @@ class Matrix44
 
 		//reflexion
 		Matrix44 relfexion_x();
+		Matrix44 relfexion_y(); 
 
 		Matrix44 operator * (const Matrix44& matrix) const;
 };

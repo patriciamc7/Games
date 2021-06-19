@@ -82,6 +82,7 @@ public:
 	vector<EntityMesh*> entities;
 	vector<EntityMesh*> entities_mirror;
 	bool glass = false;
+	int timeSpot = 0; 
 	virtual void createTextures();
 	virtual void createEntities();
 	virtual void render();
@@ -90,6 +91,7 @@ public:
 	void renderMirror(int i);
 	void renderGui();*/
 	virtual void update(double seconds_elapsed);
+	void ChangePosLight(); 
 };
 
 class EndStage : public Stage {

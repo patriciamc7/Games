@@ -93,7 +93,7 @@ EntityLight::EntityLight()
 	this->color = Vector3(1.0f, 1.0f, 1.0f);
 	this->intensity = 1.0f;
 	this->light_type = eLightType::DIRECTIONAL;
-	this->light_position = Vector3(0,0,0);
+	this->light_position =  Vector3(-50.0f, 50.0f, 0.0f);
 	this->light_vector = Vector3(0.5, 0, -1);
 
 }

@@ -431,6 +431,14 @@ Matrix44 Matrix44::relfexion_x()
 	return ident.operator*(m);
 }
 
+Matrix44 Matrix44::relfexion_y()
+{
+	Matrix44 ident;
+	ident.setIdentity();
+	ident.M[0][0] = -1;
+	return ident.operator*(m);
+}
+
 //Multiply a matrix by another and returns the result
 Matrix44 Matrix44::operator*(const Matrix44& matrix) const
 {
