@@ -8,7 +8,7 @@
 
 #define MAX_ENT_INTRO 6
 #define MAX_ENT_PLAY 20 //comun mirror and reality
-#define MAX_ENT_MIND 14 //comun mirror and reality
+#define MAX_ENT_MIND 24 //comun mirror and reality
 #define MAX_ENT_PLAY_MIRR 0 //only mirror
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
@@ -17,6 +17,7 @@
 class Stage {
 public:
 	bool doorOpen2 = true;
+	bool changeGlass = false; 
 	int glassCount = 0;
 
 	bool isAmulet = false;
@@ -29,11 +30,13 @@ public:
 	bool firstTime = true;
 	bool animation2 = true;
 
-	bool InitStageBody = false;
+	bool InitStage = false;
 	virtual void createEntities() {};
 	virtual void createTextures() {};
 	virtual void render() {}; //empty body 
 	virtual void update(double seconds_elapsed) {}; //empty body 
+
+	void renderTorch(int i, vector<EntityMesh*> entities);
 	void renderMirror(int i , vector<EntityMesh*> entities);
 
 };
@@ -77,7 +80,6 @@ public:
 	virtual void createEntities();
 	virtual void render();
 	void renderWater(int i);
-	void renderTorch(int i);
 	void renderGui(); 
 	virtual void update(double seconds_elapsed);
 };

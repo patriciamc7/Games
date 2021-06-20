@@ -48,7 +48,10 @@ class EntityPlayer :public Entity
 public:
 	EntityPlayer(); //constructor
 
-	//Attrubutes of this class
+	
+//Attrubutes of this class
+
+	float vel_factor = 0;
 	float center_value_y;
 	Mesh* mesh;
 	Texture* texture;

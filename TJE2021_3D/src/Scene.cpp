@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "game.h"
 #include "framework.h"
-float vel_factor=0;
+
 EntityMesh::EntityMesh()
 {
 	this->mesh = new Mesh();
@@ -30,11 +30,6 @@ void EntityMesh::render()
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/fog.fs");
 	else
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
-	if(game->current_stage == game->mind_stage)
-		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volumeLight.fs");
-	/*if(game->free_camera)
-		if (this->id == 17)
-		this->mesh->renderBounding(this->model); */
 
 	//enable shader and pass uniforms
 	this->shader->enable();
@@ -56,7 +51,6 @@ void EntityMesh::render()
 
 	for (int i = 0; i < lights.size(); i++)
 	{
-		
 		if (i != 0)
 		{
 			if (this->alpha == 1) {
@@ -78,6 +72,7 @@ void EntityMesh::render()
 				this->shader->setUniform("u_light_cutoffCos", lights[i]->spotCosineCutoff);
 				this->shader->setUniform("u_light_exponent", lights[i]->spotExponent);
 			}
+
 		////render the 
 		this->mesh->render(GL_TRIANGLES);
 	}
@@ -111,7 +106,6 @@ EntityLight::EntityLight()
 	this->light_type = eLightType::DIRECTIONAL;
 	this->light_position =  Vector3(-50.0f, 50.0f, 0.0f);
 	this->light_vector = Vector3(0.5, 0, -1);
-
 }
 
 
@@ -145,8 +139,6 @@ void Scene::CreatePlayer()
 		this->characters[i]->mesh = Mesh::Get(cad.c_str());
 		this->characters[i]->id = i;
 		this->entities.push_back(this->characters[i]);
-		if (i == 0) 
-			this->characters[i]->texture = Texture::Get("data/UV.tga");
 		
 	}
 }
@@ -177,10 +169,17 @@ void EntityPlayer::render()
 	glDepthFunc(GL_LEQUAL);
 
 	if (game->current_stage == game->body_stage){
-		if (game->body_stage->InitStageBody) {
+		if (game->body_stage->InitStage) {
 			this->pos = Vector3(6, 0, -65);
 			this->yaw = 0;
-			game->body_stage->InitStageBody = false;
+			game->body_stage->InitStage = false;
+		}
+	}
+	if (game->current_stage == game->mind_stage) {
+		if (game->mind_stage->InitStage) {
+			this->yaw = 0;
+			this->pos = Vector3(-20.0f, 0, -113.0f);
+			game->mind_stage->InitStage = false;
 		}
 	}
 	if (game->current_stage == game->intro_stage)
@@ -212,8 +211,6 @@ void EntityPlayer::render()
 		SDL_ShowCursor(false);
 	
 	}
-	/*else
-		this->mesh->renderBounding(this->model);*/
 
 	//enable shader and pass uniforms
 	shader->enable();
@@ -351,7 +348,22 @@ void EntityPlayer::update(float dt)
 
 			}
 		}
+		if (game->current_stage == game->mind_stage) {  //animation mindstage
+
+			if (( -90.0f < this->pos.z && -58.0f > this->pos.z) || game->current_stage->Timeanimation != 0.0f) //abrir
+			{
+				game->current_stage->animation = true;
+			}
+			if ((-30.0f < this->pos.z && game->mind_stage->animation2) && game->current_stage->isRa == false) //cerrar
+			{
+				game->current_stage->animation = true;
+				game->current_stage->firstTime = true;
+				game->current_stage->animation2 = false;
+
+			}
+		}
 	}
+
 }
 
 void EntityPlayer::collisionMesh(float dt)
@@ -372,7 +384,7 @@ void EntityPlayer::collisionMesh(float dt)
 			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 7, col_point, col_normal) == false) {
 				continue; //si no colisiona, pasamos al siguiente objeto
 			}
-			//cout << currentScene->entities[i]->id << "\n";
+			cout << currentScene->entities[i]->id << "\n";
 			//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
 			Vector3 push_away = normalize(col_point - character_center) * dt;
 			this->pos = this->pos - push_away; //move to previous pos but a little bit further
@@ -416,6 +428,7 @@ void EntityPlayer::Interaction()
 					if (this->pos.x > -32 && this->pos.x < -25 && this->pos.z > 2 && this->pos.x < 7) { //estoy mirando si el player esta cerca de el cristal lo pongo en alpha 1 si aprieto shift
 						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
 							game->body_stage->glassCount += 1;
+							currentStage->changeGlass = true;
 							currentScene->entities[i]->alpha = 1;
 						}
 					}
@@ -425,11 +438,13 @@ void EntityPlayer::Interaction()
 		if (currentStage == game->mind_stage) {
 			if (!game->mind_stage->isAmulet) {
 				if (currentScene->entities[i]->id == 9 || currentScene->entities[i]->id == 6 || currentScene->entities[i]->id == 5) {
-
 					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center,20, col_point, col_normal) == true) {
+						
 						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-							game->mind_stage->id = currentScene->entities[i]->id;
+							game->mind_stage->id = i-1;
 							game->mind_stage->isAmulet = true;
+							currentScene->entities_mirror[i-1]->alpha = 1;
+
 						}
 					}
 				}
@@ -440,7 +455,7 @@ void EntityPlayer::Interaction()
 					
 					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 20, col_point, col_normal) == true) {
 						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-							if (game->mind_stage->id == 9) //si objeto obtenido es el amuleto Ra (bueno) seguimos con el puzzle, si no se vuelve a intentar
+							if (game->mind_stage->id == 8) //si objeto obtenido es el amuleto Ra (bueno) seguimos con el puzzle, si no se vuelve a intentar
 							{
 								game->mind_stage->isRa = true;
 							}
@@ -448,7 +463,21 @@ void EntityPlayer::Interaction()
 							{
 								game->mind_stage->isAmulet = false;
 								game->mind_stage->isRa = false;
+								currentScene->entities_mirror[game->mind_stage->id]->alpha = 0;
+
 							}
+						}
+					}
+				}
+				if (currentScene->entities[i]->id == 10) { //trozo espejo
+
+					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
+						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+							currentStage->glassCount += 1;
+							currentStage->changeGlass = true;
+							currentScene->entities[i]->alpha = 1;
+							game->mind_stage->isRa = false;
+
 						}
 					}
 				}
