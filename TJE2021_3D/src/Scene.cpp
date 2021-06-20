@@ -30,6 +30,8 @@ void EntityMesh::render()
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/fog.fs");
 	else
 		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
+	if(game->current_stage == game->mind_stage)
+		this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volumeLight.fs");
 	/*if(game->free_camera)
 		if (this->id == 17)
 		this->mesh->renderBounding(this->model); */
@@ -47,7 +49,10 @@ void EntityMesh::render()
 	this->shader->setUniform("u_color", this->color);
 	this->shader->setUniform("u_texture_tiling", this->tiling);
 	this->shader->setUniform("u_alpha", this->alpha);
+	this->shader->setUniform("u_rand", Vector3(random(), random(), random()));
 	this->shader->setUniform("u_texture", this->texture, 0);
+	this->shader->setUniform("u_texture_noise", Texture::Get("data/imShader/noise2.tga") , 1);
+
 
 	for (int i = 0; i < lights.size(); i++)
 	{
