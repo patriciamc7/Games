@@ -139,7 +139,8 @@ void Scene::CreatePlayer()
 		this->characters[i]->mesh = Mesh::Get(cad.c_str());
 		this->characters[i]->id = i;
 		this->entities.push_back(this->characters[i]);
-		
+		if (i == 0)
+			this->characters[i]->texture = Texture::Get("data/UV.tga");
 	}
 }
 
@@ -464,6 +465,9 @@ void EntityPlayer::Interaction()
 								game->mind_stage->isAmulet = false;
 								game->mind_stage->isRa = false;
 								currentScene->entities_mirror[game->mind_stage->id]->alpha = 0;
+								currentScene->lights[0]->intensity -= 0.3f;
+								if (currentScene->lights[0]->intensity < 0)
+									currentScene->lights[0]->intensity = 0;
 
 							}
 						}

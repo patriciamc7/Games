@@ -41,7 +41,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	spot = new EntityLight();
 	spot->light_position = Vector3(-50.0f, 50.0f, 0.0f);
-	spot->color = Vector3(1.0f, 0.0f, 0.0f);
+	spot->color = Vector3(0.95f, 0.96f, 0.72f);
 	spot->light_vector = Vector3(0.5f, -1.0f, 0.0f);
 	spot->spotCosineCutoff = cos(1 * DEG2RAD);
 	spot->max_distance = 1.f;
@@ -51,7 +51,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	spot2 = new EntityLight();
 	spot2->light_position = Vector3(-100.0f, 50.0f, 0.0f);
-	spot2->color = Vector3(0.0f, 1.0f, 0.0f);
+	spot2->color = Vector3(0.95f, 0.96f, 0.72f);
 	spot2->light_vector = Vector3(0.5f, -1.0f, 0.0f);
 	spot2->spotCosineCutoff = cos(1 * DEG2RAD);
 	spot2->max_distance = 1.f;

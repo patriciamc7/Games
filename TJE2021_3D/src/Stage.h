@@ -90,6 +90,7 @@ public:
 	vector<EntityMesh*> entities;
 	vector<EntityMesh*> entities_mirror;
 	bool glass = false;
+	int contObject = 0; 
 	
 	int timeSpot = 0; 
 	virtual void createTextures();

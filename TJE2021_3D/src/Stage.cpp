@@ -790,7 +790,7 @@ void MindStage::update(double seconds_elapsed)
 	}
 	if (this->animation)
 	{
-		float radDoor = -90 * DEG2RAD * seconds_elapsed;
+		float x = 10 * seconds_elapsed;
 
 		if (this->firstTime) {
 			Timeanimation = game->time;
@@ -798,16 +798,15 @@ void MindStage::update(double seconds_elapsed)
 		}
 		if (game->time - Timeanimation < 1.2f && game->current_stage->animation2) {
 
-			game->CurrentScene->entities[12]->isColision = false;
-			scene->entities[12]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
-			scene->entities_mirror[11]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			game->CurrentScene->entities[12]->isColision = false;			
+			scene->entities[12]->model.translate(x, 0.0f, 0.0f);
+
 
 		}
 		if (game->time - Timeanimation < 1.2f && !game->current_stage->animation2) {
 
 			game->CurrentScene->entities[12]->isColision = true;
-			scene->entities[12]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
-			scene->entities_mirror[11]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities[12]->model.translate(-x, 0.0f, 0.0f);
 		}
 
 	}
@@ -828,11 +827,12 @@ void MindStage::ChangePosLight()
 	 
 	if (!isRa) {
 		if (((int)game->time % 3) == 0 && timeSpot != (int)game->time) {
-			int x = rand();
-			int z= rand();
-			scene->lights[0]->light_position = Vector3( x% 110 - 90, 25, z % 110 - 30); //spot reality world
-			int pos = abs((x % 110 - 90) - (-100));
-			scene->lights[1]->light_position = Vector3(-100-pos, 25, z % 110 - 30); //spot reality world
+			
+			this->contObject += 1; 
+			if (this->contObject == 3)
+				this->contObject = 0; 
+			scene->lights[0]->light_position = Vector3(-80, 25, contObject*25); //spot reality world
+			scene->lights[1]->light_position = Vector3(-125, 25, contObject * 25); //spot reality world
 
 			timeSpot = (int)game->time;
 		}
