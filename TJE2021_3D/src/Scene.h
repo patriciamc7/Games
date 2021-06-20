@@ -22,7 +22,7 @@ public:
 
 	int alpha;
 	//methods overwritten by derived classes
-	virtual void render(bool mirror= false) {}; //empty body 
+	virtual void render() {}; //empty body 
 	virtual void update(float elapsed_time) {}; //empty body 
 	////some useful methods...
 	//Vector3 getPosition(); 
@@ -40,7 +40,7 @@ public:
 	Vector4 color; 
 	float tiling;
 	//methods overwritten
-	virtual void render(bool mirror=false);
+	virtual void render();
 	virtual void update(float dt);
 };
 class EntityPlayer :public Entity
@@ -62,7 +62,7 @@ public:
 	Vector3 targetPos;
 	Vector3 playerSpeed;
 	//methods overwritten
-	virtual void render(bool mirror = false);
+	virtual void render();
 	virtual void update(float dt);
 	void collisionMesh(float dt);
 	void Interaction();
@@ -75,7 +75,7 @@ public:
 	EntitySound(); //constructor
 
 	//methods overwritten
-	virtual void render(bool mirror = false);
+	virtual void render();
 	virtual void update(float dt);
 };
 
@@ -109,7 +109,7 @@ public:
 	float bias;
 
 	//methods overwritten
-	virtual void render(bool mirror = false);
+	virtual void render();
 	virtual void update(float dt);
 };
 

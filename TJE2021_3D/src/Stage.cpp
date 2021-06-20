@@ -526,7 +526,7 @@ void BodyStage::update(double seconds_elapsed)
 void MindStage::createTextures()
 {
 	Scene* scene = Game::instance->PlayScene;
-	string texture = "data/mind/sala.tga,data/mind/suelo.tga,data/mind/suelo.tga,data/mind/trinidad.tga,data/mind/grail.tga,data/mind/cruz.tga,data/mind/cuadro1.tga,data/mind/cuadro2.tga,data/mind/cruz.tga,data/imShader/noise.tga,data/mirror.tga,data/mind/puerta.tga,data/imShader/noise.tga";
+	string texture = "data/mind/sala.tga,data/mind/suelo.tga,data/mind/suelo.tga,data/mind/trinidad.tga,data/mind/grail.tga,data/mind/cruz.tga,data/mind/cuadro1.tga,data/mind/cuadro2.tga,data/mind/amuleto.tga,data/imShader/noise.tga,data/mirror.tga,data/mind/puerta.tga,data/imShader/noise.tga,data/mind/altar.tga";
 
 	string cad;
 	int found = -1;
@@ -549,7 +549,7 @@ void MindStage::createTextures()
 void MindStage::createEntities() {
 	Scene* scene = Game::instance->mind_scene;
 
-	string mesh = "data/mind/sala.ASE,data/mind/trinidad.ASE,data/mind/grail.ASE,data/mind/cruz.ASE,data/mind/cuadro1.ASE,data/mind/cuadro2.ASE,data/mind/amuleto.ASE,data/glassMind.ASE,data/mirror.ASE,data/mind/puerta.ASE";
+	string mesh = "data/mind/sala.ASE,data/mind/trinidad.ASE,data/mind/grail.ASE,data/mind/cruz.ASE,data/mind/cuadro1.ASE,data/mind/cuadro2.ASE,data/mind/amuleto.ASE,data/glassMind.ASE,data/mirror.ASE,data/mind/puerta.ASE,data/mind/altar.ASE";
 
 	string cad;
 
@@ -576,6 +576,7 @@ void MindStage::createEntities() {
 		}
 		if (this->entities[i]->id == 1) //SALA
 		{
+			this->entities[i]->isColision = false;
 			this->entities[i]->model.translate(0, 10, 0);
 			this->entities_mirror[i]->model.translate(0, 10, 0);
 		}
@@ -629,27 +630,27 @@ void MindStage::createEntities() {
 		{
 			this->entities[i]->alpha = 1;
 			this->entities[i]->model.translate(-60, 0, 50);
-			this->entities[i]->model.scale(0.3, 0.3, 0.3);
+			this->entities[i]->model.scale(0.4, 0.4, 0.4);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
-			this->entities_mirror[i]->model.translate(-110, 0, 100);
-			this->entities_mirror[i]->model.scale(0.3, 0.3, 0.3);
+			this->entities_mirror[i]->model.translate(-110, 0, 120);
+			this->entities_mirror[i]->model.scale(0.4, 0.4, 0.4);
 			this->entities_mirror[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
-
 		}
 		if (this->entities[i]->id == 10) //trozo espejo
 		{
-			this->entities[i]->alpha = 0;
-			this->entities_mirror[i]->alpha = 0;
-			this->entities[i]->model.translate(0, -2, -10);
+			this->entities[i]->alpha = 1;
+			this->entities[i]->isColision = false;
+			this->entities_mirror[i]->alpha = 1;
+			this->entities[i]->model.translate(0, 4, -10);
 			this->entities[i]->model.scale(0.2, 0.2, 0.2);
-
+			this->entities[i]->model.rotate(-90*DEG2RAD , Vector3(1, 0, 0));
 		}
 		if (this->entities[i]->id == 11) //espejo marco
 		{
-			this->entities[i]->model.translate(-80,15.5f, -4.5f);
+			this->entities[i]->model.translate(-80,15.5f, -24);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 0, 1));
-			this->entities[i]->model.scale(1, 1.5, 1);
+			this->entities[i]->model.scale(1, 2.8, 1);
 		}
 		if (this->entities[i]->id == 12) //puerta
 		{
@@ -661,9 +662,13 @@ void MindStage::createEntities() {
 			this->entities[i]->mesh->createPlane(20);
 			this->entities[i]->model.translate(-84, 15.5f, 20);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 0, 1));
-			this->entities[i]->model.scale(0.5, 1, 1.1);
-			this->entities_mirror[i]->mesh->createPlane(20);
-			
+			this->entities[i]->model.scale(0.5, 1, 2);
+		}
+		if (this->entities[i]->id == 14) //mirror espejo 
+		{
+			this->entities[i]->model.translate(-15, 0, 70);
+			this->entities[i]->model.scale(0.5, 0.5, 0.5);
+
 		}
 		//reflexion
 		this->entities_mirror[i]->model = this->entities_mirror[i]->model.relfexion_y();
@@ -681,8 +686,8 @@ void MindStage::render()
 	for (int i = 0; i < scene->entities_mirror.size(); i++) 
 	{
 		//no renerizamos el epejo/ el marco ni el trozo de espejo
-		if (scene->entities[i]->id != 9 && scene->entities[i]->id != 10 && scene->entities[i]->id != 12)
-			scene->entities_mirror[i]->render(true);
+		if (scene->entities[i]->id != 9 && scene->entities[i]->id != 10 && scene->entities[i]->id != 12 && scene->entities[i]->id != 13)
+			scene->entities_mirror[i]->render();
 	}
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
@@ -716,20 +721,24 @@ void MindStage::ChangePosLight()
 {
 	Scene* scene = Game::instance->mind_scene;
 	Game* game = Game::instance; 
-	if (this->glassCount != 2) {
+	 
+	if (!isRa) {
 		if (((int)game->time % 3) == 0 && timeSpot != (int)game->time) {
-			//scene->lights[0]->light_position = Vector3(rand() % 110 - 90, 25, rand() % 110 - 30); //spot reality world
-			scene->lights[0]->light_position = Vector3(-100, 50, 0); //spot mirror  world
-			scene->lights[1]->light_position = Vector3(-50, 50, 0); //spot mirror  world
-			scene->lightsMirror[0]->light_position = Vector3(-50, 50, 0); //spot mirror  world
-			//scene->lights[1]->light_position = Vector3(-50, 50, 0); //spot mirror  world
+			int x = rand();
+			int z= rand();
+			scene->lights[0]->light_position = Vector3( x% 110 - 90, 25, z % 110 - 30); //spot reality world
+			int pos = abs((x % 110 - 90) - (-100));
+			scene->lights[1]->light_position = Vector3(-100-pos, 25, z % 110 - 30); //spot reality world
+
 			timeSpot = (int)game->time;
 		}
 	}
-	else 
+	else //cuando has encontrado el amuleto correcto 
 	{
-		//scene->lights[0]->light_position = Vector3(-50, 50, 0); //spot reality world
-		//scene->lights[1]->light_position = Vector3(-50, 25, 0); //spot reality world
+		scene->lights[0]->light_position = Vector3(-50, 50, 0); //spot reality world
+		scene->lights[1]->light_position = Vector3(-50, 25, 0); //spot mirror world
+		scene->entities[10]->alpha = 0; //trozo de espejo se hace visible
+		scene->entities_mirror[10]->alpha = 0;
 	}
 
 }

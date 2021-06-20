@@ -16,7 +16,7 @@ void main(){
 	if(alpha.a != 1.0)
 		discard;
 
-	vec4 final_Color = vec4(color,0.5);
+	vec4 final_Color = vec4(color,0.4);
 	
 	if (u_alpha == 1)
 		final_Color = vec4(0.0f,0.0f,0.0f,0.0f);

@@ -13,7 +13,7 @@ EntityMesh::EntityMesh()
 	this->tiling = 1.0f;
 }
 
-void EntityMesh::render(bool mirror)
+void EntityMesh::render()
 {
 	//var for fog
 	Vector4 fogColor = Vector4(0.5f, 0.5f, 0.5f, 1.f);
@@ -23,11 +23,7 @@ void EntityMesh::render(bool mirror)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Game* game = Game::instance;
 	
-	vector<EntityLight*> lights; 
-	if (mirror == true)
-		lights = game->CurrentScene->lightsMirror; 
-	else
-		lights = Game::instance->CurrentScene->lights;
+	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
 	if (game->current_stage == game->intro_stage)
@@ -58,6 +54,9 @@ void EntityMesh::render(bool mirror)
 		
 		if (i != 0)
 		{
+			if (this->alpha == 1) {
+				continue;
+			}
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
 		}
@@ -91,7 +90,7 @@ EntitySound::EntitySound()
 {
 }
 
-void EntitySound::render(bool mirror )
+void EntitySound::render()
 {
 }
 
@@ -111,7 +110,7 @@ EntityLight::EntityLight()
 }
 
 
-void EntityLight::render(bool mirror )
+void EntityLight::render()
 {
 
 }
@@ -162,9 +161,8 @@ EntityPlayer::EntityPlayer()
 }
 
 
-void EntityPlayer::render(bool mirror)
+void EntityPlayer::render()
 {
-	
 	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
@@ -395,6 +393,7 @@ void EntityPlayer::Interaction()
 
 	//// calculamos el centro de la esfera de colisión del player elevandola hasta la cintura
 	Camera* camera = Camera::current;
+	Vector3 character_center = this->pos + Vector3(0, 2, 0);
 
 	Vector3 ray_origin = camera->eye;
 	Vector3 ray_dir = camera->center;
@@ -406,11 +405,6 @@ void EntityPlayer::Interaction()
 
 		float max_ray_dist = 100;
 		if (currentScene->entities[i]->isInteractive){
-			//if (this->mesh->testRayCollision(currentScene->entities[i]->model, ray_origin, ray_dir, col_point, col_normal, max_ray_dist) == false) {
-			//	cout << currentScene->entities[i]->id << "\n ";
-			//	continue; //si no colisiona, pasamos al siguiente objeto
-
-			//}
 
 			if (currentStage == game->body_stage) {
 				if (currentScene->entities[i]->id == 12) {
@@ -423,5 +417,38 @@ void EntityPlayer::Interaction()
 				}
 			}
 		}
+		if (currentStage == game->mind_stage) {
+			if (!game->mind_stage->isAmulet) {
+				if (currentScene->entities[i]->id == 9 || currentScene->entities[i]->id == 6 || currentScene->entities[i]->id == 5) {
+
+					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center,20, col_point, col_normal) == true) {
+						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+							game->mind_stage->id = currentScene->entities[i]->id;
+							game->mind_stage->isAmulet = true;
+						}
+					}
+				}
+			}
+			else
+			{
+				if (currentScene->entities[i]->id == 14) { //altar
+					
+					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 20, col_point, col_normal) == true) {
+						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+							if (game->mind_stage->id == 9) //si objeto obtenido es el amuleto Ra (bueno) seguimos con el puzzle, si no se vuelve a intentar
+							{
+								game->mind_stage->isRa = true;
+							}
+							else //bajar intensidad de la spot
+							{
+								game->mind_stage->isAmulet = false;
+								game->mind_stage->isRa = false;
+							}
+						}
+					}
+				}
+			}
+		}
+
 	}
 }
