@@ -68,23 +68,32 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	intro_scene = new Scene();
 	intro_scene->lights.push_back(directional);
 
-	PlayScene = new Scene();
+	PlayScene = new Scene(); //body scene
 	PlayScene->lights.push_back(directional);
 
-	PlaySceneMirror = new Scene();
+	//PlaySceneMirror = new Scene(); //??? 
+
 	mind_scene = new Scene();
 	mind_scene->lights.push_back(spot2);
 	mind_scene->lights.push_back(spot);
 
-	CurrentScene = intro_scene;
+	soul_scene = new Scene();
+
+	corridor_scene = new Scene();
+	corridor_scene->lights.push_back(directional);
+
+
+	CurrentScene = corridor_scene;
 
 
 	title_stage = new TitleStage();
 	intro_stage = new IntroStage();
 	body_stage = new BodyStage();
+	soul_stage = new SoulStage();
 	end_stage = new EndStage();
-	mind_stage = new MindStage();
-	current_stage = intro_stage;
+	corridor_stage = new CorridorStage();
+	mind_stage = new MindStage(); 
+	current_stage = corridor_stage;
 
 	current_stage->createEntities();
 	//hide the cursor

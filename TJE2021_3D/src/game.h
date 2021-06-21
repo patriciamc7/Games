@@ -34,7 +34,9 @@ public:
 	Scene* intro_scene;
 	Scene* PlayScene;
 	Scene* EndScene;
-	Scene* PlaySceneMirror;
+	Scene* corridor_scene; 
+	Scene* soul_scene;
+	//Scene* PlaySceneMirror;
 	Scene* CurrentScene;
 
 	//Stages
@@ -42,6 +44,8 @@ public:
 	Stage* intro_stage;
 	Stage* mind_stage;
 	Stage* body_stage;
+	Stage* soul_stage;
+	Stage* corridor_stage; 
 	Stage* end_stage;
 	Stage* current_stage;
 

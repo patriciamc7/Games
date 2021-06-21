@@ -161,7 +161,7 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -405,7 +405,7 @@ void EntityPlayer::collisionMesh(float dt)
 			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 7, col_point, col_normal) == false) {
 				continue; //si no colisiona, pasamos al siguiente objeto
 			}
-			cout << currentScene->entities[i]->id << "\n";
+			//cout << currentScene->entities[i]->id << "\n";
 			//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
 			Vector3 push_away = normalize(col_point - character_center) * dt;
 			this->pos = this->pos - push_away; //move to previous pos but a little bit further

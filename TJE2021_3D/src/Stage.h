@@ -5,12 +5,13 @@
 #include "Scene.h"
 #include "framework.h"
 
+#define MAX_CHARACTERS 1
 
 #define MAX_ENT_INTRO 6
 #define MAX_ENT_BODY 20 //comun mirror and reality
 #define MAX_ENT_MIND 24 //comun mirror and reality
 #define MAX_ENT_SOUL 1
-#define MAX_CHARACTERS 1
+#define MAX_ENT_CORRIDOR 6
 #define MAX_ENT_TITLE 1
 
 class Stage {
@@ -106,6 +107,19 @@ public:
 
 	vector<EntityMesh*> entities;
 	vector<EntityMesh*> entities_mirror;
+	bool glass = false;
+
+	virtual void createTextures();
+	virtual void createEntities();
+	virtual void render();
+	virtual void update(double seconds_elapsed);
+};
+
+class CorridorStage : public Stage {
+public:
+
+	vector<EntityMesh*> entities;
+	//vector<EntityMesh*> entities_mirror;
 	bool glass = false;
 
 	virtual void createTextures();
