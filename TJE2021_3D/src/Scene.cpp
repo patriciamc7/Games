@@ -161,7 +161,7 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -348,6 +348,16 @@ void EntityPlayer::update(float dt)
 				game->body_stage->animation2 = false;
 
 			}
+			if ( -36.0f > this->pos.z && game->current_stage->changeGlass)
+			{
+				game->CurrentScene->entities.clear();
+				game->CurrentScene->entities_mirror.clear();
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->mind_stage;
+				game->CurrentScene = game->mind_scene;
+				game->current_stage->glassCount = aux;
+				game->current_stage->createEntities();
+			}
 		}
 		if (game->current_stage == game->mind_stage) {  //animation mindstage
 
@@ -361,6 +371,16 @@ void EntityPlayer::update(float dt)
 				game->current_stage->firstTime = true;
 				game->current_stage->animation2 = false;
 
+			}
+			if (-91.0f > this->pos.z && game->current_stage->changeGlass)
+			{
+				game->CurrentScene->entities.clear();
+				game->CurrentScene->entities_mirror.clear();
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->mind_stage;
+				game->CurrentScene = game->mind_scene;
+				game->current_stage->glassCount = aux;
+				game->current_stage->createEntities();
 			}
 		}
 	}

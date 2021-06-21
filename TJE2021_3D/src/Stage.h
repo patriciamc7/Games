@@ -7,12 +7,11 @@
 
 
 #define MAX_ENT_INTRO 6
-#define MAX_ENT_PLAY 20 //comun mirror and reality
+#define MAX_ENT_BODY 20 //comun mirror and reality
 #define MAX_ENT_MIND 24 //comun mirror and reality
-#define MAX_ENT_PLAY_MIRR 0 //only mirror
+#define MAX_ENT_SOUL 1
 #define MAX_CHARACTERS 1
 #define MAX_ENT_TITLE 1
-#define MAX_LIGHTS 3
 
 class Stage {
 public:
@@ -36,6 +35,7 @@ public:
 	virtual void render() {}; //empty body 
 	virtual void update(double seconds_elapsed) {}; //empty body 
 
+	void renderGui();
 	void renderTorch(int i, vector<EntityMesh*> entities);
 	void renderMirror(int i , vector<EntityMesh*> entities);
 
@@ -80,7 +80,6 @@ public:
 	virtual void createEntities();
 	virtual void render();
 	void renderWater(int i);
-	void renderGui(); 
 	virtual void update(double seconds_elapsed);
 };
 
@@ -97,11 +96,22 @@ public:
 	virtual void createEntities();
 	virtual void render();
 
-	/*void renderTorch(int i);
-	void renderMirror(int i);
-	void renderGui();*/
 	virtual void update(double seconds_elapsed);
 	void ChangePosLight(); 
+};
+
+
+class SoulStage : public Stage {
+public:
+
+	vector<EntityMesh*> entities;
+	vector<EntityMesh*> entities_mirror;
+	bool glass = false;
+
+	virtual void createTextures();
+	virtual void createEntities();
+	virtual void render();
+	virtual void update(double seconds_elapsed);
 };
 
 class EndStage : public Stage {

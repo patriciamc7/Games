@@ -76,7 +76,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	mind_scene->lights.push_back(spot2);
 	mind_scene->lights.push_back(spot);
 
-	CurrentScene = mind_scene;
+	CurrentScene = intro_scene;
 
 
 	title_stage = new TitleStage();
@@ -84,7 +84,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	body_stage = new BodyStage();
 	end_stage = new EndStage();
 	mind_stage = new MindStage();
-	current_stage = mind_stage;
+	current_stage = intro_stage;
 
 	current_stage->createEntities();
 	//hide the cursor

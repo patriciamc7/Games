@@ -126,7 +126,7 @@ void BodyStage::createTextures()
 	int found = -1;
 	int init = 0;
 
-	for (int i = 0; i < MAX_ENT_PLAY; i++)
+	for (int i = 0; i < MAX_ENT_BODY; i++)
 	{
 		if (this->entities[i]->id == 1) {
 			this->entities[i]->texture2 = Texture::Get("data/imShader/cloud.tga");
@@ -160,7 +160,7 @@ void BodyStage::createEntities()
 	this->changeGlass = false; 
 	this->doorOpen2 = true;
 	this->InitStage= true;
-	for (int i = 0; i < MAX_ENT_PLAY; i++)
+	for (int i = 0; i < MAX_ENT_BODY; i++)
 	{
 		this->entities.push_back(new EntityMesh());
 		this->entities_mirror.push_back(new EntityMesh());
@@ -403,6 +403,45 @@ void Stage::renderMirror(int i, vector<EntityMesh*> entities )
 		glEnable(GL_DEPTH_TEST);
 }
 
+void Stage::renderGui() {
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	Game* game = Game::instance;
+
+	Camera* cam2D = new Camera();
+	cam2D->setOrthographic(0, game->window_width, game->window_height, 0, -1, 1);
+
+	Mesh quad;
+	quad.createQuad(100, 100, 100, 100, true);
+	cam2D->enable();
+
+	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	shader->enable();
+
+	shader->setUniform("u_model", Matrix44());
+	shader->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
+	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader->setUniform("u_texture_tiling", 1.0f);
+	if (glassCount == 0)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI0.tga"), 0);
+	if (this->glassCount == 1)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI1.tga"), 0);
+	if (this->glassCount == 2)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI2.tga"), 0);
+	if (this->glassCount == 3)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI3.tga"), 0);
+
+	quad.render(GL_TRIANGLES);
+
+	shader->disable();
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+}
+
 void BodyStage::render()
 {
 
@@ -430,45 +469,6 @@ void BodyStage::render()
 			scene->entities[i]->render();
 	}
 	renderGui();
-}
-
-void BodyStage::renderGui() {
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	Game* game = Game::instance;
-
-	Camera* cam2D = new Camera();
-	cam2D->setOrthographic(0, game->window_width, game->window_height, 0, -1, 1);
-
-	Mesh quad;
-	quad.createQuad(100, 100, 100, 100, true);
-	cam2D->enable();
-
-	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	shader->enable();
-
-	shader->setUniform("u_model", Matrix44());
-	shader->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
-	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-	shader->setUniform("u_texture_tiling", 1.0f);
-	if (this->glassCount == 0)
-		shader->setUniform("u_texture", Texture::Get("data/gui/GUI0.tga"), 0);
-	if (this->glassCount == 1)
-		shader->setUniform("u_texture", Texture::Get("data/gui/GUI1.tga"), 0);
-	if (this->glassCount == 2)
-		shader->setUniform("u_texture", Texture::Get("data/gui/GUI2.tga"), 0);
-	if (this->glassCount == 3)
-		shader->setUniform("u_texture", Texture::Get("data/gui/GUI3.tga"), 0);
-
-	quad.render(GL_TRIANGLES);
-
-	shader->disable();
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glDisable(GL_BLEND);
 }
 
 void BodyStage::update(double seconds_elapsed)
@@ -750,6 +750,7 @@ void MindStage::createEntities() {
 
 	createTextures();
 }
+
 void MindStage::render()
 {
 	Camera* camera = Camera::current;
@@ -772,8 +773,9 @@ void MindStage::render()
 			scene->entities[i]->render();
 		
 	}
-	//renderGui();
+	renderGui();
 }
+
 void MindStage::update(double seconds_elapsed)
 {
 	Camera* camera = Camera::current;
@@ -820,6 +822,7 @@ void MindStage::update(double seconds_elapsed)
 	ChangePosLight();
 
 }
+
 void MindStage::ChangePosLight()
 {
 	Scene* scene = Game::instance->mind_scene;
@@ -847,6 +850,7 @@ void MindStage::ChangePosLight()
 	}
 
 }
+
 void TitleStage::createEntities()
 {
 	menu = new EntityMesh();
@@ -918,5 +922,101 @@ void EndStage::update(double seconds_elapsed)
 	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
 		game->current_stage = game->title_stage;
 		game->current_stage->createEntities();
+	}
+}
+
+void SoulStage::createTextures()
+{
+
+	Scene* scene = Game::instance->mind_scene;
+
+	string mesh = "";
+	this->changeGlass = false;
+
+	string cad;
+	this->InitStage = true;
+	this->doorOpen2 = true;
+	int found = -1;
+	int init = 0;
+	int playerNum = scene->entities.size();
+
+	for (int i = 0; i < MAX_ENT_SOUL; i++)
+	{
+		this->entities.push_back(new EntityMesh());
+		this->entities_mirror.push_back(new EntityMesh());
+
+		this->entities[i]->id = i + playerNum;
+		this->entities_mirror[i]->id = i + playerNum;
+
+		
+		init = found + 1;
+		found = mesh.find(",", found + 1);
+		cad = mesh.substr(init, found - init);
+		this->entities[i]->mesh = Mesh::Get(cad.c_str());
+		this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
+		
+	}
+}
+
+void SoulStage::createEntities()
+{
+	Scene* scene = Game::instance->mind_scene;
+
+	string mesh = "";
+	this->changeGlass = false;
+
+	string cad;
+	this->InitStage = true;
+	this->doorOpen2 = true;
+	int found = -1;
+	int init = 0;
+	int playerNum = scene->entities.size();
+
+	for (int i = 0; i < MAX_ENT_SOUL; i++)
+	{
+		this->entities.push_back(new EntityMesh());
+		this->entities_mirror.push_back(new EntityMesh());
+
+		this->entities[i]->id = i + playerNum;
+		this->entities_mirror[i]->id = i + playerNum;
+
+
+		init = found + 1;
+		found = mesh.find(",", found + 1);
+		cad = mesh.substr(init, found - init);
+		this->entities[i]->mesh = Mesh::Get(cad.c_str());
+		this->entities_mirror[i]->mesh = Mesh::Get(cad.c_str());
+
+	}
+}
+
+void SoulStage::render()
+{
+	Scene* scene = Game::instance->CurrentScene;
+
+	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	{
+		this->entities_mirror[i]->render();
+	}
+
+	for (int i = 0; i < scene->entities.size(); i++)
+	{
+		this->entities[i]->render();
+	}
+	renderGui();
+}
+
+void SoulStage::update(double seconds_elapsed)
+{
+	Scene* scene = Game::instance->CurrentScene;
+
+	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	{
+		this->entities_mirror[i]->update(seconds_elapsed);
+	}
+
+	for (int i = 0; i < scene->entities.size(); i++)
+	{
+		this->entities[i]->update(seconds_elapsed);
 	}
 }
