@@ -615,5 +615,19 @@ void EntityPlayer::Interaction()
 				}
 			}
 		}
+		if (currentStage == game->corridor_stage) {
+			if (currentScene->entities[i]->id == 7) { //portal
+
+				if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true)
+				{
+					if (currentStage->glassCount == 3) //si tenemos los 3 trozos y interactuamos se genera el espejo
+					{
+						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+							currentScene->entities[i]->alpha = 0;
+						}
+					}
+				}
+			}
+		}
 	}
 }

@@ -1345,7 +1345,7 @@ void CorridorStage::createTextures()
 
 	Scene* scene = Game::instance->corridor_scene;
 
-	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga";
+	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/imShader/noise.tga";
 
 	string cad;
 	int found = -1;
@@ -1357,6 +1357,8 @@ void CorridorStage::createTextures()
 		found = texture.find(",", found + 1);
 		cad = texture.substr(init, found - init);
 		this->entities[i]->texture = Texture::Get(cad.c_str());
+		if(this->entities[i]->id == 7)
+			this->entities[i]->texture2 = Texture::Get("data/imShader/gray.tga");
 
 	}
 }
@@ -1365,7 +1367,7 @@ void CorridorStage::createEntities()
 {
 	Scene* scene = Game::instance->corridor_scene; 
 
-	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE";
+	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/mirror.ASE";
 	this->changeGlass = false;
 
 	string cad;
@@ -1412,7 +1414,10 @@ void CorridorStage::createEntities()
 
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
 		}
-		
+		if (this->entities[i]->id == 7) {
+			/*this->entities[i]->model.translate(60, 20, 100);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));*/
+		}
 		scene->entities.push_back(this->entities[i]);
 	}
 	createTextures();
@@ -1425,7 +1430,10 @@ void CorridorStage::render()
 
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
-		scene->entities[i]->render();
+		if (scene->entities[i]->id == 7)
+			renderMirror(i, this->entities);
+		else
+			scene->entities[i]->render();
 	}
 	renderGui();
 }
@@ -1438,4 +1446,5 @@ void CorridorStage::update(double seconds_elapsed)
 	{
 		scene->entities[i]->update(seconds_elapsed);
 	}
+	
 }
