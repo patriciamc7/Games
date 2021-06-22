@@ -48,7 +48,7 @@ public:
 	void renderGui();
 	void renderTorch(int i, vector<EntityMesh*> entities);
 	void renderMirror(int i , vector<EntityMesh*> entities);
-	void renderParticle();
+	void Stage::renderParticle(float timeParticle); 
 };
 
 class TitleStage : public Stage {

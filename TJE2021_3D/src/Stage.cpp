@@ -403,7 +403,7 @@ void Stage::renderMirror(int i, vector<EntityMesh*> entities )
 		glEnable(GL_DEPTH_TEST);
 }
 
-void Stage::renderParticle()
+void Stage::renderParticle(float timeParticle)
 {
 	Scene* scene = Game::instance->CurrentScene;
 	Camera* camera = Camera::current;
@@ -419,7 +419,7 @@ void Stage::renderParticle()
 		scene->mirrorParticle[i].v_particles->mesh->vertices.resize(6);
 		scene->mirrorParticle[i].v_particles->mesh->uvs.resize(6);
 
-		Vector3& pos = Vector3(0, -0.1 * pow(Game::instance->time, 2), -Game::instance->time);
+		Vector3& pos = Vector3(0, -0.1 * pow(timeParticle, 2), -timeParticle);
 		//if(scene->v_particles[i])
 		float sizeParticle = scene->mirrorParticle[i].sizeParticle;
 		Vector3 camUp = camera->getLocalVector(Vector3(0, 1, 0)) * sizeParticle;
@@ -996,8 +996,8 @@ void SoulStage::createTextures()
 
 	Scene* scene = Game::instance->soul_scene;
 
-	string texture = "data/soul/ouija_mirror.tga,data/soul/OuijaArrow.tga,data/soul/Altar_9.tga,data/soul/Altar_C.tga,data/soul/Altar_M.tga,data/soul/Floor.tga,data/soul/wall.tga,data/soul/pilar.tga,data/soul/window.tga,data/soul/Floor.tga,data/soul/OuijaArrow.tga,data/imShader/noise.tga,data/soul/wall.tga,data/soul/door.tga,data/imShader/noise.tga";
-
+	string texture = "data/soul/ouija_mirror.tga,data/soul/OuijaArrow.tga,data/soul/Altar_9_mirror.tga,data/soul/Altar_C_mirror.tga,data/soul/Altar_M.tga,data/soul/Floor.tga,data/soul/wall.tga,data/soul/pilar.tga,data/soul/window.tga,data/soul/Floor.tga,data/soul/OuijaArrow.tga,data/imShader/noise.tga,data/soul/wall.tga,data/soul/door.tga,data/imShader/noise.tga";
+	
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -1013,10 +1013,10 @@ void SoulStage::createTextures()
 			this->entities_mirror[i]->texture = Texture::Get("data/soul/ouija.tga");
 		}
 		else if (this->entities_mirror[i]->id == 3) {
-			this->entities_mirror[i]->texture = Texture::Get("data/soul/Altar_9_mirror.tga");
+			this->entities_mirror[i]->texture = Texture::Get("data/soul/Altar_9.tga");
 		}
 		else if (this->entities_mirror[i]->id == 4) {
-			this->entities_mirror[i]->texture = Texture::Get("data/soul/Altar_C_mirror.tga");
+			this->entities_mirror[i]->texture = Texture::Get("data/soul/Altar_C.tga"); 
 		}
 		else
 			this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
@@ -1037,6 +1037,7 @@ void SoulStage::createEntities()
 	Game* game = Game::instance;
 	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,data/soul/wallMirror.ASE,data/soul/door.ASE,data/glassSpirit.ASE";
 	this->changeGlass = false;
+	this->PuzzleCorrect = true; 
 	scene->mirrorParticle.clear();
 	scene->mirrorParticle.resize(NumParticle);
 	string cad;
@@ -1110,6 +1111,8 @@ void SoulStage::createEntities()
 			this->entities_mirror[i]->model.rotate(270 * DEG2RAD, Vector3(0, 1, 0));
 			this->entities_mirror[i]->model.translate(-200, 0, -160);
 		}
+		if (this->entities_mirror[i]->id == 6)  //floor
+			this->entities[i]->isColision = false;
 
 		if (this->entities_mirror[i]->id == 10) { //techo
 			this->entities[i]->model.translate(0, 50, 0);
@@ -1132,7 +1135,7 @@ void SoulStage::createEntities()
 			this->entities[i]->model.scale(1.2, 1.0, 0.8);
 		}
 		
-		if (this->entities_mirror[i]->id == 13) { //mirror
+		if (this->entities_mirror[i]->id == 13) { //pared
 			this->entities[i]->model.translate(0, -10, 80);
 
 		}
@@ -1166,12 +1169,12 @@ void SoulStage::render()
 {
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
+	int timeAnimation = 15; 
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
 		if(scene->entities_mirror[i]->id != 2 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id < 12)
 			scene->entities_mirror[i]->render();
-	}
-
+	}	
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		if (scene->entities[i]->id == 12 || scene->entities[i]->id == 15)
@@ -1180,14 +1183,38 @@ void SoulStage::render()
 		if (scene->entities[i]->id !=12 && scene->entities[i]->id != 15){
 			scene->entities[i]->render();
 		}
+		if (scene->entities[15]->alpha == 0) 
+		{
+			if (scene->entities[i]->id == 12)// espejo
+			{
+				scene->entities[i]->isColision = false;
+				scene->entities[i]->alpha = 1;
+			}
+			if (PuzzleCorrect == true) {
+				scene->timeLive = game->time;
+				PuzzleCorrect = false;
+			}
+
+			if (abs(game->time - scene->timeLive) > timeAnimation) {
+				if (scene->entities[i]->id == 11) // marco
+				{
+					scene->entities[i]->isColision = false;
+					scene->entities[i]->alpha = 1;
+				}
+				if(scene->entities[i]->id ==13)
+					scene->entities[i]->isColision = false;
+			}
+			if (abs(game->time - scene->timeLive) > timeAnimation) {
+				scene->mirrorParticle.clear(); //Quitar prefab de mirror y marco de mirror
+
+			}
+		}
+		else
+			scene->timeLive = 0.0f;
 	}
-	scene->timeLive = 0.0f;
-	if (PuzzleCorrect == true)
-		scene->timeLive = game->time;
-	if (scene->timeLive != 0.0f && abs(game->time - scene->timeLive) < 30 && AnimationMirror == true)
-		renderParticle();
-	else if (abs(game->time - scene->timeLive) > 30)
-		scene->mirrorParticle.clear(); //Quitar prefab de mirror y marco de mirror
+	if (scene->entities[15]->alpha == 0 && abs(game->time - scene->timeLive) < timeAnimation)
+		renderParticle(abs(game->time - scene->timeLive)+5);
+	
 	renderGui();
 }
 
