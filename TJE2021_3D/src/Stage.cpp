@@ -1154,7 +1154,7 @@ void CorridorStage::createEntities()
 		cad = mesh.substr(init, found - init);
 		this->entities[i]->mesh = Mesh::Get(cad.c_str());
 		if (this->entities[i]->id == 3) {
-			this->entities[i]->model.translate(60, 0, 5);
+			this->entities[i]->model.translate(65, 0, 5);
 			this->entities[i]->model.rotate(90*DEG2RAD, Vector3(0, 1, 0));
 		}
 		scene->entities.push_back(this->entities[i]);
