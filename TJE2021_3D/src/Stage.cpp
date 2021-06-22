@@ -1112,7 +1112,7 @@ void CorridorStage::createTextures()
 
 	Scene* scene = Game::instance->corridor_scene;
 
-	string texture = "data/passage/sala.tga,data/intro/intro.tga";
+	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga";
 
 	string cad;
 	int found = -1;
@@ -1132,7 +1132,7 @@ void CorridorStage::createEntities()
 {
 	Scene* scene = Game::instance->corridor_scene; 
 
-	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE";
+	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE";
 	this->changeGlass = false;
 
 	string cad;
@@ -1148,19 +1148,15 @@ void CorridorStage::createEntities()
 		this->entities[i]->id = i + playerNum;
 
 
-		//if (this->entities[i]->id != 6 )
-		//{
-			init = found + 1;
-			found = mesh.find(",", found + 1);
-			cad = mesh.substr(init, found - init);
-			this->entities[i]->mesh = Mesh::Get(cad.c_str());
-		//}
-		//if (this->entities[i]->id == 6) //plano profundidad 
-		//{
-		//	this->entities[i]->mesh->createPlane(20);
-		//	this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
-		//	this->entities[i]->model.translate(-15, 120, 20);
-		//}
+	
+		init = found + 1;
+		found = mesh.find(",", found + 1);
+		cad = mesh.substr(init, found - init);
+		this->entities[i]->mesh = Mesh::Get(cad.c_str());
+		if (this->entities[i]->id == 3) {
+			this->entities[i]->model.translate(60, 0, 5);
+			this->entities[i]->model.rotate(90*DEG2RAD, Vector3(0, 1, 0));
+		}
 		scene->entities.push_back(this->entities[i]);
 	}
 	createTextures();
