@@ -926,7 +926,7 @@ void SoulStage::createTextures()
 
 	Scene* scene = Game::instance->soul_scene;
 
-	string texture = "data/soul/ouija_mirror.tga,data/soul/OuijaArrow.tga,data/soul/Altar_9.tga,data/soul/Altar_C.tga,data/soul/Altar_M.tga,data/soul/Floor.tga,data/soul/wall.tga,data/soul/pilar.tga,data/soul/window.tga,data/soul/Floor.tga,data/soul/OuijaArrow.tga,data/imShader/noise.tga";
+	string texture = "data/soul/ouija_mirror.tga,data/soul/OuijaArrow.tga,data/soul/Altar_9.tga,data/soul/Altar_C.tga,data/soul/Altar_M.tga,data/soul/Floor.tga,data/soul/wall.tga,data/soul/pilar.tga,data/soul/window.tga,data/soul/Floor.tga,data/soul/OuijaArrow.tga,data/imShader/noise.tga,data/soul/wall.tga";
 
 	string cad;
 	int found = -1;
@@ -962,7 +962,7 @@ void SoulStage::createEntities()
 {
 	Scene* scene = Game::instance->soul_scene;
 
-	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,,data/soul/mirror.ASE,data/body/passage.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE";
+	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,data/soul/wallMirror.ASE";
 	this->changeGlass = false;
 
 	string cad;
@@ -979,7 +979,7 @@ void SoulStage::createEntities()
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i + playerNum;
 
-		if (this->entities_mirror[i]->id != 12) {
+		if (this->entities[i]->id != 12) {
 
 			init = found + 1;
 			found = mesh.find(",", found + 1);
@@ -1058,7 +1058,10 @@ void SoulStage::createEntities()
 			this->entities[i]->model.scale(1.2, 1.0, 0.8);
 		}
 		
+		if (this->entities_mirror[i]->id == 13) { //mirror
+			this->entities[i]->model.translate(0, -10, 80);
 
+		}
 		this->entities_mirror[i]->model.translate(0, 0, 170);
 		scene->entities.push_back(this->entities[i]);
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
