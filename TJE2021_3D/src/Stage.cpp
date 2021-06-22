@@ -464,6 +464,9 @@ void Stage::renderGui() {
 
 	Mesh quad;
 	quad.createQuad(100, 100, 100, 100, true);
+
+	Mesh inventario;
+	inventario.createQuad(100, 500, 100, 100, true);
 	cam2D->enable();
 
 	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
@@ -481,10 +484,29 @@ void Stage::renderGui() {
 		shader->setUniform("u_texture", Texture::Get("data/gui/GUI2.tga"), 0);
 	if (this->glassCount == 3)
 		shader->setUniform("u_texture", Texture::Get("data/gui/GUI3.tga"), 0);
-
 	quad.render(GL_TRIANGLES);
-
 	shader->disable();
+	//inventario
+	Shader* shader2 = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	shader2->enable();
+
+	shader2->setUniform("u_model", Matrix44());
+	shader2->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
+	shader2->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader2->setUniform("u_texture_tiling", 1.0f);
+	if (this->amuleto)
+		shader2->setUniform("u_texture", Texture::Get("data/gui/amuleto.tga"), 1);
+	else  if (this->cruz)
+		shader2->setUniform("u_texture", Texture::Get("data/gui/cruz.tga"), 2);
+	else if (this->grail)
+		shader2->setUniform("u_texture", Texture::Get("data/gui/grail.tga"), 3);
+	else if (this->arrow)
+		shader2->setUniform("u_texture", Texture::Get("data/gui/ouijaArrow.tga"), 4);
+	else 
+		shader2->setUniform("u_texture", Texture::Get("data/gui/void.tga"), 5);
+	
+	inventario.render(GL_TRIANGLES);
+	shader2->disable();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
@@ -974,7 +996,7 @@ void SoulStage::createTextures()
 
 	Scene* scene = Game::instance->soul_scene;
 
-	string texture = "data/soul/ouija_mirror.tga,data/soul/OuijaArrow.tga,data/soul/Altar_9.tga,data/soul/Altar_C.tga,data/soul/Altar_M.tga,data/soul/Floor.tga,data/soul/wall.tga,data/soul/pilar.tga,data/soul/window.tga,data/soul/Floor.tga,data/soul/OuijaArrow.tga,data/imShader/noise.tga,data/soul/wall.tga,data/soul/door.tga";
+	string texture = "data/soul/ouija_mirror.tga,data/soul/OuijaArrow.tga,data/soul/Altar_9.tga,data/soul/Altar_C.tga,data/soul/Altar_M.tga,data/soul/Floor.tga,data/soul/wall.tga,data/soul/pilar.tga,data/soul/window.tga,data/soul/Floor.tga,data/soul/OuijaArrow.tga,data/imShader/noise.tga,data/soul/wall.tga,data/soul/door.tga,data/imShader/noise.tga";
 
 	string cad;
 	int found = -1;
@@ -987,7 +1009,7 @@ void SoulStage::createTextures()
 		cad = texture.substr(init, found - init);
 		this->entities[i]->texture = Texture::Get(cad.c_str());
 	
-		if (this->entities_mirror[i]->id == 1) {
+		if (this->entities_mirror[i]->id == 1 ) {
 			this->entities_mirror[i]->texture = Texture::Get("data/soul/ouija.tga");
 		}
 		else if (this->entities_mirror[i]->id == 3) {
@@ -999,7 +1021,7 @@ void SoulStage::createTextures()
 		else
 			this->entities_mirror[i]->texture = Texture::Get(cad.c_str());
 		
-		if (this->entities[i]->id == 12) {
+		if (this->entities[i]->id == 12 || this->entities[i]->id == 15) {
 			this->entities[i]->texture2 = Texture::Get("data/imShader/gray.tga");
 		}
 
@@ -1013,7 +1035,7 @@ void SoulStage::createEntities()
 {
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
-	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,data/soul/wallMirror.ASE,data/soul/door.ASE";
+	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,data/soul/wallMirror.ASE,data/soul/door.ASE,data/glassSpirit.ASE";
 	this->changeGlass = false;
 	scene->mirrorParticle.clear();
 	scene->mirrorParticle.resize(NumParticle);
@@ -1051,7 +1073,7 @@ void SoulStage::createEntities()
 		if (this->entities_mirror[i]->id == 2) { //arrow ouija
 			this->entities[i]->model.scale(0.2 ,0.2, 0.2);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
-			this->entities[i]->model.translate(50, -100, 0);
+			this->entities[i]->model.translate(50, -100, 10);
 			this->entities[i]->model.rotate(35 * DEG2RAD, Vector3(0, 0, 1));
 		}
 		if (this->entities_mirror[i]->id == 3) { //altar 9
@@ -1118,6 +1140,13 @@ void SoulStage::createEntities()
 			this->entities[i]->model.translate(-64, 0, -39);
 
 		}
+		if (this->entities_mirror[i]->id == 15) { //trozo cristal
+			this->entities[i]->model.translate(0, 0, 100);
+			this->entities[i]->model.scale(0.2, 0.2, 0.2);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 0, 1));
+			this->entities[i]->alpha = 1;
+
+		}
 		this->entities_mirror[i]->model.translate(0, 0, 170);
 		scene->entities.push_back(this->entities[i]);
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
@@ -1145,10 +1174,10 @@ void SoulStage::render()
 
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
-		if (scene->entities[i]->id == 12)
+		if (scene->entities[i]->id == 12 || scene->entities[i]->id == 15)
 			renderMirror(i, this->entities);
 
-		if (scene->entities[i]->id !=12){
+		if (scene->entities[i]->id !=12 && scene->entities[i]->id != 15){
 			scene->entities[i]->render();
 		}
 	}
@@ -1209,7 +1238,7 @@ void CorridorStage::createTextures()
 
 	Scene* scene = Game::instance->corridor_scene;
 
-	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga";
+	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga";
 
 	string cad;
 	int found = -1;
@@ -1244,16 +1273,39 @@ void CorridorStage::createEntities()
 		this->entities.push_back(new EntityMesh());
 		this->entities[i]->id = i + playerNum;
 
-
-	
-		init = found + 1;
-		found = mesh.find(",", found + 1);
-		cad = mesh.substr(init, found - init);
-		this->entities[i]->mesh = Mesh::Get(cad.c_str());
+		if (this->entities[i]->id < 4) {
+			init = found + 1;
+			found = mesh.find(",", found + 1);
+			cad = mesh.substr(init, found - init);
+			this->entities[i]->mesh = Mesh::Get(cad.c_str());
+		}
+		
 		if (this->entities[i]->id == 3) {
 			this->entities[i]->model.translate(65, 0, 5);
 			this->entities[i]->model.rotate(90*DEG2RAD, Vector3(0, 1, 0));
 		}
+		if (this->entities[i]->id == 4) {
+			this->entities[i]->mesh->createPlane(20);
+			this->entities[i]->model.translate(200, 20, 0);
+			this->entities[i]->model.scale(1, 2, 2);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 0, 1));
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
+		}
+		if (this->entities[i]->id == 5) {
+			this->entities[i]->mesh->createPlane(20);
+			this->entities[i]->model.translate(60, 7, -100);
+			this->entities[i]->model.scale(1,2,1);
+
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
+		}
+		if (this->entities[i]->id == 6) {
+			this->entities[i]->mesh->createPlane(20);
+			this->entities[i]->model.translate(60, 20, 100);
+			this->entities[i]->model.scale(2, 2, 1);
+
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
+		}
+		
 		scene->entities.push_back(this->entities[i]);
 	}
 	createTextures();

@@ -10,8 +10,8 @@
 #define MAX_ENT_INTRO 6
 #define MAX_ENT_BODY 20 //comun mirror and reality
 #define MAX_ENT_MIND 24 //comun mirror and reality
-#define MAX_ENT_SOUL 14
-#define MAX_ENT_CORRIDOR 3
+#define MAX_ENT_SOUL 15
+#define MAX_ENT_CORRIDOR 6
 #define MAX_ENT_TITLE 1
 
 class Stage {
@@ -23,6 +23,12 @@ public:
 	bool isAmulet = false;
 	int id = 0;
 	bool isRa = false;
+
+	//GUI
+	bool amuleto = false;
+	bool grail = false;
+	bool cruz = false;
+	bool arrow = false;
 
 
 	bool animation = false;

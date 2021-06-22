@@ -16,6 +16,7 @@ EntityMesh::EntityMesh()
 void EntityMesh::render()
 {
 	//var for fog
+
 	Vector4 fogColor = Vector4(0.5f, 0.5f, 0.5f, 1.f);
 	float fogDensity = 0.025f;
 	glDepthFunc(GL_LEQUAL);
@@ -161,14 +162,13 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
 	vector<EntityLight*> lights = Game::instance->CurrentScene->lights;
 	
 	glDepthFunc(GL_LEQUAL);
-
 	if (game->current_stage == game->body_stage){
 		if (game->body_stage->InitStage) {
 			this->pos = Vector3(6, 0, -65);
@@ -474,7 +474,7 @@ void EntityPlayer::collisionMesh(float dt)
 			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 7, col_point, col_normal) == false) {
 				continue; //si no colisiona, pasamos al siguiente objeto
 			}
-			//cout << currentScene->entities[i]->id << "\n";
+			cout << currentScene->entities[i]->id << "\n";
 			//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
 			Vector3 push_away = normalize(col_point - character_center) * dt;
 			this->pos = this->pos - push_away; //move to previous pos but a little bit further
@@ -534,7 +534,12 @@ void EntityPlayer::Interaction()
 							game->mind_stage->id = i-1;
 							game->mind_stage->isAmulet = true;
 							currentScene->entities_mirror[i-1]->alpha = 1;
-
+							if (currentScene->entities[i]->id == 9)
+								currentStage->amuleto = true;
+							if (currentScene->entities[i]->id == 6)
+								currentStage->cruz = true;
+							if (currentScene->entities[i]->id == 5)
+								currentStage->grail = true;
 						}
 					}
 				}
@@ -548,6 +553,8 @@ void EntityPlayer::Interaction()
 							if (game->mind_stage->id == 8) //si objeto obtenido es el amuleto Ra (bueno) seguimos con el puzzle, si no se vuelve a intentar
 							{
 								game->mind_stage->isRa = true;
+								currentStage->amuleto = false;
+
 							}
 							else //bajar intensidad de la spot
 							{
@@ -557,7 +564,10 @@ void EntityPlayer::Interaction()
 								currentScene->lights[0]->intensity -= 0.3f;
 								if (currentScene->lights[0]->intensity < 0)
 									currentScene->lights[0]->intensity = 0;
-
+								if (game->mind_stage->id == 5)
+									currentStage->cruz = false;
+								if (game->mind_stage->id == 4)
+									currentStage->grail = false;
 							}
 						}
 					}
@@ -576,6 +586,41 @@ void EntityPlayer::Interaction()
 				}
 			}
 		}
+		if (currentStage == game->soul_stage) {
+			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 100, col_point, col_normal) == true) {
+				if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+					if (currentScene->entities[i]->id == 2) //si objeto obtenido arrow seguimos con el puzzle, si no se vuelve a intentar
+					{
+						currentStage->arrow = true;
+						currentScene->entities[i]->alpha = 1;
 
+					}
+				}
+			}
+			if (currentScene->entities[i]->id == 3 || currentScene->entities[i]->id == 4 || currentScene->entities[i]->id == 5) { //algun altar
+
+				if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
+					if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+						
+						if (currentScene->entities[i]->id == 5 && currentStage->arrow) {
+							//mostrar trozo espejo y romper el espejo grande
+							currentScene->entities[15]->alpha = 0;
+							currentStage->arrow = false;
+						}
+						
+					}
+				}
+			}
+			if (currentScene->entities[i]->id == 15) { //trozo espejo
+
+				if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
+					if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+						currentStage->glassCount += 1;
+						currentStage->changeGlass = true;
+						currentScene->entities[i]->alpha = 1;
+					}
+				}
+			}
+		}
 	}
 }
