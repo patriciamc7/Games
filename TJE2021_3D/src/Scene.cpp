@@ -193,7 +193,7 @@ void EntityPlayer::render()
 	if (game->current_stage == game->soul_stage) {
 		if (game->soul_stage->InitStage) {
 			this->yaw = -90;
-			this->pos = Vector3(-98.0f, 0, -24.0f);
+			this->pos = Vector3(-140, 0, -24.0f);
 			game->soul_stage->InitStage = false;
 		}
 	}
