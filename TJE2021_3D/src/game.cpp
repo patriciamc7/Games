@@ -58,26 +58,26 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	spot2->spotExponent = 5.f;
 	spot2->intensity = 0.8f;
 	spot2->light_type = spot2->eLightType::SPOT;
-	
 
 	point = new EntityLight();
 	point->light_type = point->eLightType::POINT;
-	point->light_position = Vector3(-50.0f, 50.0f, 0.0f);
-	point->color = Vector3(0.0f, 0.0f, 1.0f);
+	point->light_position = Vector3(-50.0f, 10, 0.0f);
+	point->color = Vector3(1.0f, 0.0f, 0.0f);
+	point->intensity = 20;
 	//Scene and stages
 	intro_scene = new Scene();
 	intro_scene->lights.push_back(directional);
 
-	PlayScene = new Scene(); //body scene
-	PlayScene->lights.push_back(directional);
-
-	//PlaySceneMirror = new Scene(); //??? 
+	BodyScene = new Scene(); //body scene
+	BodyScene->lights.push_back(directional);
 
 	mind_scene = new Scene();
 	mind_scene->lights.push_back(spot2);
 	mind_scene->lights.push_back(spot);
 
 	soul_scene = new Scene();
+	soul_scene->lights.push_back(directional);
+
 
 	corridor_scene = new Scene();
 	corridor_scene->lights.push_back(directional);

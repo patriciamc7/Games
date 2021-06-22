@@ -161,7 +161,7 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -181,6 +181,13 @@ void EntityPlayer::render()
 			this->yaw = 0;
 			this->pos = Vector3(-20.0f, 0, -113.0f);
 			game->mind_stage->InitStage = false;
+		}
+	}
+	if (game->current_stage == game->corridor_stage) {
+		if (game->corridor_stage->InitStage) {
+			this->yaw = -90;
+			this->pos = Vector3(4.0f, 0, 0.0f);
+			game->corridor_stage->InitStage = false;
 		}
 	}
 	if (game->current_stage == game->intro_stage)
@@ -317,6 +324,7 @@ void EntityPlayer::update(float dt)
 			scene->entities[4]->model.translate(camera->eye.x, camera->eye.y-10, camera->eye.z);
 		}
 
+		
 		this->collisionMesh(dt); 	//Collision
 		this->Interaction();
 
@@ -330,7 +338,7 @@ void EntityPlayer::update(float dt)
 			{
 				game->CurrentScene->entities.clear();
 				game->current_stage = game->body_stage;
-				game->CurrentScene = game->PlayScene;
+				game->CurrentScene = game->BodyScene;
 				game->current_stage->createEntities();
 			}
 		}

@@ -32,11 +32,10 @@ public:
 
 	Scene* mind_scene;
 	Scene* intro_scene;
-	Scene* PlayScene;
+	Scene* BodyScene;
 	Scene* EndScene;
 	Scene* corridor_scene; 
 	Scene* soul_scene;
-	//Scene* PlaySceneMirror;
 	Scene* CurrentScene;
 
 	//Stages
