@@ -29,6 +29,9 @@ public:
 	float Timeanimation = 0.0f;
 	bool firstTime = true;
 	bool animation2 = true;
+	//particle active mirror
+	bool AnimationMirror = true;
+	int NumParticle = 20;
 
 	bool InitStage = false;
 	virtual void createEntities() {};
@@ -39,7 +42,7 @@ public:
 	void renderGui();
 	void renderTorch(int i, vector<EntityMesh*> entities);
 	void renderMirror(int i , vector<EntityMesh*> entities);
-
+	void renderParticle();
 };
 
 class TitleStage : public Stage {
@@ -108,7 +111,7 @@ public:
 	vector<EntityMesh*> entities;
 	vector<EntityMesh*> entities_mirror;
 	bool glass = false;
-
+	bool PuzzleCorrect = true;
 	virtual void createTextures();
 	virtual void createEntities();
 	virtual void render();

@@ -403,6 +403,54 @@ void Stage::renderMirror(int i, vector<EntityMesh*> entities )
 		glEnable(GL_DEPTH_TEST);
 }
 
+void Stage::renderParticle()
+{
+	Scene* scene = Game::instance->CurrentScene;
+	Camera* camera = Camera::current;
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(false);
+
+
+	//particle->texture = Texture::Get("data/imShader/grayMirror.tga"); 
+	for (int i = 0; i < scene->mirrorParticle.size(); i++)
+	{
+		scene->mirrorParticle[i].v_particles->mesh->vertices.resize(6);
+		scene->mirrorParticle[i].v_particles->mesh->uvs.resize(6);
+
+		Vector3& pos = Vector3(0, -0.1 * pow(Game::instance->time, 2), -Game::instance->time);
+		//if(scene->v_particles[i])
+		float sizeParticle = scene->mirrorParticle[i].sizeParticle;
+		Vector3 camUp = camera->getLocalVector(Vector3(0, 1, 0)) * sizeParticle;
+		Vector3 camRight = camera->getLocalVector(Vector3(1, 0, 0)) * sizeParticle;
+		//encarar al ojo de la camara
+		scene->mirrorParticle[i].v_particles->mesh->vertices[0] = Vector3(pos + camUp + camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[0] = Vector2(1, 0);
+		scene->mirrorParticle[i].v_particles->mesh->vertices[1] = Vector3(pos + camUp - camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[1] = Vector2(0, 0);
+		scene->mirrorParticle[i].v_particles->mesh->vertices[2] = Vector3(pos - camUp - camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[2] = Vector2(0, 1);
+
+
+		scene->mirrorParticle[i].v_particles->mesh->vertices[3] = Vector3(pos - camUp - camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[3] = Vector2(0, 1);
+		scene->mirrorParticle[i].v_particles->mesh->vertices[4] = Vector3(pos - camUp + camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[4] = Vector2(1, 1);
+		scene->mirrorParticle[i].v_particles->mesh->vertices[5] = Vector3(pos + camUp + camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[5] = Vector2(1, 0);
+
+		scene->mirrorParticle[i].v_particles->model.rotate(scene->mirrorParticle[i].rotateParticle, Vector3(0, 0, 1));
+		scene->mirrorParticle[i].v_particles->render();
+		scene->mirrorParticle[i].v_particles->model.rotate(-scene->mirrorParticle[i].rotateParticle, Vector3(0, 0, 1));
+	}
+	//Fin de encarar
+	glDisable(GL_BLEND);
+	glDepthMask(true);
+
+}
+
+
 void Stage::renderGui() {
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -956,15 +1004,19 @@ void SoulStage::createTextures()
 		}
 
 	}
+	for (int j = 0; j < scene->mirrorParticle.size(); j++) {
+		scene->mirrorParticle[j].v_particles->texture = Texture::Get("data/imShader/grayMirror.tga");
+	}
 }
 
 void SoulStage::createEntities()
 {
 	Scene* scene = Game::instance->soul_scene;
-
+	Game* game = Game::instance;
 	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,data/soul/wallMirror.ASE";
 	this->changeGlass = false;
-
+	scene->mirrorParticle.clear();
+	scene->mirrorParticle.resize(NumParticle);
 	string cad;
 	this->InitStage = true;
 	this->doorOpen2 = true;
@@ -1067,13 +1119,20 @@ void SoulStage::createEntities()
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
 
 	}
+	for (int j = 0; j < scene->mirrorParticle.size(); j++) {
+		scene->mirrorParticle[j].v_particles = new EntityMesh();
+		//scene->v_particles[j]->model.rotate(rand()*90 * DEG2RAD, Vector3(0, 0, 1));
+		scene->mirrorParticle[j].v_particles->model.translate(random() * 40 - 20, random() * 30 + 5, random() * 2 + 80);
+		scene->mirrorParticle[j].sizeParticle = rand() % 25;
+		scene->mirrorParticle[j].rotateParticle = rand() % 90;
+	}
 	createTextures();
 }
 
 void SoulStage::render()
 {
 	Scene* scene = Game::instance->soul_scene;
-
+	Game* game = Game::instance;
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
 		if(scene->entities_mirror[i]->id != 2 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id < 12)
@@ -1089,6 +1148,13 @@ void SoulStage::render()
 			scene->entities[i]->render();
 		}
 	}
+	scene->timeLive = 0.0f;
+	if (PuzzleCorrect == true)
+		scene->timeLive = game->time;
+	if (scene->timeLive != 0.0f && abs(game->time - scene->timeLive) < 30 && AnimationMirror == true)
+		renderParticle();
+	else if (abs(game->time - scene->timeLive) > 30)
+		scene->mirrorParticle.clear(); //Quitar prefab de mirror y marco de mirror
 	renderGui();
 }
 

@@ -83,7 +83,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	corridor_scene->lights.push_back(directional);
 
 
-	CurrentScene = corridor_scene;
+	CurrentScene = soul_scene;
 
 
 	title_stage = new TitleStage();
@@ -93,7 +93,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	end_stage = new EndStage();
 	corridor_stage = new CorridorStage();
 	mind_stage = new MindStage(); 
-	current_stage = corridor_stage;
+	current_stage = soul_stage;
 
 	current_stage->createEntities();
 	//hide the cursor

@@ -115,7 +115,11 @@ public:
 	virtual void render();
 	virtual void update(float dt);
 };
-
+struct sMirrorParticle {
+	float rotateParticle;
+	EntityMesh* v_particles;
+	float sizeParticle;
+};
 class Scene
 {
 public:
@@ -124,7 +128,9 @@ public:
 	vector<Entity*> entities;
 	vector<Entity*> entities_mirror;
 	vector<EntityPlayer*> characters;
-
+	//particles
+	vector<sMirrorParticle> mirrorParticle;
+	float timeLive;
 	vector<EntityLight*> lights;
 	vector<EntityLight*> lightsMirror;
 	Vector3 ambient;
