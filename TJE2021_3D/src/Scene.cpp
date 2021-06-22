@@ -289,12 +289,12 @@ void EntityPlayer::update(float dt)
 		float speed = this->player_speed.x * dt;
 		float rotation_speed = this->player_speed_rot * dt;
 		//center camera ar player pos
-		Matrix44 playerRotate; 
-		playerRotate.setRotation(this->yaw *DEG2RAD, Vector3(0,1,0)); 
-		
+		Matrix44 playerRotate;
+		playerRotate.setRotation(this->yaw * DEG2RAD, Vector3(0, 1, 0));
+
 		Vector3 playerFront = playerRotate.rotateVector(Vector3(0.0f, 0.0f, 1.0f));
-		Vector3 playerRight = playerRotate.rotateVector(Vector3(1.0f,0.0f,0.0f));
-		playerSpeed = Vector3(0,0,0);
+		Vector3 playerRight = playerRotate.rotateVector(Vector3(1.0f, 0.0f, 0.0f));
+		playerSpeed = Vector3(0, 0, 0);
 
 
 		if ((Input::mouse_state & SDL_BUTTON_LEFT) || game->mouse_locked) //is left button pressed?
@@ -307,24 +307,24 @@ void EntityPlayer::update(float dt)
 				this->pitch += Input::mouse_delta.y * rotation_speed;
 			this->yaw -= Input::mouse_delta.x * rotation_speed;
 		}
-	
-		
+
+
 		//Player
-		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) playerSpeed = playerSpeed + (playerFront*speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) playerSpeed = playerSpeed + (playerFront * speed);
 		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) playerSpeed = playerSpeed - (playerFront * speed);
 		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) playerSpeed = playerSpeed + (playerRight * speed);
 		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) playerSpeed = playerSpeed - (playerRight * speed);
 
-		this->targetPos = this->pos + playerSpeed; 
+		this->targetPos = this->pos + playerSpeed;
 		this->pos = this->targetPos;
 
-		
+
 		if (scene == game->intro_scene) { //skybox
 			scene->entities[4]->model.setIdentity();
-			scene->entities[4]->model.translate(camera->eye.x, camera->eye.y-10, camera->eye.z);
+			scene->entities[4]->model.translate(camera->eye.x, camera->eye.y - 10, camera->eye.z);
 		}
 
-		
+
 		this->collisionMesh(dt); 	//Collision
 		this->Interaction();
 
@@ -334,7 +334,7 @@ void EntityPlayer::update(float dt)
 				game->current_stage->animation = true;
 			}
 			else game->current_stage->animation = false;
-			if ( -25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f )
+			if (-25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f)
 			{
 				game->CurrentScene->entities.clear();
 				game->current_stage = game->body_stage;
@@ -345,31 +345,31 @@ void EntityPlayer::update(float dt)
 
 		if (game->current_stage == game->body_stage) {  //animation bodystage
 
-			if ((-7.0f < this->pos.x && this->pos.x < 14.0f && -42.0f < this->pos.z  && -20.f > this->pos.z) || game->current_stage->Timeanimation != 0.0f )
+			if ((-7.0f < this->pos.x && this->pos.x < 14.0f && -42.0f < this->pos.z && -20.f > this->pos.z) || game->current_stage->Timeanimation != 0.0f)
 			{
 				game->current_stage->animation = true;
 			}
-			if ((-7.0f < this->pos.x && this->pos.x < 14.0f && -11.f < this->pos.z && game->body_stage->animation2) && game->current_stage->glassCount==0)
+			if ((-7.0f < this->pos.x && this->pos.x < 14.0f && -11.f < this->pos.z && game->body_stage->animation2) && game->current_stage->glassCount == 0)
 			{
 				game->current_stage->animation = true;
 				game->current_stage->firstTime = true;
 				game->body_stage->animation2 = false;
 
 			}
-			if ( -36.0f > this->pos.z && game->current_stage->changeGlass)
+			if (-36.0f > this->pos.z && game->current_stage->changeGlass)
 			{
 				game->CurrentScene->entities.clear();
 				game->CurrentScene->entities_mirror.clear();
 				float aux = game->current_stage->glassCount;
-				game->current_stage = game->mind_stage;
-				game->CurrentScene = game->mind_scene;
+				game->current_stage = game->corridor_stage;
+				game->CurrentScene = game->corridor_scene;
 				game->current_stage->glassCount = aux;
 				game->current_stage->createEntities();
 			}
 		}
 		if (game->current_stage == game->mind_stage) {  //animation mindstage
 
-			if (( -90.0f < this->pos.z && -58.0f > this->pos.z) || game->current_stage->Timeanimation != 0.0f) //abrir
+			if ((-90.0f < this->pos.z && -58.0f > this->pos.z) || game->current_stage->Timeanimation != 0.0f) //abrir
 			{
 				game->current_stage->animation = true;
 			}
@@ -385,12 +385,43 @@ void EntityPlayer::update(float dt)
 				game->CurrentScene->entities.clear();
 				game->CurrentScene->entities_mirror.clear();
 				float aux = game->current_stage->glassCount;
-				game->current_stage = game->mind_stage;
-				game->CurrentScene = game->mind_scene;
+				game->current_stage = game->corridor_stage;
+				game->CurrentScene = game->corridor_scene;
 				game->current_stage->glassCount = aux;
 				game->current_stage->createEntities();
 			}
 		}
+		if (game->current_stage == game->corridor_stage) {  //animation mindstage
+
+			if (-35.0f > this->pos.x && game->current_stage->changeGlass) //abrir puerta
+			{
+					game->CurrentScene->entities.clear();
+					game->CurrentScene->entities_mirror.clear();
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->corridor_stage;
+				game->CurrentScene = game->corridor_scene;
+				game->current_stage->glassCount = aux;
+				game->current_stage->createEntities();
+			}
+		}
+		if (game->current_stage == game->corridor_stage) {  //animation mindstage
+			if (this->pos.z < -60) {
+				game->current_stage = game->body_stage;
+				game->CurrentScene = game->BodyScene;
+				game->current_stage->createEntities();
+			}
+			if (this->pos.z > 50) {
+				game->current_stage = game->soul_stage;
+				game->CurrentScene = game->soul_scene;
+				game->current_stage->createEntities();
+			}
+			if (this->pos.x > 100) {
+				game->current_stage = game->mind_stage;
+				game->CurrentScene = game->mind_scene;
+				game->current_stage->createEntities();
+			}
+		}
+	
 	}
 
 }
