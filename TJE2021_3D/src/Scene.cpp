@@ -161,7 +161,7 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -188,6 +188,13 @@ void EntityPlayer::render()
 			this->yaw = -90;
 			this->pos = Vector3(4.0f, 0, 0.0f);
 			game->corridor_stage->InitStage = false;
+		}
+	}
+	if (game->current_stage == game->soul_stage) {
+		if (game->soul_stage->InitStage) {
+			this->yaw = -90;
+			this->pos = Vector3(-98.0f, 0, -24.0f);
+			game->soul_stage->InitStage = false;
 		}
 	}
 	if (game->current_stage == game->intro_stage)
@@ -391,12 +398,35 @@ void EntityPlayer::update(float dt)
 				game->current_stage->createEntities();
 			}
 		}
+		if (game->current_stage == game->soul_stage) {
+			if ((-90.0f < this->pos.x && -58.0f > this->pos.x) || game->current_stage->Timeanimation != 0.0f) //abrir
+			{
+				game->current_stage->animation = true;
+			}
+			if ((-30.0f < this->pos.x && game->current_stage->animation2)) //cerrar
+			{
+				game->current_stage->animation = true;
+				game->current_stage->firstTime = true;
+				game->current_stage->animation2 = false;
+
+			}
+			if (-60.0f > this->pos.x && game->current_stage->changeGlass) //abrir puerta
+			{
+				game->CurrentScene->entities.clear();
+				game->CurrentScene->entities_mirror.clear();
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->corridor_stage;
+				game->CurrentScene = game->corridor_scene;
+				game->current_stage->glassCount = aux;
+				game->current_stage->createEntities();
+			}
+		}
 		if (game->current_stage == game->corridor_stage) {  //animation mindstage
 
 			if (-35.0f > this->pos.x && game->current_stage->changeGlass) //abrir puerta
 			{
-					game->CurrentScene->entities.clear();
-					game->CurrentScene->entities_mirror.clear();
+				game->CurrentScene->entities.clear();
+				game->CurrentScene->entities_mirror.clear();
 				float aux = game->current_stage->glassCount;
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;

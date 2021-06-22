@@ -10,7 +10,7 @@
 #define MAX_ENT_INTRO 6
 #define MAX_ENT_BODY 20 //comun mirror and reality
 #define MAX_ENT_MIND 24 //comun mirror and reality
-#define MAX_ENT_SOUL 13
+#define MAX_ENT_SOUL 14
 #define MAX_ENT_CORRIDOR 3
 #define MAX_ENT_TITLE 1
 

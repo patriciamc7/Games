@@ -974,7 +974,7 @@ void SoulStage::createTextures()
 
 	Scene* scene = Game::instance->soul_scene;
 
-	string texture = "data/soul/ouija_mirror.tga,data/soul/OuijaArrow.tga,data/soul/Altar_9.tga,data/soul/Altar_C.tga,data/soul/Altar_M.tga,data/soul/Floor.tga,data/soul/wall.tga,data/soul/pilar.tga,data/soul/window.tga,data/soul/Floor.tga,data/soul/OuijaArrow.tga,data/imShader/noise.tga,data/soul/wall.tga";
+	string texture = "data/soul/ouija_mirror.tga,data/soul/OuijaArrow.tga,data/soul/Altar_9.tga,data/soul/Altar_C.tga,data/soul/Altar_M.tga,data/soul/Floor.tga,data/soul/wall.tga,data/soul/pilar.tga,data/soul/window.tga,data/soul/Floor.tga,data/soul/OuijaArrow.tga,data/imShader/noise.tga,data/soul/wall.tga,data/soul/door.tga";
 
 	string cad;
 	int found = -1;
@@ -1013,7 +1013,7 @@ void SoulStage::createEntities()
 {
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
-	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,data/soul/wallMirror.ASE";
+	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,data/soul/wallMirror.ASE,data/soul/door.ASE";
 	this->changeGlass = false;
 	scene->mirrorParticle.clear();
 	scene->mirrorParticle.resize(NumParticle);
@@ -1114,6 +1114,10 @@ void SoulStage::createEntities()
 			this->entities[i]->model.translate(0, -10, 80);
 
 		}
+		if (this->entities_mirror[i]->id == 14) { //door
+			this->entities[i]->model.translate(-64, 0, -39);
+
+		}
 		this->entities_mirror[i]->model.translate(0, 0, 170);
 		scene->entities.push_back(this->entities[i]);
 		scene->entities_mirror.push_back(this->entities_mirror[i]);
@@ -1161,6 +1165,7 @@ void SoulStage::render()
 void SoulStage::update(double seconds_elapsed)
 {
 	Scene* scene = Game::instance->soul_scene;
+	Game* game = Game::instance;
 
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
@@ -1170,6 +1175,32 @@ void SoulStage::update(double seconds_elapsed)
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		scene->entities[i]->update(seconds_elapsed);
+	}
+	if (this->animation)
+	{
+		float radDoor = -90 * DEG2RAD * seconds_elapsed;
+
+		if (this->firstTime) {
+			Timeanimation = game->time;
+			this->firstTime = false;
+		}
+		if (game->time - Timeanimation < 1.2f && game->current_stage->animation2) {
+
+			game->CurrentScene->entities[14]->isColision = false;
+			scene->entities[14]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
+
+		}
+		if (game->time - Timeanimation < 1.2f && !game->current_stage->animation2) {
+
+			game->CurrentScene->entities[14]->isColision = true;
+			scene->entities[14]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
+		}
+	}
+	if (this->changeGlass && this->doorOpen2) {
+		this->doorOpen2 = false;
+		game->current_stage->animation2 = true;
+		this->animation = true;
+		this->firstTime = true;
 	}
 }
 
