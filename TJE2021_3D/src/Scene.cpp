@@ -539,7 +539,7 @@ void EntityPlayer::Interaction()
 						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
 							game->mind_stage->id = i-1;
 							game->mind_stage->isAmulet = true;
-							currentScene->entities_mirror[i-1]->alpha = 1;
+							currentScene->entities_mirror[i]->alpha = 1;
 							if (currentScene->entities[i]->id == 9)
 								currentStage->amuleto = true;
 							if (currentScene->entities[i]->id == 6)

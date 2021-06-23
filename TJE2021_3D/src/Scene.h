@@ -24,8 +24,7 @@ public:
 	//methods overwritten by derived classes
 	virtual void render() {}; //empty body 
 	virtual void update(float elapsed_time) {}; //empty body 
-	////some useful methods...
-	//Vector3 getPosition(); 
+
 };
 class EntityMesh :public Entity
 {

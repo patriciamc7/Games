@@ -579,14 +579,14 @@ void BodyStage::update(double seconds_elapsed)
 
 			game->CurrentScene->entities[5]->isColision = false;
 			scene->entities[5]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
-			scene->entities_mirror[4]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities_mirror[5]->model.rotate(radDoor, Vector3(0.0f, 1.0f, 0.0f));
 
 		}
 		if (game->time - Timeanimation < 1.2f && !game->current_stage->animation2) {
 
 			game->CurrentScene->entities[5]->isColision = true;
 			scene->entities[5]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
-			scene->entities_mirror[4]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
+			scene->entities_mirror[5]->model.rotate(-radDoor, Vector3(0.0f, 1.0f, 0.0f));
 		}
 
 	}
@@ -684,7 +684,7 @@ void MindStage::createEntities() {
 		}
 		if (this->entities[i]->id == 5) //amuleto grail
 		{
-			this->entities[i]->alpha = 0;
+			this->entities[i]->alpha = 1;
 			this->entities[i]->model.scale(0.3, 0.3, 0.3);
 			this->entities[i]->model.translate(-200, 10, 0);
 			this->entities_mirror[i]->model.scale(0.3, 0.3, 0.3);
@@ -692,7 +692,7 @@ void MindStage::createEntities() {
 		}
 		if (this->entities[i]->id == 6) //amuelto cruz 
 		{
-			this->entities[i]->alpha = 0;
+			this->entities[i]->alpha = 1;
 			this->entities[i]->model.translate(-60, 0, 20);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
 			this->entities_mirror[i]->model.translate(-110, 0, 190);
@@ -712,7 +712,7 @@ void MindStage::createEntities() {
 		}
 		if (this->entities[i]->id == 9) //amuleto ra (bueno)  
 		{
-			this->entities[i]->alpha = 0;
+			this->entities[i]->alpha = 1;
 			this->entities[i]->model.translate(-60, 0, 50);
 			this->entities[i]->model.scale(0.4, 0.4, 0.4);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
@@ -738,7 +738,7 @@ void MindStage::createEntities() {
 		}
 		if (this->entities[i]->id == 12) //puerta
 		{
-			this->entities[i]->model.translate(-19.5, 0, -50);
+			this->entities[i]->model.translate(-20, 0, -50);
 			this->entities_mirror[i]->model.translate(19.5, 0, -50);
 		}
 		if (this->entities[i]->id == 13) //mirror espejo 
@@ -748,7 +748,7 @@ void MindStage::createEntities() {
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 0, 1));
 			this->entities[i]->model.scale(0.5, 1, 2);
 		}
-		if (this->entities[i]->id == 14) //mirror espejo 
+		if (this->entities[i]->id == 14) //altar
 		{
 			this->entities[i]->model.translate(-15, 0, 70);
 			this->entities[i]->model.scale(0.5, 0.5, 0.5);
@@ -837,7 +837,7 @@ void MindStage::render()
 	for (int i = 1; i < scene->entities_mirror.size(); i++) 
 	{
 		//no renerizamos el epejo/ el marco ni el trozo de espejo
-		if (scene->entities_mirror[i]->id != 10 && scene->entities_mirror[i]->id != 12 && scene->entities_mirror[i]->id != 13 && scene->entities_mirror[i]->id < 15)
+		if (scene->entities_mirror[i]->id != 10 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id != 13 && scene->entities_mirror[i]->id < 15)
 			scene->entities_mirror[i]->render();
 	}
 	for (int i = 0; i < scene->entities.size(); i++)
