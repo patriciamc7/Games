@@ -131,15 +131,17 @@ void Scene::CreatePlayer()
 	string cad;
 	int found = -1;
 	int init = 0;
+	this->characters.resize(MAX_CHARACTERS);
+	this->entities.resize(MAX_CHARACTERS);
 	for (int i = 0; i < MAX_CHARACTERS; i++)
 	{
-		this->characters.push_back(new EntityPlayer());
+		this->characters[i] =new EntityPlayer();
 		init = found + 1;
 		found = text.find(",", found + 1);
 		cad = text.substr(init, found - init);
 		this->characters[i]->mesh = Mesh::Get(cad.c_str());
 		this->characters[i]->id = i;
-		this->entities.push_back(this->characters[i]);
+		this->entities[i] =this->characters[i];
 		if (i == 0)
 			this->characters[i]->texture = Texture::Get("data/UV.tga");
 	}
@@ -162,7 +164,7 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -337,24 +339,30 @@ void EntityPlayer::update(float dt)
 
 		if (game->current_stage == game->corridor_stage) {  //animation mindstage
 			if (this->pos.z < -60) {
+				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
 				game->current_stage = game->body_stage;
 				game->CurrentScene = game->BodyScene;
 				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
 			}
 			if (this->pos.z > 50) {
+				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
 				game->current_stage = game->soul_stage;
 				game->CurrentScene = game->soul_scene;
 				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
 			}
 			if (this->pos.x > 100) {
+				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
 				game->current_stage = game->mind_stage;
 				game->CurrentScene = game->mind_scene;
 				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
 			}
 		}
@@ -369,7 +377,9 @@ void EntityPlayer::update(float dt)
 				game->CurrentScene->entities.clear();
 				game->current_stage = game->body_stage;
 				game->CurrentScene = game->BodyScene;
+				game->CurrentScene->CreatePlayer(); //??
 				game->current_stage->createEntities();
+
 			}
 		}
 
@@ -394,6 +404,7 @@ void EntityPlayer::update(float dt)
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
 				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
 			}
 		}
@@ -418,6 +429,7 @@ void EntityPlayer::update(float dt)
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
 				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
 			}
 		}
@@ -441,6 +453,7 @@ void EntityPlayer::update(float dt)
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
 				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
 			}
 		}

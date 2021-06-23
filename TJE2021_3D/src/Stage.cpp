@@ -31,9 +31,11 @@ void IntroStage::createEntities()
 	string cad;
 	int found = -1;
 	int init = 0;
+	this->entities.resize(MAX_ENT_INTRO);
+	scene->entities.resize(MAX_ENT_INTRO + 1);
 	for (int i = 0; i < MAX_ENT_INTRO; i++)
 	{
-		entities.push_back(new EntityMesh());
+		entities[i] =new EntityMesh();
 
 		if (i == 4) {
 			entities[i]->mesh->createPlane(2000);
@@ -48,7 +50,7 @@ void IntroStage::createEntities()
 			entities[i]->mesh = Mesh::Get(cad.c_str());
 		}
 		entities[i]->id = i;
-		scene->entities.push_back(entities[i]);
+		scene->entities[i+1] =entities[i];
 
 		if (i == 3) {
 			entities[i]->isColision = false;
@@ -160,10 +162,14 @@ void BodyStage::createEntities()
 	this->changeGlass = false; 
 	this->doorOpen2 = true;
 	this->InitStage= true;
+	this->entities.resize(MAX_ENT_BODY);
+	scene->entities.resize(MAX_ENT_BODY + 1);
+	this->entities_mirror.resize(MAX_ENT_BODY);
+	scene->entities_mirror.resize(MAX_ENT_BODY + 1);
 	for (int i = 0; i < MAX_ENT_BODY; i++)
 	{
-		this->entities.push_back(new EntityMesh());
-		this->entities_mirror.push_back(new EntityMesh());
+		this->entities[i] = new EntityMesh();
+		this->entities_mirror[i] = new EntityMesh();
 
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i + playerNum;
@@ -315,8 +321,8 @@ void BodyStage::createEntities()
 			this->entities[i]->model.translate(-20, 10, 50);
 		}
 		
-		scene->entities.push_back(this->entities[i]);
-		scene->entities_mirror.push_back(this->entities_mirror[i]);
+		scene->entities[i+1] =this->entities[i];
+		scene->entities_mirror[i+1]=this->entities_mirror[i];
 
 	}
 	createTextures();
@@ -519,7 +525,7 @@ void BodyStage::render()
 	Scene* scene = Game::instance->CurrentScene;
 	for (int i = 0; i < scene->entities_mirror.size(); i++)
 	{
-		if (scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id != 12 && scene->entities_mirror[i]->id < 13)  //2 es el suelo water, no lo renderizamos en la realidad mirror
+		if (i!= 0 && scene->entities_mirror[i]->id != 1 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id != 12 && scene->entities_mirror[i]->id < 13)  //2 es el suelo water, no lo renderizamos en la realidad mirror
 			scene->entities_mirror[i]->render();
 
 	}
@@ -551,7 +557,7 @@ void BodyStage::update(double seconds_elapsed)
 	{
 		scene->entities[i]->update(seconds_elapsed);
 	}
-	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	for (int i = 1; i < scene->entities_mirror.size(); i++)
 	{
 		scene->entities_mirror[i]->update(seconds_elapsed);
 	}
@@ -630,11 +636,14 @@ void MindStage::createEntities() {
 	int found = -1;
 	int init = 0;
 	int playerNum = scene->entities.size();
-
+	this->entities.resize(MAX_ENT_MIND);
+	scene->entities.resize(MAX_ENT_MIND + 1);
+	this->entities_mirror.resize(MAX_ENT_MIND);
+	scene->entities_mirror.resize(MAX_ENT_MIND + 1);
 	for (int i = 0; i < MAX_ENT_MIND; i++)
 	{
-		this->entities.push_back(new EntityMesh());
-		this->entities_mirror.push_back(new EntityMesh());
+		this->entities[i]=new EntityMesh();
+		this->entities_mirror[i]=new EntityMesh();
 
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i + playerNum;
@@ -814,8 +823,8 @@ void MindStage::createEntities() {
 		//reflexion
 		this->entities_mirror[i]->model = this->entities_mirror[i]->model.relfexion_y();
 		this->entities_mirror[i]->model.translate(170,0,0);
-		scene->entities.push_back(this->entities[i]);
-		scene->entities_mirror.push_back(this->entities_mirror[i]);
+		scene->entities[i+1]=this->entities[i];
+		scene->entities_mirror[i+1]=this->entities_mirror[i];
 	}
 
 	createTextures();
@@ -825,7 +834,7 @@ void MindStage::render()
 {
 	Camera* camera = Camera::current;
 	Scene* scene = Game::instance->mind_scene;
-	for (int i = 0; i < scene->entities_mirror.size(); i++) 
+	for (int i = 1; i < scene->entities_mirror.size(); i++) 
 	{
 		//no renerizamos el epejo/ el marco ni el trozo de espejo
 		if (scene->entities_mirror[i]->id != 10 && scene->entities_mirror[i]->id != 12 && scene->entities_mirror[i]->id != 13 && scene->entities_mirror[i]->id < 15)
@@ -856,7 +865,7 @@ void MindStage::update(double seconds_elapsed)
 		scene->entities[i]->update(seconds_elapsed);
 	}
 	
-	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	for (int i = 1; i < scene->entities_mirror.size(); i++)
 	{
 		scene->entities_mirror[i]->update(seconds_elapsed);
 	}
@@ -1047,10 +1056,14 @@ void SoulStage::createEntities()
 	int found = -1;
 	int init = 0;
 	int playerNum = scene->entities.size();
+	this->entities.resize(MAX_ENT_SOUL);
+	scene->entities.resize(MAX_ENT_SOUL + 1);
+	this->entities_mirror.resize(MAX_ENT_SOUL);
+	scene->entities_mirror.resize(MAX_ENT_SOUL + 1);
 	for (int i = 0; i < MAX_ENT_SOUL; i++)
 	{
-		this->entities.push_back(new EntityMesh());
-		this->entities_mirror.push_back(new EntityMesh());
+		this->entities[i]=new EntityMesh();
+		this->entities_mirror[i]=new EntityMesh();
 
 		this->entities[i]->id = i + playerNum;
 		this->entities_mirror[i]->id = i + playerNum;
@@ -1231,8 +1244,8 @@ void SoulStage::createEntities()
 			this->entities[i]->model.translate(-12, -125, 30);
 		}
 		this->entities_mirror[i]->model.translate(0, 0, 170);
-		scene->entities.push_back(this->entities[i]);
-		scene->entities_mirror.push_back(this->entities_mirror[i]);
+		scene->entities[i+1]=this->entities[i];
+		scene->entities_mirror[i+1]=this->entities_mirror[i];
 	}
 	for (int j = 0; j < scene->mirrorParticle.size(); j++) {
 		scene->mirrorParticle[j].v_particles = new EntityMesh();
@@ -1249,7 +1262,7 @@ void SoulStage::render()
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
 	int timeAnimation = 15; 
-	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	for (int i = 1; i < scene->entities_mirror.size(); i++)
 	{
 		if(scene->entities_mirror[i]->id != 2 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id < 12)
 			scene->entities_mirror[i]->render();
@@ -1303,7 +1316,7 @@ void SoulStage::update(double seconds_elapsed)
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
 
-	for (int i = 0; i < scene->entities_mirror.size(); i++)
+	for (int i = 1; i < scene->entities_mirror.size(); i++)
 	{
 		scene->entities_mirror[i]->update(seconds_elapsed);
 	}
@@ -1376,10 +1389,13 @@ void CorridorStage::createEntities()
 	int found = -1;
 	int init = 0;
 	int playerNum = scene->entities.size();
+	this->entities.resize(MAX_ENT_CORRIDOR);
+	scene->entities.resize(MAX_ENT_CORRIDOR + 1); 
+
 	//1 sala, 2 salaIntro, 3 portal, 4 planoprofundidad, 5 planoprofundidad, 6 planoprofundidad, 7 espejo roto portal 
 	for (int i = 0; i < MAX_ENT_CORRIDOR; i++)
 	{
-		this->entities.push_back(new EntityMesh());
+		this->entities[i] = new EntityMesh();
 		this->entities[i]->id = i + playerNum;
 
 		if (this->entities[i]->id < 4 || this->entities[i]->id > 6) {
@@ -1419,7 +1435,7 @@ void CorridorStage::createEntities()
 			this->entities[i]->model.translate(-54, 0, -68);
 
 		}
-		scene->entities.push_back(this->entities[i]);
+		scene->entities[i+1] = this->entities[i];
 	}
 	createTextures();
 }
