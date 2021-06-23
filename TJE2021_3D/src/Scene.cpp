@@ -335,6 +335,29 @@ void EntityPlayer::update(float dt)
 		this->collisionMesh(dt); 	//Collision
 		this->Interaction();
 
+		if (game->current_stage == game->corridor_stage) {  //animation mindstage
+			if (this->pos.z < -60) {
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->body_stage;
+				game->CurrentScene = game->BodyScene;
+				game->current_stage->glassCount = aux;
+				game->current_stage->createEntities();
+			}
+			if (this->pos.z > 50) {
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->soul_stage;
+				game->CurrentScene = game->soul_scene;
+				game->current_stage->glassCount = aux;
+				game->current_stage->createEntities();
+			}
+			if (this->pos.x > 100) {
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->mind_stage;
+				game->CurrentScene = game->mind_scene;
+				game->current_stage->glassCount = aux;
+				game->current_stage->createEntities();
+			}
+		}
 		if (game->current_stage == game->intro_stage) {  //animation intro
 			if ((-25.0f < this->pos.z && this->pos.z < 1.0f && -11.0f < this->pos.x) || game->current_stage->Timeanimation != 0.0f)
 			{
@@ -417,29 +440,6 @@ void EntityPlayer::update(float dt)
 				float aux = game->current_stage->glassCount;
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
-				game->current_stage->glassCount = aux;
-				game->current_stage->createEntities();
-			}
-		}
-		if (game->current_stage == game->corridor_stage) {  //animation mindstage
-			if (this->pos.z < -60) {
-				float aux = game->current_stage->glassCount;
-				game->current_stage = game->body_stage;
-				game->CurrentScene = game->BodyScene;
-				game->current_stage->glassCount = aux;
-				game->current_stage->createEntities();
-			}
-			if (this->pos.z > 50) {
-				float aux = game->current_stage->glassCount;
-				game->current_stage = game->soul_stage;
-				game->CurrentScene = game->soul_scene;
-				game->current_stage->glassCount = aux;
-				game->current_stage->createEntities();
-			}
-			if (this->pos.x > 100) {
-				float aux = game->current_stage->glassCount;
-				game->current_stage = game->mind_stage;
-				game->CurrentScene = game->mind_scene;
 				game->current_stage->glassCount = aux;
 				game->current_stage->createEntities();
 			}

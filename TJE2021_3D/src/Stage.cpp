@@ -1376,13 +1376,13 @@ void CorridorStage::createEntities()
 	int found = -1;
 	int init = 0;
 	int playerNum = scene->entities.size();
-
+	//1 sala, 2 salaIntro, 3 portal, 4 planoprofundidad, 5 planoprofundidad, 6 planoprofundidad, 7 espejo roto portal 
 	for (int i = 0; i < MAX_ENT_CORRIDOR; i++)
 	{
 		this->entities.push_back(new EntityMesh());
 		this->entities[i]->id = i + playerNum;
 
-		if (this->entities[i]->id < 4) {
+		if (this->entities[i]->id < 4 || this->entities[i]->id > 6) {
 			init = found + 1;
 			found = mesh.find(",", found + 1);
 			cad = mesh.substr(init, found - init);
@@ -1415,8 +1415,9 @@ void CorridorStage::createEntities()
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
 		}
 		if (this->entities[i]->id == 7) {
-			/*this->entities[i]->model.translate(60, 20, 100);
-			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));*/
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
+			this->entities[i]->model.translate(-54, 0, -68);
+
 		}
 		scene->entities.push_back(this->entities[i]);
 	}
