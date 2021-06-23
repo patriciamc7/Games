@@ -375,8 +375,8 @@ void EntityPlayer::update(float dt)
 			if (-25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f)
 			{
 				game->CurrentScene->entities.clear();
-				game->current_stage = game->body_stage;
-				game->CurrentScene = game->BodyScene;
+				game->current_stage = game->corridor_stage;
+				game->CurrentScene = game->corridor_scene;
 				game->CurrentScene->CreatePlayer(); //??
 				game->current_stage->createEntities();
 

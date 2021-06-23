@@ -1358,7 +1358,7 @@ void CorridorStage::createTextures()
 
 	Scene* scene = Game::instance->corridor_scene;
 
-	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/imShader/noise.tga";
+	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/imShader/noise.tga,data/intro/Door_BaseColor.tga";
 
 	string cad;
 	int found = -1;
@@ -1366,13 +1366,14 @@ void CorridorStage::createTextures()
 
 	for (int i = 0; i < MAX_ENT_CORRIDOR; i++)
 	{
-		init = found + 1;
-		found = texture.find(",", found + 1);
-		cad = texture.substr(init, found - init);
+		if (i < 8 || i > 10) {
+			init = found + 1;
+			found = texture.find(",", found + 1);
+			cad = texture.substr(init, found - init);
+		}
 		this->entities[i]->texture = Texture::Get(cad.c_str());
-		if(this->entities[i]->id == 7)
+		if (this->entities[i]->id == 7)
 			this->entities[i]->texture2 = Texture::Get("data/imShader/gray.tga");
-
 	}
 }
 
@@ -1380,7 +1381,7 @@ void CorridorStage::createEntities()
 {
 	Scene* scene = Game::instance->corridor_scene; 
 
-	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/mirror.ASE";
+	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/mirror.ASE,data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase";
 	this->changeGlass = false;
 
 	string cad;
@@ -1430,11 +1431,20 @@ void CorridorStage::createEntities()
 
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
 		}
-		if (this->entities[i]->id == 7) {
+		if (this->entities[i]->id == 7) { //espejo roto portal
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
 			this->entities[i]->model.translate(-54, 0, -68);
-
 		}
+		if (this->entities[i]->id == 8)//door
+			this->entities[i]->model.translate(-18.0f, 0.0f, 16.0f);
+		if (this->entities[i]->id == 9) //door
+			this->entities[i]->model.translate(-18.0f, 0.0f, -15.5f);
+
+		if (this->entities[i]->id == 10) //door arco
+			this->entities[i]->model.translate(-18.0f, 0.0f, 0.0f);
+		
+		
+		
 		scene->entities[i+1] = this->entities[i];
 	}
 	createTextures();
