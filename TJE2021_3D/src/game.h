@@ -56,7 +56,10 @@ public:
 
 
 	bool free_camera;
-
+	//No entrar dos veces en la misma sala
+	bool OneBody = false;
+	bool OneMind = false;
+	bool OneSoul = false;
 	//some vars
 	Camera* camera; //our global camera
 	bool mouse_locked; //tells if the mouse is locked (not seen)

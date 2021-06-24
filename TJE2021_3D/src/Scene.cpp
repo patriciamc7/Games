@@ -185,7 +185,7 @@ void EntityPlayer::render()
 			game->mind_stage->InitStage = false;
 		}
 	}
-	if (game->current_stage == game->corridor_stage) {
+	if (game->current_stage == game->corridor_stage ) {
 		if (game->corridor_stage->InitStage) {
 			this->yaw = -90;
 			this->pos = Vector3(4.0f, 0, 0.0f);
@@ -252,7 +252,9 @@ void EntityPlayer::render()
 		if (vel_factor < 0)
 			vel_factor = 0;
 	}
-	vel_factor += this->playerSpeed.length() * 0.1;
+	if(vel_factor < 1)
+		vel_factor += this->playerSpeed.length() * 0.1;
+	cout << vel_factor << "\n"; 
 	blendSkeleton(&idle->skeleton, &walk->skeleton, vel_factor, &skeleton); //si el jugador se mueve aplicar walk, si no idle
 
 
@@ -336,9 +338,8 @@ void EntityPlayer::update(float dt)
 
 		this->collisionMesh(dt); 	//Collision
 		this->Interaction();
-
 		if (game->current_stage == game->corridor_stage) {  //animation mindstage
-			if (this->pos.z < -60) {
+			if (this->pos.z < -60 && !game->OneBody) {
 				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
 				game->current_stage = game->body_stage;
@@ -346,8 +347,11 @@ void EntityPlayer::update(float dt)
 				game->current_stage->glassCount = aux;
 				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
+				game->OneBody = true; 
 			}
-			if (this->pos.z > 50) {
+			if (this->pos.z < -60 && game->OneBody) // ya ha entrado que se active el limite
+				this->pos.z = -60; 
+			if (this->pos.z > 40 && !game->OneSoul) {
 				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
 				game->current_stage = game->soul_stage;
@@ -355,8 +359,11 @@ void EntityPlayer::update(float dt)
 				game->current_stage->glassCount = aux;
 				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
+				game->OneSoul = true; 
 			}
-			if (this->pos.x > 100) {
+			if (this->pos.z > 40 && game->OneSoul)
+				this->pos.z = 40; 
+			if (this->pos.x > 150 && !game->OneMind) {
 				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
 				game->current_stage = game->mind_stage;
@@ -364,7 +371,10 @@ void EntityPlayer::update(float dt)
 				game->current_stage->glassCount = aux;
 				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
+				game->OneMind = true; 
 			}
+			if (this->pos.x > 150 && game->OneMind)
+				this->pos.x = 150; 
 		}
 		if (game->current_stage == game->intro_stage) {  //animation intro
 			if ((-25.0f < this->pos.z && this->pos.z < 1.0f && -11.0f < this->pos.x) || game->current_stage->Timeanimation != 0.0f)
