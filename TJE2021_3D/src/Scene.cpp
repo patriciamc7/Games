@@ -294,7 +294,7 @@ void EntityPlayer::update(float dt)
 	Game* game = Game::instance;
 	Scene* scene = Game::instance->CurrentScene;
 	Camera* camera = Camera::current;
-	
+	changeStage = true;
 
 	if (!game->free_camera) {
 		float speed = this->player_speed.x * dt;
@@ -338,58 +338,21 @@ void EntityPlayer::update(float dt)
 
 		this->collisionMesh(dt); 	//Collision
 		this->Interaction();
-		if (game->current_stage == game->corridor_stage) {  //animation mindstage
-			if (this->pos.z < -60 && !game->OneBody) {
-				game->CurrentScene->entities.clear();
-				float aux = game->current_stage->glassCount;
-				game->current_stage = game->body_stage;
-				game->CurrentScene = game->BodyScene;
-				game->current_stage->glassCount = aux;
-				game->CurrentScene->CreatePlayer();
-				game->current_stage->createEntities();
-				game->OneBody = true; 
-			}
-			if (this->pos.z < -60 && game->OneBody) // ya ha entrado que se active el limite
-				this->pos.z = -60; 
-			if (this->pos.z > 40 && !game->OneSoul) {
-				game->CurrentScene->entities.clear();
-				float aux = game->current_stage->glassCount;
-				game->current_stage = game->soul_stage;
-				game->CurrentScene = game->soul_scene;
-				game->current_stage->glassCount = aux;
-				game->CurrentScene->CreatePlayer();
-				game->current_stage->createEntities();
-				game->OneSoul = true; 
-			}
-			if (this->pos.z > 40 && game->OneSoul)
-				this->pos.z = 40; 
-			if (this->pos.x > 150 && !game->OneMind) {
-				game->CurrentScene->entities.clear();
-				float aux = game->current_stage->glassCount;
-				game->current_stage = game->mind_stage;
-				game->CurrentScene = game->mind_scene;
-				game->current_stage->glassCount = aux;
-				game->CurrentScene->CreatePlayer();
-				game->current_stage->createEntities();
-				game->OneMind = true; 
-			}
-			if (this->pos.x > 150 && game->OneMind)
-				this->pos.x = 150; 
-		}
+		
 		if (game->current_stage == game->intro_stage) {  //animation intro
 			if ((-25.0f < this->pos.z && this->pos.z < 1.0f && -11.0f < this->pos.x) || game->current_stage->Timeanimation != 0.0f)
 			{
 				game->current_stage->animation = true;
 			}
 			else game->current_stage->animation = false;
-			if (-25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f)
+			if (-25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f )
 			{
 				game->CurrentScene->entities.clear();
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
-				game->CurrentScene->CreatePlayer(); //??
+				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
-
+				this->changeStage = false;
 			}
 		}
 
@@ -416,6 +379,13 @@ void EntityPlayer::update(float dt)
 				game->current_stage->glassCount = aux;
 				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
+				this->changeStage = false;
+				game->CurrentScene->characters[0]->pos = Vector3(58, 0, -53);
+				game->CurrentScene->characters[0]->yaw = 0;
+				game->CurrentScene->entities[0] = game->CurrentScene->characters[0];
+
+				game->corridor_stage->InitStage = false;
+
 			}
 		}
 		if (game->current_stage == game->mind_stage) {  //animation mindstage
@@ -441,6 +411,12 @@ void EntityPlayer::update(float dt)
 				game->current_stage->glassCount = aux;
 				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
+				this->changeStage = false;
+				game->CurrentScene->characters[0]->pos = Vector3(125, 0, 3);
+				game->CurrentScene->characters[0]->yaw = 90;
+				game->CurrentScene->entities[0] = game->CurrentScene->characters[0];
+
+				game->corridor_stage->InitStage = false;
 			}
 		}
 		if (game->current_stage == game->soul_stage) {
@@ -465,9 +441,54 @@ void EntityPlayer::update(float dt)
 				game->current_stage->glassCount = aux;
 				game->CurrentScene->CreatePlayer();
 				game->current_stage->createEntities();
+				this->changeStage = false;
+				game->CurrentScene->characters[0]->pos = Vector3(60, 0, 60);
+				game->CurrentScene->characters[0]->yaw = 180;
+				game->CurrentScene->entities[0] = game->CurrentScene->characters[0];
+				game->corridor_stage->InitStage = false;
 			}
 		}
 		
+		if (game->current_stage == game->corridor_stage && this->changeStage) {  //animation mindstage
+			if (this->pos.z < -60 && !game->current_stage->body) {
+				game->CurrentScene->entities.clear();
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->body_stage;
+				game->CurrentScene = game->BodyScene;
+				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
+				game->current_stage->createEntities();
+				
+
+			}
+			if (this->pos.z < -60 && game->current_stage->body)
+				this->pos.z = -60;
+
+			if (this->pos.z > 60 && !game->current_stage->soul) {
+				game->CurrentScene->entities.clear();
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->soul_stage;
+				game->CurrentScene = game->soul_scene;
+				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
+				game->current_stage->createEntities();
+			}
+			if (this->pos.z > 60 && game->current_stage->soul)
+				this->pos.z = 60;
+
+			if (this->pos.x > 125 && !game->current_stage->mind) {
+				game->CurrentScene->entities.clear();
+				float aux = game->current_stage->glassCount;
+				game->current_stage = game->mind_stage;
+				game->CurrentScene = game->mind_scene;
+				game->current_stage->glassCount = aux;
+				game->CurrentScene->CreatePlayer();
+				game->current_stage->createEntities();
+				
+			}
+			if (this->pos.x > 125  && game->current_stage->mind)
+				this->pos.x = 125;
+		}
 	}
 
 }

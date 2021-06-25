@@ -49,7 +49,7 @@ public:
 
 	
 //Attrubutes of this class
-
+	bool changeStage;
 	float vel_factor = 0;
 	float center_value_y;
 	Mesh* mesh;

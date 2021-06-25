@@ -93,7 +93,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	end_stage = new EndStage();
 	corridor_stage = new CorridorStage();
 	mind_stage = new MindStage(); 
-	current_stage = corridor_stage;
+	current_stage = title_stage;
 
 	current_stage->createEntities();
 	//hide the cursor

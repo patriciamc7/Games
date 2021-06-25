@@ -46,6 +46,7 @@ public:
 	bool soul = false;
 
 	bool InitStage = false;
+	
 	virtual void createEntities() {};
 	virtual void createTextures() {};
 	virtual void render() {}; //empty body 
@@ -59,22 +60,16 @@ public:
 
 class TitleStage : public Stage {
 public:
-	/*enum eButton {
-		START,
-		CONTROLS,
-		CONFIGURATION,
-		EXIT
-	};*/
+
 	vector<EntityMesh*> ButtonsPlane;
 	int numButton = 4; 
-	//eButton button_type;
 	EntityMesh* menu;
-	//Mesh* mesh;
 	Shader* shader; 
 	virtual void createEntities();
 	void createTextures(); 
 	virtual void render();
 	virtual void update(double seconds_elapsed);
+	TitleStage();
 };
 
 class IntroStage : public Stage {
@@ -86,6 +81,7 @@ public:
 	virtual void createEntities();
 	virtual void render();
 	virtual void update(double seconds_elapsed);
+	IntroStage();
 };
 
 class BodyStage : public Stage {
@@ -99,6 +95,7 @@ public:
 	virtual void render();
 	void renderWater(int i);
 	virtual void update(double seconds_elapsed);
+	BodyStage();
 };
 
 class MindStage : public Stage {
@@ -116,6 +113,7 @@ public:
 
 	virtual void update(double seconds_elapsed);
 	void ChangePosLight(); 
+	MindStage();
 };
 
 
@@ -130,6 +128,7 @@ public:
 	virtual void createEntities();
 	virtual void render();
 	virtual void update(double seconds_elapsed);
+	SoulStage();
 };
 
 class CorridorStage : public Stage {
@@ -143,6 +142,7 @@ public:
 	virtual void createEntities();
 	virtual void render();
 	virtual void update(double seconds_elapsed);
+	CorridorStage();
 };
 
 class EndStage : public Stage {
@@ -161,6 +161,7 @@ public:
 	virtual void createEntities();
 	virtual void render();
 	virtual void update(double seconds_elapsed);
+	EndStage();
 };
 
 

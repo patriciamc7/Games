@@ -142,6 +142,40 @@ void IntroStage::update(double seconds_elapsed)
 
 }
 
+IntroStage::IntroStage()
+{
+	this->doorOpen2 = true;
+	this->changeGlass = false;
+	this->glassCount = 0;
+
+	this->isAmulet = false;
+	this->id = 0;
+	this->isRa = false;
+
+	//GUI
+	this->amuleto = false;
+	this->grail = false;
+	this->cruz = false;
+	this->arrow = false;
+
+
+	this->animation = false;
+	this->Timeanimation = 0.0f;
+	this->firstTime = true;
+	this->animation2 = true;
+
+	//particle active mirror
+	this->AnimationMirror = true;
+	this->NumParticle = 20;
+
+	//stages 
+	this->body = false;
+	this->mind = false;
+	this->soul = false;
+
+	this->InitStage = false;
+}
+
 void BodyStage::createTextures()
 {
 	Scene* scene = Game::instance->CurrentScene;
@@ -448,7 +482,7 @@ void Stage::renderParticle(float timeParticle)
 		scene->mirrorParticle[i].v_particles->mesh->vertices.resize(6);
 		scene->mirrorParticle[i].v_particles->mesh->uvs.resize(6);
 
-		Vector3& pos = Vector3(0, -0.1 * pow(timeParticle, 2), -timeParticle);
+		Vector3& pos = Vector3(0, -0.5 * pow(timeParticle, 2), -timeParticle);
 		//if(scene->v_particles[i])
 		float sizeParticle = scene->mirrorParticle[i].sizeParticle;
 		Vector3 camUp = camera->getLocalVector(Vector3(0, 1, 0)) * sizeParticle;
@@ -477,7 +511,9 @@ void Stage::renderParticle(float timeParticle)
 	glDisable(GL_BLEND);
 	glDepthMask(true);
 
+
 }
+
 
 void Stage::renderGui() {
 	glDisable(GL_DEPTH_TEST);
@@ -642,6 +678,40 @@ void BodyStage::update(double seconds_elapsed)
 	}
 }
 
+BodyStage::BodyStage()
+{
+	this->doorOpen2 = true;
+	this->changeGlass = false;
+	this->glassCount = 0;
+
+	this->isAmulet = false;
+	this->id = 0;
+	this->isRa = false;
+
+	//GUI
+	this->amuleto = false;
+	this->grail = false;
+	this->cruz = false;
+	this->arrow = false;
+
+
+	this->animation = false;
+	this->Timeanimation = 0.0f;
+	this->firstTime = true;
+	this->animation2 = true;
+
+	//particle active mirror
+	this->AnimationMirror = true;
+	this->NumParticle = 20;
+
+	//stages 
+	this->body = false;
+	this->mind = false;
+	this->soul = false;
+
+	this->InitStage = false;
+}
+
 void MindStage::createTextures()
 {
 	Scene* scene = Game::instance->CurrentScene;
@@ -779,7 +849,7 @@ void MindStage::createEntities() {
 		}
 		if (this->entities[i]->id == 12) //puerta
 		{
-			this->entities[i]->model.translate(5, 0, -50);
+			this->entities[i]->model.translate(-20, 0, -50);
 			this->entities_mirror[i]->model.translate(19.5, 0, -50);
 		}
 		if (this->entities[i]->id == 13) //mirror espejo 
@@ -990,6 +1060,40 @@ void MindStage::ChangePosLight()
 
 }
 
+MindStage::MindStage()
+{
+	this->doorOpen2 = true;
+	this->changeGlass = false;
+	this->glassCount = 0;
+
+	this->isAmulet = false;
+	this->id = 0;
+	this->isRa = false;
+
+	//GUI
+	this->amuleto = false;
+	this->grail = false;
+	this->cruz = false;
+	this->arrow = false;
+
+
+	this->animation = false;
+	this->Timeanimation = 0.0f;
+	this->firstTime = true;
+	this->animation2 = true;
+
+	//particle active mirror
+	this->AnimationMirror = true;
+	this->NumParticle = 20;
+
+	//stages 
+	this->body = false;
+	this->mind = false;
+	this->soul = false;
+
+	this->InitStage = false;
+}
+
 void TitleStage::createTextures()
 {
 	string texture = "data/Button/play0.tga,data/Button/controls0.tga,data/Button/options0.tga,data/Button/quit0.tga,data/Button/play1.tga,data/Button/controls1.tga,data/Button/options1.tga,data/Button/quit1.tga,data/Button/controls2.tga";
@@ -1076,6 +1180,8 @@ void TitleStage::render()
 					game->CurrentScene->CreatePlayer(); 
 					game->current_stage->createEntities();
 					ChangeIntro = true; 
+					game->free_camera = false;
+					
 				}
 			}
 			if (i == 1 && v2_mouse.y > 332 && v2_mouse.y < 378) { //CONTROLS
@@ -1124,6 +1230,40 @@ void TitleStage::update(double seconds_elapsed)
 		game->current_stage->createEntities();
 	}
 
+}
+
+TitleStage::TitleStage()
+{
+	this->doorOpen2 = true;
+	this->changeGlass = false;
+	this->glassCount = 0;
+
+	this->isAmulet = false;
+	this->id = 0;
+	this->isRa = false;
+
+	//GUI
+	this->amuleto = false;
+	this->grail = false;
+	this->cruz = false;
+	this->arrow = false;
+
+
+	this->animation = false;
+	this->Timeanimation = 0.0f;
+	this->firstTime = true;
+	this->animation2 = true;
+
+	//particle active mirror
+	this->AnimationMirror = true;
+	this->NumParticle = 20;
+
+	//stages 
+	this->body = false;
+	this->mind = false;
+	this->soul = false;
+
+	this->InitStage = false;
 }
 
 void SoulStage::createTextures()
@@ -1387,7 +1527,7 @@ void SoulStage::render()
 {
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
-	int timeAnimation = 15; 
+	int timeAnimation = 5; 
 	for (int i = 1; i < scene->entities_mirror.size(); i++)
 	{
 		if(scene->entities_mirror[i]->id != 2 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id < 12)
@@ -1408,6 +1548,9 @@ void SoulStage::render()
 			{
 				scene->entities[i]->isColision = false;
 				scene->entities[i]->alpha = 1;
+				scene->entities[i]->model.translate(0,-50,0);
+
+
 			}
 			if (PuzzleCorrect == true) {
 				scene->timeLive = game->time;
@@ -1419,6 +1562,8 @@ void SoulStage::render()
 				{
 					scene->entities[i]->isColision = false;
 					scene->entities[i]->alpha = 1;
+					scene->entities[i]->model.translate(0, -50, 0);
+
 				}
 				if(scene->entities[i]->id ==13)
 					scene->entities[i]->isColision = false;
@@ -1501,6 +1646,40 @@ void SoulStage::update(double seconds_elapsed)
 		game->CurrentScene = game->corridor_scene;
 		game->current_stage->createEntities();
 	}
+}
+
+SoulStage::SoulStage()
+{
+	this->doorOpen2 = true;
+	this->changeGlass = false;
+	this->glassCount = 0;
+
+	this->isAmulet = false;
+	this->id = 0;
+	this->isRa = false;
+
+	//GUI
+	this->amuleto = false;
+	this->grail = false;
+	this->cruz = false;
+	this->arrow = false;
+
+
+	this->animation = false;
+	this->Timeanimation = 0.0f;
+	this->firstTime = true;
+	this->animation2 = true;
+
+	//particle active mirror
+	this->AnimationMirror = true;
+	this->NumParticle = 20;
+
+	//stages 
+	this->body = false;
+	this->mind = false;
+	this->soul = false;
+
+	this->InitStage = false;
 }
 
 void CorridorStage::createTextures()
@@ -1674,6 +1853,40 @@ void CorridorStage::update(double seconds_elapsed)
 	
 }
 
+CorridorStage::CorridorStage()
+{
+	this->doorOpen2 = true;
+	this->changeGlass = false;
+	this->glassCount = 0;
+
+	this->isAmulet = false;
+	this->id = 0;
+	this->isRa = false;
+
+	//GUI
+	this->amuleto = false;
+	this->grail = false;
+	this->cruz = false;
+	this->arrow = false;
+
+
+	this->animation = false;
+	this->Timeanimation = 0.0f;
+	this->firstTime = true;
+	this->animation2 = true;
+
+	//particle active mirror
+	this->AnimationMirror = true;
+	this->NumParticle = 20;
+
+	//stages 
+	this->body = false;
+	this->mind = false;
+	this->soul = false;
+
+	this->InitStage = false;
+}
+
 void EndStage::createEntities()
 {
 	Game* game = Game::instance;
@@ -1712,30 +1925,74 @@ void EndStage::update(double seconds_elapsed)
 		game->current_stage = game->title_stage;
 		game->current_stage->createEntities();
 	}
-	int i = 0;
 	if (time + 0.5 < game->time) {
-		i += 1;
 		menu->texture = Texture::Get("data/end/end1.tga");
 	}
 	if (time + 0.6 < game->time) {
-		i += 1;
 		menu->texture = Texture::Get("data/end/end2.tga");
 	}
 	if (time + 0.7 < game->time) {
-		i += 1;
 		menu->texture = Texture::Get("data/end/end3.tga");
 	}
 	if (time + 0.8 < game->time) {
-		i += 1;
 		menu->texture = Texture::Get("data/end/end4.tga");
 		
 	}
 	if (time + 0.9 < game->time) {
-		i += 1;
 		menu->texture = Texture::Get("data/end/end5.tga");
 	}
 	if (time + 1.0 < game->time) {
-		i += 1;
 		menu->texture = Texture::Get("data/end/end6.tga");
 	}
+	if (time + 1.0 < game->time) {
+		menu->texture = Texture::Get("data/end/end6.tga"); //creditos
+	} 
+	if (time + 3.0 < game->time) {
+
+		game->title_stage = new TitleStage();
+		game->intro_stage = new IntroStage();
+		game->body_stage = new BodyStage();
+		game->soul_stage = new SoulStage();
+		game->end_stage = new EndStage();
+		game->corridor_stage = new CorridorStage();
+		game->mind_stage = new MindStage();
+		game->free_camera = true;
+		game->current_stage = game->title_stage;
+		game->current_stage->createEntities();
+		/*game = new Game(game->window_width, game->window_height, game->window);*/
+	}
+}
+
+EndStage::EndStage()
+{
+	this->doorOpen2 = true;
+	this->changeGlass = false;
+	this->glassCount = 0;
+
+	this->isAmulet = false;
+	this->id = 0;
+	this->isRa = false;
+
+	//GUI
+	this->amuleto = false;
+	this->grail = false;
+	this->cruz = false;
+	this->arrow = false;
+
+
+	this->animation = false;
+	this->Timeanimation = 0.0f;
+	this->firstTime = true;
+	this->animation2 = true;
+
+	//particle active mirror
+	this->AnimationMirror = true;
+	this->NumParticle = 20;
+
+	//stages 
+	this->body = false;
+	this->mind = false;
+	this->soul = false;
+
+	this->InitStage = false;
 }
