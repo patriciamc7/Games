@@ -928,7 +928,7 @@ void MindStage::ChangePosLight()
 
 void TitleStage::createTextures()
 {
-	string texture = "data/Button/play0.tga,data/Button/controls0.tga,data/Button/options0.tga,data/Button/quit0.tga,data/Button/play1.tga,data/Button/controls1.tga,data/Button/options1.tga,data/Button/quit1.tga,data/Button/controls3.tga";
+	string texture = "data/Button/play0.tga,data/Button/controls0.tga,data/Button/options0.tga,data/Button/quit0.tga,data/Button/play1.tga,data/Button/controls1.tga,data/Button/options1.tga,data/Button/quit1.tga,data/Button/controls2.tga";
 
 	string cad;
 	int found = -1;
@@ -950,7 +950,7 @@ void TitleStage::createEntities()
 	menu->mesh->createPlane(100);
 	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 	menu->texture = Texture::Get("data/inspeculo.tga");
-	this->ButtonsPlane.resize(sizeof(button_type) * 2 +1);
+	this->ButtonsPlane.resize(numButton * 2 +1);
 	for (int i = 0; i< ButtonsPlane.size(); i++)
 	{
 		this->ButtonsPlane[i] = new EntityMesh; 
@@ -998,7 +998,7 @@ void TitleStage::render()
 	this->shader->setUniform("u_texture", menu->texture, 0);
 	this->shader->setUniform("u_texture_tiling", 1.0f);
 	menu->mesh->render(GL_TRIANGLES);
-	for (int i = 0; i < sizeof(button_type); i++)
+	for (int i = 0; i < numButton; i++)
 	{
 		var = i; 
 		if ( v2_mouse.x>65 && v2_mouse.x<171)

@@ -53,14 +53,15 @@ public:
 
 class TitleStage : public Stage {
 public:
-	enum eButton {
+	/*enum eButton {
 		START,
 		CONTROLS,
 		CONFIGURATION,
 		EXIT
-	};
+	};*/
 	vector<EntityMesh*> ButtonsPlane;
-	eButton button_type;
+	int numButton = 4; 
+	//eButton button_type;
 	EntityMesh* menu;
 	//Mesh* mesh;
 	Shader* shader; 
