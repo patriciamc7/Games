@@ -926,30 +926,115 @@ void MindStage::ChangePosLight()
 
 }
 
+void TitleStage::createTextures()
+{
+	string texture = "data/Button/play0.tga,data/Button/controls0.tga,data/Button/options0.tga,data/Button/quit0.tga,data/Button/play1.tga,data/Button/controls1.tga,data/Button/options1.tga,data/Button/quit1.tga";
+
+	string cad;
+	int found = -1;
+	int init = 0;
+
+	for (int i = 0; i < sizeof(button_type) * 2; i++)
+	{
+		
+		init = found + 1;
+		found = texture.find(",", found + 1);
+		cad = texture.substr(init, found - init);
+		this->ButtonsPlane[i]->texture = Texture::Get(cad.c_str());
+
+	}
+}
+
 void TitleStage::createEntities()
 {
 	menu = new EntityMesh();
 	menu->mesh->createPlane(100);
 	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 	menu->texture = Texture::Get("data/inspeculo.tga");
+	this->ButtonsPlane.resize(sizeof(button_type) * 2);
+	for (int i = 0; i< sizeof(button_type)*2; i++)
+	{
+		this->ButtonsPlane[i] = new EntityMesh; 
+		this->ButtonsPlane[i]->mesh->createPlane(9);
+		this->ButtonsPlane[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+		this->ButtonsPlane[i]->id = i;
+		if(this->ButtonsPlane[i]->id ==0 || this->ButtonsPlane[i]->id == 4)
+			this->ButtonsPlane[i]->model.translate(-70, 0, 0);
+		if (this->ButtonsPlane[i]->id == 1 || this->ButtonsPlane[i]->id == 5)
+			this->ButtonsPlane[i]->model.translate(-70, 0, -20);
+		if (this->ButtonsPlane[i]->id == 2 || this->ButtonsPlane[i]->id == 6)
+			this->ButtonsPlane[i]->model.translate(-70,0, -40);
+		if (this->ButtonsPlane[i]->id == 3 || this->ButtonsPlane[i]->id == 7)
+			this->ButtonsPlane[i]->model.translate(-70, 0, -60);
+		this->ButtonsPlane[i]->model.scale(1.5, 1, 1); 
+	}
+	createTextures(); 
 }
 
 void TitleStage::render()
 {
 	Camera* camera = new Camera();
+	Scene* scene = Game::instance->CurrentScene; 
+	Vector2 v2_mouse = Input::mouse_position;
+	Game* game = Game::instance; 
+	Stage* stage = Game::instance->current_stage; 
+	int var = 0; 
+	bool ChangeIntro = false; 
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	this->shader->enable();
+	this->shader->setUniform("u_model", menu->model);
+	this->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	this->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 
-	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	menu->shader->enable();
-	menu->shader->setUniform("u_model", menu->model);
-	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-
-	menu->shader->setUniform("u_texture", menu->texture, 0);
-	menu->shader->setUniform("u_texture_tiling", 1.0f);
-
-	////render the 
+	this->shader->setUniform("u_texture", menu->texture, 0);
+	this->shader->setUniform("u_texture_tiling", 1.0f);
 	menu->mesh->render(GL_TRIANGLES);
-	menu->shader->disable();
+	for (int i = 0; i < sizeof(button_type); i++)
+	{
+		var = i; 
+		if ( v2_mouse.x>65 && v2_mouse.x<171)
+		{
+			if (i == 0 && v2_mouse.y > 271 && v2_mouse.y < 323) {
+				var += 4;
+				if (Input::mouse_state == 1) {// cambiar a intro (PLAY)
+					ButtonsPlane.clear();
+					game->current_stage = game->intro_stage;
+					game->CurrentScene = game->intro_scene;
+					game->CurrentScene->CreatePlayer(); 
+					game->current_stage->createEntities();
+					ChangeIntro = true; 
+				}
+			}
+			if (i == 1 && v2_mouse.y > 332 && v2_mouse.y < 378) { //CONTROLS
+				var += 4;
+				//if (Input::mouse_state == 1)
+			}
+			if (i == 2 && v2_mouse.y > 392 && v2_mouse.y < 441) {//OPTIONS
+				var += 4;
+				//if (Input::mouse_state == 1)
+			}
+			if (i == 3 && v2_mouse.y > 452 && v2_mouse.y < 502) {//Exit
+				var += 4;
+				if (Input::mouse_state == 1) //salir del juego
+					game->must_exit = true; 
+			}
+		}
+		if (!ChangeIntro) {
+			this->shader->setUniform("u_model", this->ButtonsPlane[var]->model);
+			this->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+			this->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+			this->shader->setUniform("u_texture", this->ButtonsPlane[var]->texture, 0);
+			this->shader->setUniform("u_texture_tiling", 1.0f);
+			this->ButtonsPlane[var]->mesh->render(GL_TRIANGLES);
+		}
+	}
+	////render the 
+	this->shader->disable();
+	glDisable(GL_BLEND);
 
 }
 

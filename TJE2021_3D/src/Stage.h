@@ -55,16 +55,17 @@ class TitleStage : public Stage {
 public:
 	enum eButton {
 		START,
-		SAFE,
-		LOAD,
 		CONTROLS,
 		CONFIGURATION,
 		EXIT
 	};
-
+	vector<EntityMesh*> ButtonsPlane;
 	eButton button_type;
 	EntityMesh* menu;
+	//Mesh* mesh;
+	Shader* shader; 
 	virtual void createEntities();
+	void createTextures(); 
 	virtual void render();
 	virtual void update(double seconds_elapsed);
 };
