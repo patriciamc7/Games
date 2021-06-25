@@ -254,7 +254,7 @@ void EntityPlayer::render()
 	}
 	if(vel_factor < 1)
 		vel_factor += this->playerSpeed.length() * 0.1;
-	cout << vel_factor << "\n"; 
+
 	blendSkeleton(&idle->skeleton, &walk->skeleton, vel_factor, &skeleton); //si el jugador se mueve aplicar walk, si no idle
 
 

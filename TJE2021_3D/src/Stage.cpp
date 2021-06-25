@@ -928,15 +928,14 @@ void MindStage::ChangePosLight()
 
 void TitleStage::createTextures()
 {
-	string texture = "data/Button/play0.tga,data/Button/controls0.tga,data/Button/options0.tga,data/Button/quit0.tga,data/Button/play1.tga,data/Button/controls1.tga,data/Button/options1.tga,data/Button/quit1.tga";
+	string texture = "data/Button/play0.tga,data/Button/controls0.tga,data/Button/options0.tga,data/Button/quit0.tga,data/Button/play1.tga,data/Button/controls1.tga,data/Button/options1.tga,data/Button/quit1.tga,data/Button/controls3.tga";
 
 	string cad;
 	int found = -1;
 	int init = 0;
 
-	for (int i = 0; i < sizeof(button_type) * 2; i++)
+	for (int i = 0; i < ButtonsPlane.size(); i++)
 	{
-		
 		init = found + 1;
 		found = texture.find(",", found + 1);
 		cad = texture.substr(init, found - init);
@@ -951,13 +950,17 @@ void TitleStage::createEntities()
 	menu->mesh->createPlane(100);
 	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 	menu->texture = Texture::Get("data/inspeculo.tga");
-	this->ButtonsPlane.resize(sizeof(button_type) * 2);
-	for (int i = 0; i< sizeof(button_type)*2; i++)
+	this->ButtonsPlane.resize(sizeof(button_type) * 2 +1);
+	for (int i = 0; i< ButtonsPlane.size(); i++)
 	{
 		this->ButtonsPlane[i] = new EntityMesh; 
-		this->ButtonsPlane[i]->mesh->createPlane(9);
-		this->ButtonsPlane[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 		this->ButtonsPlane[i]->id = i;
+
+		if (this->ButtonsPlane[i]->id == 8)
+			this->ButtonsPlane[i]->mesh->createPlane(40);
+		else
+			this->ButtonsPlane[i]->mesh->createPlane(9);
+		this->ButtonsPlane[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 		if(this->ButtonsPlane[i]->id ==0 || this->ButtonsPlane[i]->id == 4)
 			this->ButtonsPlane[i]->model.translate(-70, 0, 0);
 		if (this->ButtonsPlane[i]->id == 1 || this->ButtonsPlane[i]->id == 5)
@@ -966,6 +969,9 @@ void TitleStage::createEntities()
 			this->ButtonsPlane[i]->model.translate(-70,0, -40);
 		if (this->ButtonsPlane[i]->id == 3 || this->ButtonsPlane[i]->id == 7)
 			this->ButtonsPlane[i]->model.translate(-70, 0, -60);
+		if(this->ButtonsPlane[i]->id == 8)
+			this->ButtonsPlane[i]->model.translate(20, 0, 0);
+		
 		this->ButtonsPlane[i]->model.scale(1.5, 1, 1); 
 	}
 	createTextures(); 
@@ -1010,7 +1016,14 @@ void TitleStage::render()
 			}
 			if (i == 1 && v2_mouse.y > 332 && v2_mouse.y < 378) { //CONTROLS
 				var += 4;
-				//if (Input::mouse_state == 1)
+				//Cargar imagen de controles
+				this->shader->setUniform("u_model", this->ButtonsPlane[8]->model);
+				this->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+				this->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+				this->shader->setUniform("u_texture", this->ButtonsPlane[8]->texture, 0);
+				this->shader->setUniform("u_texture_tiling", 1.0f);
+				this->ButtonsPlane[8]->mesh->render(GL_TRIANGLES);
 			}
 			if (i == 2 && v2_mouse.y > 392 && v2_mouse.y < 441) {//OPTIONS
 				var += 4;
