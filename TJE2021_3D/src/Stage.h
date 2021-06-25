@@ -18,7 +18,7 @@ class Stage {
 public:
 	bool doorOpen2 = true;
 	bool changeGlass = false; 
-	int glassCount = 0;
+	int glassCount = 3;
 
 	bool isAmulet = false;
 	int id = 0;
@@ -35,9 +35,15 @@ public:
 	float Timeanimation = 0.0f;
 	bool firstTime = true;
 	bool animation2 = true;
+
 	//particle active mirror
 	bool AnimationMirror = true;
 	int NumParticle = 20;
+
+	//stages 
+	bool body = false;
+	bool mind = false;
+	bool soul = false;
 
 	bool InitStage = false;
 	virtual void createEntities() {};
@@ -149,9 +155,9 @@ public:
 		CONFIGURATION,
 		EXIT
 	};
-
 	eButton button_type;
 	EntityMesh* menu;
+	float time;
 	virtual void createEntities();
 	virtual void render();
 	virtual void update(double seconds_elapsed);

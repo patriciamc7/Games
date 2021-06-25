@@ -467,7 +467,7 @@ void EntityPlayer::update(float dt)
 				game->current_stage->createEntities();
 			}
 		}
-	
+		
 	}
 
 }
@@ -521,135 +521,145 @@ void EntityPlayer::Interaction()
 	Vector3 ray_origin = camera->eye;
 	Vector3 ray_dir = camera->center;
 	////para cada objecto de la escena...
-	for (int i = 1; i < currentScene->entities.size(); i++)
-	{
-		Vector3 col_point; 	//temp var para guardar el punto de colision si lo hay
-		Vector3 col_normal; 	//temp var para guardar la normal al punto de colision
+	if (currentStage != game->end_stage) {
+		for (int i = 1; i < currentScene->entities.size(); i++)
+		{
+			Vector3 col_point; 	//temp var para guardar el punto de colision si lo hay
+			Vector3 col_normal; 	//temp var para guardar la normal al punto de colision
 
-		float max_ray_dist = 100;
-		if (currentScene->entities[i]->isInteractive){
+			float max_ray_dist = 100;
+			if (currentScene->entities[i]->isInteractive){
 
-			if (currentStage == game->body_stage) {
-				if (currentScene->entities[i]->id == 12) {
-					if (this->pos.x > -32 && this->pos.x < -25 && this->pos.z > 2 && this->pos.x < 7) { //estoy mirando si el player esta cerca de el cristal lo pongo en alpha 1 si aprieto shift
-						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-							game->body_stage->glassCount += 1;
-							currentStage->changeGlass = true;
-							currentScene->entities[i]->alpha = 1;
+				if (currentStage == game->body_stage) {
+					if (currentScene->entities[i]->id == 12) {
+						if (this->pos.x > -32 && this->pos.x < -25 && this->pos.z > 2 && this->pos.x < 7) { //estoy mirando si el player esta cerca de el cristal lo pongo en alpha 1 si aprieto shift
+							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+								game->body_stage->glassCount += 1;
+								game->corridor_stage->body = true;
+								currentStage->changeGlass = true;
+								currentScene->entities[i]->alpha = 1;
+							}
 						}
 					}
 				}
 			}
-		}
-		if (currentStage == game->mind_stage) {
-			if (!game->mind_stage->isAmulet) {
-				if (currentScene->entities[i]->id == 9 || currentScene->entities[i]->id == 6 || currentScene->entities[i]->id == 5) {
-					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center,20, col_point, col_normal) == true) {
+			if (currentStage == game->mind_stage) {
+				if (!game->mind_stage->isAmulet) {
+					if (currentScene->entities[i]->id == 9 || currentScene->entities[i]->id == 6 || currentScene->entities[i]->id == 5) {
+						if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center,20, col_point, col_normal) == true) {
 						
-						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-							game->mind_stage->id = i-1;
-							game->mind_stage->isAmulet = true;
-							currentScene->entities_mirror[i]->alpha = 1;
-							if (currentScene->entities[i]->id == 9)
-								currentStage->amuleto = true;
-							if (currentScene->entities[i]->id == 6)
-								currentStage->cruz = true;
-							if (currentScene->entities[i]->id == 5)
-								currentStage->grail = true;
+							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+								game->mind_stage->id = i-1;
+								game->mind_stage->isAmulet = true;
+								currentScene->entities_mirror[i]->alpha = 1;
+								if (currentScene->entities[i]->id == 9)
+									currentStage->amuleto = true;
+								if (currentScene->entities[i]->id == 6)
+									currentStage->cruz = true;
+								if (currentScene->entities[i]->id == 5)
+									currentStage->grail = true;
+							}
+						}
+					}
+				}
+				else
+				{
+					if (currentScene->entities[i]->id == 14) { //altar
+					
+						if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 20, col_point, col_normal) == true) {
+							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+								if (game->mind_stage->id == 8) //si objeto obtenido es el amuleto Ra (bueno) seguimos con el puzzle, si no se vuelve a intentar
+								{
+									game->mind_stage->isRa = true;
+									currentStage->amuleto = false;
+
+								}
+								else //bajar intensidad de la spot
+								{
+									game->mind_stage->isAmulet = false;
+									game->mind_stage->isRa = false;
+									currentScene->entities_mirror[game->mind_stage->id]->alpha = 0;
+									currentScene->lights[0]->intensity -= 0.3f;
+									if (currentScene->lights[0]->intensity < 0)
+										currentScene->lights[0]->intensity = 0;
+									if (game->mind_stage->id == 5)
+										currentStage->cruz = false;
+									if (game->mind_stage->id == 4)
+										currentStage->grail = false;
+								}
+							}
+						}
+					}
+					if (currentScene->entities[i]->id == 10) { //trozo espejo
+
+						if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
+							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+								currentStage->glassCount += 1;
+								game->corridor_stage->mind = true;
+								currentStage->changeGlass = true;
+								currentScene->entities[i]->alpha = 1;
+								game->mind_stage->isRa = false;
+
+							}
 						}
 					}
 				}
 			}
-			else
-			{
-				if (currentScene->entities[i]->id == 14) { //altar
-					
-					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 20, col_point, col_normal) == true) {
-						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-							if (game->mind_stage->id == 8) //si objeto obtenido es el amuleto Ra (bueno) seguimos con el puzzle, si no se vuelve a intentar
-							{
-								game->mind_stage->isRa = true;
-								currentStage->amuleto = false;
+			if (currentStage == game->soul_stage) {
+				if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 100, col_point, col_normal) == true) {
+					if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+						if (currentScene->entities[i]->id == 2) //si objeto obtenido arrow seguimos con el puzzle, si no se vuelve a intentar
+						{
+							currentStage->arrow = true;
+							currentScene->entities[i]->alpha = 1;
 
-							}
-							else //bajar intensidad de la spot
-							{
-								game->mind_stage->isAmulet = false;
-								game->mind_stage->isRa = false;
-								currentScene->entities_mirror[game->mind_stage->id]->alpha = 0;
-								currentScene->lights[0]->intensity -= 0.3f;
-								if (currentScene->lights[0]->intensity < 0)
-									currentScene->lights[0]->intensity = 0;
-								if (game->mind_stage->id == 5)
-									currentStage->cruz = false;
-								if (game->mind_stage->id == 4)
-									currentStage->grail = false;
-							}
 						}
 					}
 				}
-				if (currentScene->entities[i]->id == 10) { //trozo espejo
+				if (currentScene->entities[i]->id == 3 || currentScene->entities[i]->id == 4 || currentScene->entities[i]->id == 5) { //algun altar
+
+					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
+						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+						
+							if (currentScene->entities[i]->id == 5 && currentStage->arrow) {
+								//mostrar trozo espejo y romper el espejo grande
+								currentScene->entities[15]->alpha = 0;
+								currentStage->arrow = false;
+							}
+						
+						}
+					}
+				}
+				if (currentScene->entities[i]->id == 15) { //trozo espejo
 
 					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
 						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
 							currentStage->glassCount += 1;
+							game->corridor_stage->soul = true;
 							currentStage->changeGlass = true;
 							currentScene->entities[i]->alpha = 1;
-							game->mind_stage->isRa = false;
-
 						}
 					}
 				}
 			}
-		}
-		if (currentStage == game->soul_stage) {
-			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 100, col_point, col_normal) == true) {
-				if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-					if (currentScene->entities[i]->id == 2) //si objeto obtenido arrow seguimos con el puzzle, si no se vuelve a intentar
+			if (currentStage == game->corridor_stage) {
+				if (currentScene->entities[i]->id == 3) { //portal
+
+					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true)
 					{
-						currentStage->arrow = true;
-						currentScene->entities[i]->alpha = 1;
-
-					}
-				}
-			}
-			if (currentScene->entities[i]->id == 3 || currentScene->entities[i]->id == 4 || currentScene->entities[i]->id == 5) { //algun altar
-
-				if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
-					if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-						
-						if (currentScene->entities[i]->id == 5 && currentStage->arrow) {
-							//mostrar trozo espejo y romper el espejo grande
-							currentScene->entities[15]->alpha = 0;
-							currentStage->arrow = false;
-						}
-						
-					}
-				}
-			}
-			if (currentScene->entities[i]->id == 15) { //trozo espejo
-
-				if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
-					if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-						currentStage->glassCount += 1;
-						currentStage->changeGlass = true;
-						currentScene->entities[i]->alpha = 1;
-					}
-				}
-			}
-		}
-		if (currentStage == game->corridor_stage) {
-			if (currentScene->entities[i]->id == 7) { //portal
-
-				if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true)
-				{
-					if (currentStage->glassCount == 3) //si tenemos los 3 trozos y interactuamos se genera el espejo
-					{
-						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-							currentScene->entities[i]->alpha = 0;
+						if (currentStage->glassCount == 3) //si tenemos los 3 trozos y interactuamos se genera el espejo
+						{
+							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+								game->CurrentScene = game->EndScene;
+								game->current_stage = game->end_stage;
+								game->current_stage->createEntities();
+								
+							}
 						}
 					}
+					break;
 				}
+
 			}
 		}
 	}

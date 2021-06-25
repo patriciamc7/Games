@@ -1062,41 +1062,6 @@ void TitleStage::update(double seconds_elapsed)
 
 }
 
-void EndStage::createEntities()
-{
-	menu = new EntityMesh();
-	menu->mesh->createPlane(100);
-	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
-	menu->texture = Texture::Get("data/end.tga");
-}
-
-void EndStage::render()
-{
-	Camera* camera = new Camera();
-
-	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	menu->shader->enable();
-	menu->shader->setUniform("u_model", menu->model);
-	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-
-	menu->shader->setUniform("u_texture", menu->texture, 0);
-	menu->shader->setUniform("u_texture_tiling", 1.0f);
-
-	////render the 
-	menu->mesh->render(GL_TRIANGLES);
-	menu->shader->disable();
-}
-
-void EndStage::update(double seconds_elapsed)
-{
-	Game* game = Game::instance;
-
-	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
-		game->current_stage = game->title_stage;
-		game->current_stage->createEntities();
-	}
-}
 
 void SoulStage::createTextures()
 {
@@ -1530,9 +1495,10 @@ void CorridorStage::createEntities()
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
 		}
 		if (this->entities[i]->id == 7) { //glass body
-			//this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
-			//this->entities[i]->model.translate(-54, 0, -68);
-			/*this->entities[i]->alpha = 1;*/
+
+			this->entities[i]->model.scale(0.7, 0.7, 0.7);
+			this->entities[i]->model.translate(85.0f, -5.0f, 8.0f);
+			this->entities[i]->alpha = 1;
 
 		}
 		if (this->entities[i]->id == 8)//door
@@ -1545,13 +1511,18 @@ void CorridorStage::createEntities()
 			this->entities[i]->model.translate(-18.0f, 0.0f, 0.0f);
 
 		if (this->entities[i]->id == 11) //glass spirit
-			//this->entities[i]->model.translate(-18.0f, 0.0f, 0.0f);
+		{ 
+			this->entities[i]->model.scale(0.7, 0.7, 0.7);
+			this->entities[i]->model.translate(85.0f, -5.0f, 8.0f); 
+			this->entities[i]->alpha = 1;
+		}
 
-		if (this->entities[i]->id == 12) //glass mind
-			//this->entities[i]->model.translate(-18.0f, 0.0f, 0.0f);
-
-		
-		
+		if (this->entities[i]->id == 12) //glass mind		
+		{
+			this->entities[i]->model.scale(0.7, 0.7, 0.7);
+			this->entities[i]->model.translate(85.0f, -5.0f, 8.0f);
+			this->entities[i]->alpha = 1;
+		}
 		scene->entities[i+1] = this->entities[i];
 	}
 	createTextures();
@@ -1560,14 +1531,11 @@ void CorridorStage::createEntities()
 void CorridorStage::render()
 {
 	Scene* scene = Game::instance->corridor_scene;
-
-
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		if (scene->entities[i]->id == 7 || scene->entities[i]->id == 11 || scene->entities[i]->id == 12)
 			renderMirror(i, this->entities);
 		if (scene->entities[i]->id != 7 && scene->entities[i]->id != 11 && scene->entities[i]->id != 12)
-
 			scene->entities[i]->render();
 	}
 	renderGui();
@@ -1581,5 +1549,81 @@ void CorridorStage::update(double seconds_elapsed)
 	{
 		scene->entities[i]->update(seconds_elapsed);
 	}
+	if (this->body) { //body id 7
+		this->entities[6]->alpha = 0;
+	}
+	if (this->mind) { //mind id 11 
+		this->entities[10]->alpha = 0;
+	}
+	if (this->soul) { //soul id 12
+		this->entities[11]->alpha = 0;
+	}
 	
+	
+}
+
+void EndStage::createEntities()
+{
+	Game* game = Game::instance;
+
+	menu = new EntityMesh();
+	menu->mesh->createPlane(100);
+	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+	menu->texture = Texture::Get("data/end/end.tga");
+
+	time = game->time;
+}
+
+void EndStage::render()
+{
+	Camera* camera = new Camera();
+
+	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	menu->shader->enable();
+	menu->shader->setUniform("u_model", menu->model);
+	menu->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	menu->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+	menu->shader->setUniform("u_texture", menu->texture, 0);
+	menu->shader->setUniform("u_texture_tiling", 1.0f);
+
+	////render the 
+	menu->mesh->render(GL_TRIANGLES);
+	menu->shader->disable();
+}
+
+void EndStage::update(double seconds_elapsed)
+{
+	Game* game = Game::instance;
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_M)) {
+		game->current_stage = game->title_stage;
+		game->current_stage->createEntities();
+	}
+	int i = 0;
+	if (time + 0.5 < game->time) {
+		i += 1;
+		menu->texture = Texture::Get("data/end/end1.tga");
+	}
+	if (time + 0.6 < game->time) {
+		i += 1;
+		menu->texture = Texture::Get("data/end/end2.tga");
+	}
+	if (time + 0.7 < game->time) {
+		i += 1;
+		menu->texture = Texture::Get("data/end/end3.tga");
+	}
+	if (time + 0.8 < game->time) {
+		i += 1;
+		menu->texture = Texture::Get("data/end/end4.tga");
+		
+	}
+	if (time + 0.9 < game->time) {
+		i += 1;
+		menu->texture = Texture::Get("data/end/end5.tga");
+	}
+	if (time + 1.0 < game->time) {
+		i += 1;
+		menu->texture = Texture::Get("data/end/end6.tga");
+	}
 }
