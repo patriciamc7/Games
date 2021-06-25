@@ -1944,10 +1944,10 @@ void EndStage::update(double seconds_elapsed)
 	if (time + 1.0 < game->time) {
 		menu->texture = Texture::Get("data/end/end6.tga");
 	}
-	if (time + 1.0 < game->time) {
-		menu->texture = Texture::Get("data/end/end6.tga"); //creditos
+	if (time + 1.1 < game->time) {
+		menu->texture = Texture::Get("data/end/credits.tga"); //creditos
 	} 
-	if (time + 3.0 < game->time) {
+	if (time + 4.0 < game->time) {
 
 		game->title_stage = new TitleStage();
 		game->intro_stage = new IntroStage();
@@ -1959,7 +1959,6 @@ void EndStage::update(double seconds_elapsed)
 		game->free_camera = true;
 		game->current_stage = game->title_stage;
 		game->current_stage->createEntities();
-		/*game = new Game(game->window_width, game->window_height, game->window);*/
 	}
 }
 
