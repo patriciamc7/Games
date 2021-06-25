@@ -164,7 +164,7 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -195,7 +195,7 @@ void EntityPlayer::render()
 	if (game->current_stage == game->soul_stage) {
 		if (game->soul_stage->InitStage) {
 			this->yaw = -90;
-			this->pos = Vector3(-140, 0, -24.0f);
+			this->pos = Vector3(-140, 0, -20.0f);
 			game->soul_stage->InitStage = false;
 		}
 	}

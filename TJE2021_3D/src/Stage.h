@@ -18,7 +18,7 @@ class Stage {
 public:
 	bool doorOpen2 = true;
 	bool changeGlass = false; 
-	int glassCount = 3;
+	int glassCount = 0;
 
 	bool isAmulet = false;
 	int id = 0;

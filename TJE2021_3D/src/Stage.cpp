@@ -92,7 +92,7 @@ void IntroStage::update(double seconds_elapsed)
 	{
 		scene->entities[i]->update(seconds_elapsed);
 	}
-	if (Input::isKeyPressed(SDL_SCANCODE_M))
+	if (Input::wasKeyPressed(SDL_SCANCODE_B))
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
@@ -100,7 +100,30 @@ void IntroStage::update(double seconds_elapsed)
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
 	}
-
+	if (Input::wasKeyPressed(SDL_SCANCODE_M))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->mind_stage; //tiene que ir a corridor
+		game->CurrentScene = game->mind_scene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_X))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->soul_stage; //tiene que ir a corridor
+		game->CurrentScene = game->soul_scene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_C))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->corridor_stage; //tiene que ir a corridor
+		game->CurrentScene = game->corridor_scene;
+		game->current_stage->createEntities();
+	}
 	if (this->animation)
 	{
 		float radLeftDoor = -90 * DEG2RAD * seconds_elapsed;
@@ -456,7 +479,6 @@ void Stage::renderParticle(float timeParticle)
 
 }
 
-
 void Stage::renderGui() {
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -561,12 +583,31 @@ void BodyStage::update(double seconds_elapsed)
 	{
 		scene->entities_mirror[i]->update(seconds_elapsed);
 	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_I)) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_M))
+	{
+		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->mind_stage;
+		game->current_stage = game->mind_stage; //tiene que ir a corridor
 		game->CurrentScene = game->mind_scene;
 		game->current_stage->createEntities();
 	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_X))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->soul_stage; //tiene que ir a corridor
+		game->CurrentScene = game->soul_scene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_C))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->corridor_stage; //tiene que ir a corridor
+		game->CurrentScene = game->corridor_scene;
+		game->current_stage->createEntities();
+	}
+	
 	if (this->animation)
 	{
 		float radDoor = -90 * DEG2RAD * seconds_elapsed;
@@ -738,7 +779,7 @@ void MindStage::createEntities() {
 		}
 		if (this->entities[i]->id == 12) //puerta
 		{
-			this->entities[i]->model.translate(-20, 0, -50);
+			this->entities[i]->model.translate(5, 0, -50);
 			this->entities_mirror[i]->model.translate(19.5, 0, -50);
 		}
 		if (this->entities[i]->id == 13) //mirror espejo 
@@ -895,7 +936,30 @@ void MindStage::update(double seconds_elapsed)
 		this->firstTime = true;
 	}
 	ChangePosLight();
-
+	if (Input::wasKeyPressed(SDL_SCANCODE_B))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->body_stage; //tiene que ir a corridor
+		game->CurrentScene = game->BodyScene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_X))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->soul_stage; //tiene que ir a corridor
+		game->CurrentScene = game->soul_scene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_C))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->corridor_stage; //tiene que ir a corridor
+		game->CurrentScene = game->corridor_scene;
+		game->current_stage->createEntities();
+	}
 }
 
 void MindStage::ChangePosLight()
@@ -1061,7 +1125,6 @@ void TitleStage::update(double seconds_elapsed)
 	}
 
 }
-
 
 void SoulStage::createTextures()
 {
@@ -1414,6 +1477,30 @@ void SoulStage::update(double seconds_elapsed)
 		this->animation = true;
 		this->firstTime = true;
 	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_B))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->body_stage; //tiene que ir a corridor
+		game->CurrentScene = game->BodyScene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_M))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->mind_stage; //tiene que ir a corridor
+		game->CurrentScene = game->mind_scene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_C))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->corridor_stage; //tiene que ir a corridor
+		game->CurrentScene = game->corridor_scene;
+		game->current_stage->createEntities();
+	}
 }
 
 void CorridorStage::createTextures()
@@ -1543,6 +1630,8 @@ void CorridorStage::render()
 
 void CorridorStage::update(double seconds_elapsed)
 {
+	Game* game = Game::instance;
+
 	Scene* scene = Game::instance->corridor_scene;
 
 	for (int i = 0; i < scene->entities.size(); i++)
@@ -1558,7 +1647,30 @@ void CorridorStage::update(double seconds_elapsed)
 	if (this->soul) { //soul id 12
 		this->entities[11]->alpha = 0;
 	}
-	
+	if (Input::wasKeyPressed(SDL_SCANCODE_B))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->body_stage; //tiene que ir a corridor
+		game->CurrentScene = game->BodyScene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_M))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->mind_stage; //tiene que ir a corridor
+		game->CurrentScene = game->mind_scene;
+		game->current_stage->createEntities();
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_X))
+	{
+		this->firstTime = true;
+		game->CurrentScene->entities.clear();
+		game->current_stage = game->soul_stage; //tiene que ir a corridor
+		game->CurrentScene = game->soul_scene;
+		game->current_stage->createEntities();
+	}
 	
 }
 
