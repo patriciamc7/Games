@@ -1456,7 +1456,7 @@ void CorridorStage::createTextures()
 
 	Scene* scene = Game::instance->corridor_scene;
 
-	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/imShader/noise.tga,data/intro/Door_BaseColor.tga";
+	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/imShader/noise.tga,data/intro/Door_BaseColor.tga,data/imShader/noise.tga,data/imShader/noise.tga";
 
 	string cad;
 	int found = -1;
@@ -1470,7 +1470,7 @@ void CorridorStage::createTextures()
 			cad = texture.substr(init, found - init);
 		}
 		this->entities[i]->texture = Texture::Get(cad.c_str());
-		if (this->entities[i]->id == 7)
+		if (this->entities[i]->id == 7 || this->entities[i]->id == 11 || this->entities[i]->id == 12)
 			this->entities[i]->texture2 = Texture::Get("data/imShader/gray.tga");
 	}
 }
@@ -1479,7 +1479,7 @@ void CorridorStage::createEntities()
 {
 	Scene* scene = Game::instance->corridor_scene; 
 
-	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/mirror.ASE,data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase";
+	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/glassBody.ASE,data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase,data/passage/glassSpirit.ASE,data/passage/glassMind.ASE";
 	this->changeGlass = false;
 
 	string cad;
@@ -1529,18 +1529,27 @@ void CorridorStage::createEntities()
 
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
 		}
-		if (this->entities[i]->id == 7) { //espejo roto portal
-			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
-			this->entities[i]->model.translate(-54, 0, -68);
+		if (this->entities[i]->id == 7) { //glass body
+			//this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
+			//this->entities[i]->model.translate(-54, 0, -68);
+			/*this->entities[i]->alpha = 1;*/
+
 		}
 		if (this->entities[i]->id == 8)//door
 			this->entities[i]->model.translate(-18.0f, 0.0f, 16.0f);
+
 		if (this->entities[i]->id == 9) //door
 			this->entities[i]->model.translate(-18.0f, 0.0f, -15.5f);
 
 		if (this->entities[i]->id == 10) //door arco
 			this->entities[i]->model.translate(-18.0f, 0.0f, 0.0f);
-		
+
+		if (this->entities[i]->id == 11) //glass spirit
+			//this->entities[i]->model.translate(-18.0f, 0.0f, 0.0f);
+
+		if (this->entities[i]->id == 12) //glass mind
+			//this->entities[i]->model.translate(-18.0f, 0.0f, 0.0f);
+
 		
 		
 		scene->entities[i+1] = this->entities[i];
@@ -1555,9 +1564,10 @@ void CorridorStage::render()
 
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
-		if (scene->entities[i]->id == 7)
+		if (scene->entities[i]->id == 7 || scene->entities[i]->id == 11 || scene->entities[i]->id == 12)
 			renderMirror(i, this->entities);
-		else
+		if (scene->entities[i]->id != 7 && scene->entities[i]->id != 11 && scene->entities[i]->id != 12)
+
 			scene->entities[i]->render();
 	}
 	renderGui();
