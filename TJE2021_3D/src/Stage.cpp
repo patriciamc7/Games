@@ -1687,7 +1687,7 @@ void CorridorStage::createTextures()
 
 	Scene* scene = Game::instance->corridor_scene;
 
-	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/imShader/noise.tga,data/intro/Door_BaseColor.tga,data/imShader/noise.tga,data/imShader/noise.tga";
+	string texture = "data/passage/sala.tga,data/intro/intro.tga,data/passage/portal.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/body/passagePlane.tga,data/imShader/noise.tga,data/intro/Door_BaseColor.tga,data/imShader/noise.tga,data/imShader/noise.tga,data/body/torch.tga,data/body/torch.tga,data/body/torch.tga,data/body/torch.tga";
 
 	string cad;
 	int found = -1;
@@ -1695,7 +1695,7 @@ void CorridorStage::createTextures()
 
 	for (int i = 0; i < MAX_ENT_CORRIDOR; i++)
 	{
-		if (i < 8 || i > 10) {
+		if ((i!=8 && i!=9 && i<17) ) {
 			init = found + 1;
 			found = texture.find(",", found + 1);
 			cad = texture.substr(init, found - init);
@@ -1710,7 +1710,7 @@ void CorridorStage::createEntities()
 {
 	Scene* scene = Game::instance->corridor_scene; 
 
-	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/glassBody.ASE,data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase,data/passage/glassSpirit.ASE,data/passage/glassMind.ASE";
+	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/glassBody.ASE,data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase,data/passage/glassSpirit.ASE,data/passage/glassMind.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE";
 	this->changeGlass = false;
 
 	string cad;
@@ -1728,7 +1728,7 @@ void CorridorStage::createEntities()
 		this->entities[i] = new EntityMesh();
 		this->entities[i]->id = i + playerNum;
 
-		if (this->entities[i]->id < 4 || this->entities[i]->id > 6) {
+		if (this->entities[i]->id < 4 || this->entities[i]->id > 6 && this->entities[i]->id < 19) { //id:  1 2 3 7 8 9 ... 18
 			init = found + 1;
 			found = mesh.find(",", found + 1);
 			cad = mesh.substr(init, found - init);
@@ -1789,6 +1789,79 @@ void CorridorStage::createEntities()
 			this->entities[i]->model.translate(85.0f, -5.0f, 8.0f);
 			this->entities[i]->alpha = 1;
 		}
+		//prefab antrocha
+		if (this->entities[i]->id == 13) //prefab antrocha	body		
+			this->entities[i]->model.translate(45,10, -75);
+		if (this->entities[i]->id == 14){ //prefab antrocha	body	
+			this->entities[i]->model.rotate(180*DEG2RAD, Vector3(0,1,0));
+			this->entities[i]->model.translate(-75, 10, 75);
+		 }
+		if (this->entities[i]->id == 15) {//prefab antrocha mind	
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
+			this->entities[i]->model.translate(-15, 10, -160);
+		}
+		if (this->entities[i]->id == 16) { //prefab antrocha
+			this->entities[i]->model.rotate(270 * DEG2RAD, Vector3(0, 1, 0));
+			this->entities[i]->model.translate(-25, 10, 160);
+		}
+		if (this->entities[i]->id == 17) //prefab antrocha		
+			this->entities[i]->model.translate(40, 10, 80);
+		if (this->entities[i]->id == 18) { //prefab antrocha		
+			this->entities[i]->model.rotate(180 * DEG2RAD, Vector3(0, 1, 0));
+			this->entities[i]->model.translate(-80, 10, -80);
+		}
+		//Fire
+		if (this->entities[i]->id == 19) //antorchas fuego MIND
+		{
+			this->entities[i]->mesh->createPlane(10);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+
+			this->entities[i]->model.translate(23, 160, 31); //LADO/DELANTE/ALTURA 
+
+		}
+		if (this->entities[i]->id == 20) //antorchas fuego MIND
+		{
+			this->entities[i]->mesh->createPlane(10);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
+
+			this->entities[i]->model.translate(-13, 160, 31); //LADO/DELANTE/ALTURA 
+
+		}
+		//BODY antorchas fuego
+		if (this->entities[i]->id == 21) //antorchas fuego
+		{
+			this->entities[i]->mesh->createPlane(10);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+
+			this->entities[i]->model.translate(47,75 , 31); // delante/lado/altura
+		}
+		if (this->entities[i]->id == 22) //antorchas fuego
+		{
+			this->entities[i]->mesh->createPlane(10);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+
+			this->entities[i]->model.translate(73, 75, 31); // delante/lado/altura
+
+		}
+		//soul
+		if (this->entities[i]->id == 23) //antorchas fuego
+		{
+			this->entities[i]->mesh->createPlane(10);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+
+			this->entities[i]->model.translate(78, -80, 31); // delante/lado/altura
+
+		}
+		if (this->entities[i]->id == 24) //antorchas fuego
+		{
+			this->entities[i]->mesh->createPlane(10);
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
+
+			this->entities[i]->model.translate(42, -80, 31); // delante/lado/altura
+
+		}
 		scene->entities[i+1] = this->entities[i];
 	}
 	createTextures();
@@ -1801,8 +1874,11 @@ void CorridorStage::render()
 	{
 		if (scene->entities[i]->id == 7 || scene->entities[i]->id == 11 || scene->entities[i]->id == 12)
 			renderMirror(i, this->entities);
-		if (scene->entities[i]->id != 7 && scene->entities[i]->id != 11 && scene->entities[i]->id != 12)
+		if (scene->entities[i]->id != 7 && scene->entities[i]->id != 11 && scene->entities[i]->id != 12 && scene->entities[i]->id < 19)
 			scene->entities[i]->render();
+		if (scene->entities[i]->id > 18)
+			renderTorch(i, this->entities);
+
 	}
 	renderGui();
 }

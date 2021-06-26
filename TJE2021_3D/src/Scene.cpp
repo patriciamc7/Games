@@ -164,7 +164,7 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
