@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "input.h"
 #include "animation.h"
+#include <bass.h>
 #include <cmath>
 
 Animation* anim = NULL;
@@ -21,6 +22,12 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	this->window = window;
 	instance = this;
 	must_exit = false;
+	//Inicializamos BASS al arrancar el juego (id_del_device, muestras por segundo, ...)
+	if (BASS_Init(-1, 44100, 0, 0, NULL) == false) //-1 significa usar el por defecto del sistema operativo
+	{
+		//error abriendo la tarjeta de sonido...
+	}
+
 
 	fps = 0;
 	frame = 0;
