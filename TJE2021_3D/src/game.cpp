@@ -59,6 +59,16 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	spot2->intensity = 0.8f;
 	spot2->light_type = spot2->eLightType::SPOT;
 
+	spot3 = new EntityLight();
+	spot3->light_position = Vector3(40.0f, 40.0f,4.0f);
+	spot3->color = Vector3(0.95f, 0.96f, 0.72f);
+	spot3->light_vector = Vector3(0.5f, -1.0f, 0.0f);
+	spot3->spotCosineCutoff = cos(1 * DEG2RAD);
+	spot3->max_distance = 1.f;
+	spot3->spotExponent = 5.f;
+	spot3->intensity = 0;
+	spot3->light_type = spot3->eLightType::SPOT;
+
 	point = new EntityLight();
 	point->light_type = point->eLightType::POINT;
 	point->light_position = Vector3(-50.0f, 10, 0.0f);
@@ -81,6 +91,8 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	corridor_scene = new Scene();
 	corridor_scene->lights.push_back(directional);
+	corridor_scene->lights.push_back(spot3);
+
 
 
 	CurrentScene = corridor_scene;

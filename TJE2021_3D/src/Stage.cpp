@@ -862,6 +862,8 @@ void MindStage::createEntities() {
 		if (this->entities[i]->id == 14) //altar
 		{
 			this->entities[i]->model.translate(-15, 0, 70);
+			this->entities_mirror[i]->model.translate(-50, 0, 70);
+			this->entities_mirror[i]->model.scale(0.5, 0.5, 0.5);
 			this->entities[i]->model.scale(0.5, 0.5, 0.5);
 
 		}
@@ -1051,8 +1053,8 @@ void MindStage::ChangePosLight()
 	}
 	else //cuando has encontrado el amuleto correcto 
 	{
-		scene->lights[0]->light_position = Vector3(-50, 50, 0); //spot reality world
-		scene->lights[1]->light_position = Vector3(-50, 25, 0); //spot mirror world
+		scene->lights[0]->light_position = Vector3(-18, 25,0); //spot reality world
+		scene->lights[1]->intensity = 0; //spot mirror world
 		scene->entities[10]->alpha = 0; //trozo de espejo se hace visible
 		scene->entities_mirror[10]->alpha = 0;
 		scene->entities_mirror[10]->isColision = true;
@@ -1901,6 +1903,9 @@ void CorridorStage::update(double seconds_elapsed)
 	}
 	if (this->soul) { //soul id 12
 		this->entities[11]->alpha = 0;
+	}
+	if (this->glassCount == 3) {
+		game->spot3->intensity = 0.8;
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_B))
 	{
