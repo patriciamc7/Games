@@ -4,6 +4,7 @@
 
 #ifndef GAME_H
 #define GAME_H
+#define MAX_AUDIO 1
 
 #include "includes.h"
 #include "camera.h"
@@ -47,6 +48,11 @@ public:
 	Stage* corridor_stage; 
 	Stage* end_stage;
 	Stage* current_stage;
+	
+	//audio
+	Audio* audio;
+	std::map<std::string, Audio*> sLoadedAudios; //para nuestro manager
+
 
 	//Lights
 	EntityLight* directional;

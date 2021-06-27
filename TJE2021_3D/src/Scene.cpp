@@ -87,17 +87,82 @@ void EntityMesh::update(float dt)
 }
 
 
-EntitySound::EntitySound()
+Audio::Audio(const char* filename) //init and load the audios
 {
+	//Inicializamos BASS al arrancar el juego (id_del_device, muestras por segundo, ...)
+	if (BASS_Init(-1, 44100, 0, 0, NULL) == false) //-1 significa usar el por defecto del sistema operativo
+	{
+		std::cout << "Error abriendo la tarjeta de sonido \n";
+	}
+	
+	hSample = BASS_SampleLoad(false, filename, 0, 0, 3, 0);
+	hSampleChannel = BASS_SampleGetChannel(hSample, false);
+	if (hSample == 0)
+	{
+		cout << "error file not found" << BASS_ErrorGetCode() << " \n";
+	}
 }
 
-void EntitySound::render()
+
+
+
+void Audio::Stop(const char* filename)
 {
+	Game* game = Game::instance;
+
+	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
+
+	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
+	{
+
+		if (strcmp(it->first.c_str(), filename) == 0) {
+			BASS_SampleStop(it->second->hSample);
+		}
+		else {
+			cout << "error sound not found" << BASS_ErrorGetCode() << " \n";
+		}
+	}
+
 }
 
-void EntitySound::update(float dt)
+bool Audio::Get(const char* filename)
 {
+	Game* game = Game::instance;
+	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
+
+	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
+	{
+		if (strcmp(it->first.c_str(), filename) == 0) {
+			return true; 
+		}
+	}
+	return false; 
+
 }
+
+void Audio::Play(const char* filename, float volume, bool bucle)
+{
+	// Lanzamos un sample
+	
+	Game* game = Game::instance;
+
+	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
+
+	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
+	{
+	
+		if (strcmp(it->first.c_str(),filename)==0) {
+			BASS_ChannelSetAttribute(it->second->hSampleChannel, BASS_ATTRIB_VOL,volume);
+			BASS_ChannelPlay(it->second->hSampleChannel, bucle);
+		}
+		else {
+			cout << "error sound not found" << BASS_ErrorGetCode() << " \n";
+		}
+	}
+	
+}
+
+
 
 EntityLight::EntityLight()
 {

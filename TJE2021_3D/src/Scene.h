@@ -7,6 +7,8 @@
 #include "camera.h"
 #include "input.h"
 #include "animation.h"
+#include <bass.h>
+
 class Prefab;
 using namespace std;
 
@@ -71,14 +73,19 @@ public:
 	
 
 };
-class EntitySound :public Entity
-{
+class Audio{
 public:
-	EntitySound(); //constructor
+	HSAMPLE hSample;
 
-	//methods overwritten
-	virtual void render();
-	virtual void update(float dt);
+	//El handler para un canal
+	HCHANNEL hSampleChannel;
+	Audio(const char* filename); //importante poner sample a cero aqui
+	HSAMPLE sample; //aqui guardamos el handler del sample que retorna BASS_SampleLoad
+	//HCHANNEL play(float volume); //lanza el audio y retorna el channel donde suena
+	void Stop(const char* filename); //para parar un audio necesitamos su channel
+	static bool Get(const char* filename); //manager de audios 
+	void Play(const char* filename, float volume, bool bucle); //version estática para ir mas rapido
+	
 };
 
 class EntityLight :public Entity

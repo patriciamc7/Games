@@ -22,13 +22,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	this->window = window;
 	instance = this;
 	must_exit = false;
-	//Inicializamos BASS al arrancar el juego (id_del_device, muestras por segundo, ...)
-	if (BASS_Init(-1, 44100, 0, 0, NULL) == false) //-1 significa usar el por defecto del sistema operativo
-	{
-		//error abriendo la tarjeta de sonido...
-	}
-
-
+	
 	fps = 0;
 	frame = 0;
 	time = 0.0f;
@@ -44,10 +38,30 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	camera->lookAt(Vector3(0.f,100.f, 100.f),Vector3(0.f,0.f,0.f), Vector3(0.f,1.f,0.f)); //position the camera and point to 0,0,0
 	camera->setPerspective(70.f,window_width/(float)window_height,0.1f,10000.f); //set the projection, we want to be perspective
 
+	string audios = "data/audio/organ.wav";
+
+	string cad;
+	int found = -1;
+	int init = 0;
+	 
+	for (int i = 0; i < MAX_AUDIO; i++)
+	{
+		init = found + 1;
+		found = audios.find(",", found + 1);
+		cad = audios.substr(init, found - init);
+		if (!audio->Get(cad.c_str())) { //manage the audio
+			audio = new Audio(cad.c_str());
+			sLoadedAudios.insert(std::pair<std::string, Audio* >(cad, audio));
+		}
+		
+	}
+	audio->Play("data/audio/organ.wav", 0.1, true);
+	audio->Stop("data/audio/organ.wav");
 	directional = new EntityLight();
 
+
 	spot = new EntityLight();
-	spot->light_position = Vector3(-50.0f, 50.0f, 0.0f);
+	spot->light_position = Vector3(-80, 25, 0);
 	spot->color = Vector3(0.95f, 0.96f, 0.72f);
 	spot->light_vector = Vector3(0.5f, -1.0f, 0.0f);
 	spot->spotCosineCutoff = cos(1 * DEG2RAD);
@@ -57,7 +71,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	spot->light_type = spot->eLightType::SPOT;
 
 	spot2 = new EntityLight();
-	spot2->light_position = Vector3(-100.0f, 50.0f, 0.0f);
+	spot2->light_position = Vector3(-125, 25, 0);
 	spot2->color = Vector3(0.95f, 0.96f, 0.72f);
 	spot2->light_vector = Vector3(0.5f, -1.0f, 0.0f);
 	spot2->spotCosineCutoff = cos(1 * DEG2RAD);
@@ -81,6 +95,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	point->light_position = Vector3(-50.0f, 10, 0.0f);
 	point->color = Vector3(1.0f, 0.0f, 0.0f);
 	point->intensity = 20;
+
 	//Scene and stages
 	intro_scene = new Scene();
 	intro_scene->lights.push_back(directional);
