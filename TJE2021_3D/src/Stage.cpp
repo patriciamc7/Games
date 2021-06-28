@@ -70,6 +70,7 @@ void Stage::renderParticle(float timeParticle)
 	glDepthMask(false);
 
 
+	//particle->texture = Texture::Get("data/imShader/grayMirror.tga"); 
 	for (int i = 0; i < scene->mirrorParticle.size(); i++)
 	{
 		scene->mirrorParticle[i].v_particles->mesh->vertices.resize(6);
@@ -102,6 +103,7 @@ void Stage::renderParticle(float timeParticle)
 	//Fin de encarar
 	glDisable(GL_BLEND);
 	glDepthMask(true);
+
 
 
 }
@@ -348,7 +350,7 @@ IntroStage::IntroStage()
 	this->mind = false;
 	this->soul = false;
 
-	this->InitStage = false;
+	this->InitStage = true;
 }
 
 void BodyStage::createTextures()
@@ -719,7 +721,7 @@ BodyStage::BodyStage()
 	this->mind = false;
 	this->soul = false;
 
-	this->InitStage = false;
+	this->InitStage = true;
 }
 
 void MindStage::createTextures()
@@ -1092,7 +1094,7 @@ MindStage::MindStage()
 	this->mind = false;
 	this->soul = false;
 
-	this->InitStage = false;
+	this->InitStage = true;
 }
 
 void TitleStage::createTextures()
@@ -1265,7 +1267,7 @@ TitleStage::TitleStage()
 	this->mind = false;
 	this->soul = false;
 
-	this->InitStage = false;
+	this->InitStage = true;
 }
 
 void SoulStage::createTextures()
@@ -1529,28 +1531,28 @@ void SoulStage::render()
 {
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
-	int timeAnimation = 3; 
+	int timeAnimation = 3;
 	for (int i = 1; i < scene->entities_mirror.size(); i++)
 	{
-		if(scene->entities_mirror[i]->id != 2 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id < 12)
+		if (scene->entities_mirror[i]->id != 2 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id < 12)
 			scene->entities_mirror[i]->render();
-	}	
+	}
 	for (int i = 0; i < scene->entities.size(); i++)
 	{
 		if (scene->entities[i]->id == 12 || scene->entities[i]->id == 15)
 			renderMirror(i, this->entities);
 		if (scene->entities[i]->id > 21)
 			renderTorch(i, this->entities);
-		if (scene->entities[i]->id !=12 && scene->entities[i]->id != 15 && scene->entities[i]->id <22){
+		if (scene->entities[i]->id != 12 && scene->entities[i]->id != 15 && scene->entities[i]->id < 22) {
 			scene->entities[i]->render();
 		}
-		if (scene->entities[15]->alpha == 0) 
+		if (scene->entities[15]->alpha == 0)
 		{
 			if (scene->entities[i]->id == 12)// espejo
 			{
 				scene->entities[i]->isColision = false;
 				scene->entities[i]->alpha = 1;
-				scene->entities[i]->model.translate(0,-50,0);
+				scene->entities[i]->model.translate(0, -50, 0);
 
 
 			}
@@ -1569,20 +1571,21 @@ void SoulStage::render()
 					scene->entities[i]->model.translate(0, -50, 0);
 
 				}
-				if(scene->entities[i]->id ==13)
+				if (scene->entities[i]->id == 13)
 					scene->entities[i]->isColision = false;
 			}
 			if (abs(game->time - scene->timeLive) > timeAnimation) {
-				scene->mirrorParticle.clear(); //Quitamos prefab de mirror y marco de mirror
+				scene->mirrorParticle.clear();
 
 			}
 		}
 		else
 			scene->timeLive = 0.0f;
 	}
-	if (scene->entities[15]->alpha == 0 && abs(game->time - scene->timeLive) < timeAnimation)
-		renderParticle(abs(game->time - scene->timeLive)+5);
-	
+	if (scene->entities[15]->alpha == 0 && abs(game->time - scene->timeLive) < timeAnimation) {
+		renderParticle(abs(game->time - scene->timeLive) + 5);
+	}
+
 	renderGui();
 }
 
@@ -1625,6 +1628,7 @@ void SoulStage::update(double seconds_elapsed)
 		game->current_stage->animation2 = true;
 		this->animation = true;
 		this->firstTime = true;
+		
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_B))
 	{
@@ -1684,7 +1688,7 @@ SoulStage::SoulStage()
 	this->mind = false;
 	this->soul = false;
 
-	this->InitStage = false;
+	this->InitStage = true;
 }
 
 void CorridorStage::createTextures()
@@ -1717,7 +1721,7 @@ void CorridorStage::createEntities()
 	Game* game = Game::instance;
 	game->audio->Play("data/audio/organ.wav", 0.1, true);
 
-
+	game->spot3->intensity = 0;
 	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/glassBody.ASE,data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase,data/passage/glassSpirit.ASE,data/passage/glassMind.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE";
 	this->changeGlass = false;
 
@@ -1982,7 +1986,7 @@ CorridorStage::CorridorStage()
 	this->mind = false;
 	this->soul = false;
 
-	this->InitStage = false;
+	this->InitStage = true;
 }
 
 void EndStage::createEntities()

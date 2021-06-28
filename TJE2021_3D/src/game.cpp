@@ -55,10 +55,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 		}
 	}
 	directional = new EntityLight();
-	directional2 = new EntityLight();
-	directional2->light_vector = Vector3(0, 1, 0);
-	directional2->intensity = 0.3;
-
 
 	spot = new EntityLight(spot->eLightType::SPOT, Vector3(-80, 25, 0), Vector3(0.5f, -1.0f, 0.0f), Vector3(0.95f, 0.96f, 0.72f), 0.2f); 
 	spot2 = new EntityLight(spot->eLightType::SPOT, Vector3(-125, 25, 0), Vector3(0.5f, -1.0f, 0.0f), Vector3(0.95f, 0.96f, 0.72f), 0.8f);
@@ -77,7 +73,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	soul_scene = new Scene();
 	soul_scene->lights.push_back(directional);
-	soul_scene->lights.push_back(directional2);
 
 	corridor_scene = new Scene();
 	corridor_scene->lights.push_back(directional);
