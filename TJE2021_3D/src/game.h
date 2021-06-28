@@ -4,7 +4,7 @@
 
 #ifndef GAME_H
 #define GAME_H
-#define MAX_AUDIO 1
+#define MAX_AUDIO 15
 
 #include "includes.h"
 #include "camera.h"

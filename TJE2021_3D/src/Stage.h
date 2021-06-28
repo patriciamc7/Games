@@ -62,7 +62,7 @@ class TitleStage : public Stage {
 public:
 
 	vector<EntityMesh*> ButtonsPlane;
-	int numButton = 4; 
+	int numButton = 3; 
 	EntityMesh* menu;
 	Shader* shader; 
 	virtual void createEntities();

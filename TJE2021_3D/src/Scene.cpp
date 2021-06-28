@@ -92,19 +92,13 @@ Audio::Audio(const char* filename) //init and load the audios
 	//Inicializamos BASS al arrancar el juego (id_del_device, muestras por segundo, ...)
 	if (BASS_Init(-1, 44100, 0, 0, NULL) == false) //-1 significa usar el por defecto del sistema operativo
 	{
-		std::cout << "Error abriendo la tarjeta de sonido \n";
+	
 	}
 	
 	hSample = BASS_SampleLoad(false, filename, 0, 0, 3, 0);
 	hSampleChannel = BASS_SampleGetChannel(hSample, false);
-	if (hSample == 0)
-	{
-		cout << "error file not found" << BASS_ErrorGetCode() << " \n";
-	}
+	
 }
-
-
-
 
 void Audio::Stop(const char* filename)
 {
@@ -116,11 +110,9 @@ void Audio::Stop(const char* filename)
 	{
 
 		if (strcmp(it->first.c_str(), filename) == 0) {
-			BASS_SampleStop(it->second->hSample);
+			BASS_ChannelPause(it->second->hSampleChannel);
 		}
-		else {
-			cout << "error sound not found" << BASS_ErrorGetCode() << " \n";
-		}
+		
 	}
 
 }
@@ -145,7 +137,7 @@ void Audio::Play(const char* filename, float volume, bool bucle)
 	// Lanzamos un sample
 	
 	Game* game = Game::instance;
-
+	bool Correct = false; 
 	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
 
 	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
@@ -154,12 +146,12 @@ void Audio::Play(const char* filename, float volume, bool bucle)
 		if (strcmp(it->first.c_str(),filename)==0) {
 			BASS_ChannelSetAttribute(it->second->hSampleChannel, BASS_ATTRIB_VOL,volume);
 			BASS_ChannelPlay(it->second->hSampleChannel, bucle);
+			Correct = true; 
 		}
-		else {
-			cout << "error sound not found" << BASS_ErrorGetCode() << " \n";
-		}
+		
 	}
 	
+
 }
 
 
@@ -174,15 +166,20 @@ EntityLight::EntityLight()
 	this->light_vector = Vector3(0.5, 0, -1);
 }
 
-
-void EntityLight::render()
+EntityLight::EntityLight(eLightType light_type, Vector3 light_position, Vector3 light_vector, Vector3 color, float intensity)
 {
-
+	this->color = color;
+	this->intensity = intensity;
+	this->light_type = light_type;
+	this->light_position = light_position;
+	this->light_vector = light_vector;
+	this->spotExponent = 5.f;
+	this->max_distance = 1.f;
+	this->spotCosineCutoff = cos(1 * DEG2RAD);
 }
 
-void EntityLight::update(float dt)
-{
-}
+
+
 
 Scene::Scene()
 {
@@ -229,7 +226,7 @@ EntityPlayer::EntityPlayer()
 
 void EntityPlayer::render()
 {
-	cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
+	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -311,14 +308,45 @@ void EntityPlayer::render()
 	walk->assignTime(t * walk->duration);
 
 	Skeleton skeleton;
+	if (game->current_stage == game->body_stage)
+		game->audio->Stop("data/audio/walk_eco.wav");
+
+	if (game->current_stage == game->corridor_stage) {
+		game->audio->Stop("data/audio/walk_water.wav");
+		game->audio->Stop("data/audio/walk_gravel.wav");
+
+	}
 
 	if (this->playerSpeed.length() == 0) {
 		vel_factor -= 0.01;
 		if (vel_factor < 0)
 			vel_factor = 0;
+		
 	}
-	if(vel_factor < 1)
+	if (vel_factor < 1) {
 		vel_factor += this->playerSpeed.length() * 0.1;
+		if(game->current_stage == game->body_stage)
+			game->audio->Play("data/audio/walk_water.wav", 0.5, true);
+		if (game->current_stage == game->corridor_stage || game->current_stage == game->mind_stage || game->current_stage == game->soul_stage)
+			game->audio->Play("data/audio/walk_eco.wav", 0.5, true);
+		if (game->current_stage == game->intro_stage)
+			game->audio->Play("data/audio/walk_gravel.wav", 0.5, true);
+
+	}
+	if (vel_factor <= 0.999999) {
+		if (game->current_stage == game->body_stage)
+			game->audio->Stop("data/audio/walk_water.wav");
+
+		if (game->current_stage == game->corridor_stage || game->current_stage == game->mind_stage || game->current_stage == game->soul_stage) {
+			game->audio->Stop("data/audio/walk_eco.wav");
+
+		}
+		if (game->current_stage == game->intro_stage)
+		{
+			game->audio->Stop("data/audio/walk_gravel.wav");
+		}
+	}
+	
 
 	blendSkeleton(&idle->skeleton, &walk->skeleton, vel_factor, &skeleton); //si el jugador se mueve aplicar walk, si no idle
 
@@ -400,7 +428,6 @@ void EntityPlayer::update(float dt)
 			scene->entities[4]->model.translate(camera->eye.x, camera->eye.y - 10, camera->eye.z);
 		}
 
-
 		this->collisionMesh(dt); 	//Collision
 		this->Interaction();
 		
@@ -413,6 +440,7 @@ void EntityPlayer::update(float dt)
 			if (-25.0f < this->pos.z && this->pos.z < 1.0f && this->pos.x > 19.0f )
 			{
 				game->CurrentScene->entities.clear();
+				game->audio->Stop("data/audio/intro.wav");
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
 				game->CurrentScene->CreatePlayer();
@@ -439,6 +467,7 @@ void EntityPlayer::update(float dt)
 				game->CurrentScene->entities.clear();
 				game->CurrentScene->entities_mirror.clear();
 				float aux = game->current_stage->glassCount;
+				game->audio->Stop("data/audio/bath.wav");
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
 				game->current_stage->glassCount = aux;
@@ -471,6 +500,7 @@ void EntityPlayer::update(float dt)
 				game->CurrentScene->entities.clear();
 				game->CurrentScene->entities_mirror.clear();
 				float aux = game->current_stage->glassCount;
+				game->audio->Stop("data/audio/mind.wav");
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
 				game->current_stage->glassCount = aux;
@@ -501,6 +531,7 @@ void EntityPlayer::update(float dt)
 				game->CurrentScene->entities.clear();
 				game->CurrentScene->entities_mirror.clear();
 				float aux = game->current_stage->glassCount;
+				game->audio->Stop("data/audio/soul.wav");
 				game->current_stage = game->corridor_stage;
 				game->CurrentScene = game->corridor_scene;
 				game->current_stage->glassCount = aux;
@@ -518,6 +549,7 @@ void EntityPlayer::update(float dt)
 			if (this->pos.z < -60 && !game->current_stage->body) {
 				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
+				game->audio->Stop("data/audio/organ.wav");
 				game->current_stage = game->body_stage;
 				game->CurrentScene = game->BodyScene;
 				game->current_stage->glassCount = aux;
@@ -532,6 +564,7 @@ void EntityPlayer::update(float dt)
 			if (this->pos.z > 60 && !game->current_stage->soul) {
 				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
+				game->audio->Stop("data/audio/organ.wav");
 				game->current_stage = game->soul_stage;
 				game->CurrentScene = game->soul_scene;
 				game->current_stage->glassCount = aux;
@@ -544,6 +577,7 @@ void EntityPlayer::update(float dt)
 			if (this->pos.x > 125 && !game->current_stage->mind) {
 				game->CurrentScene->entities.clear();
 				float aux = game->current_stage->glassCount;
+				game->audio->Stop("data/audio/organ.wav");
 				game->current_stage = game->mind_stage;
 				game->CurrentScene = game->mind_scene;
 				game->current_stage->glassCount = aux;
@@ -556,6 +590,7 @@ void EntityPlayer::update(float dt)
 		}
 	}
 
+	
 }
 
 void EntityPlayer::collisionMesh(float dt)
@@ -620,6 +655,7 @@ void EntityPlayer::Interaction()
 					if (currentScene->entities[i]->id == 12) {
 						if (this->pos.x > -32 && this->pos.x < -25 && this->pos.z > 2 && this->pos.x < 7) { //estoy mirando si el player esta cerca de el cristal lo pongo en alpha 1 si aprieto shift
 							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+								game->audio->Play("data/audio/interaction.wav", 0.7f, true);
 								game->body_stage->glassCount += 1;
 								game->corridor_stage->body = true;
 								currentStage->changeGlass = true;
@@ -636,6 +672,7 @@ void EntityPlayer::Interaction()
 						
 							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
 								game->mind_stage->id = i-1;
+								game->audio->Play("data/audio/interaction.wav",0.7f, true);
 								game->mind_stage->isAmulet = true;
 								currentScene->entities_mirror[i]->alpha = 1;
 								if (currentScene->entities[i]->id == 9)
@@ -654,7 +691,9 @@ void EntityPlayer::Interaction()
 					
 						if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 20, col_point, col_normal) == true) {
 							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
-								if (game->mind_stage->id == 8) //si objeto obtenido es el amuleto Ra (bueno) seguimos con el puzzle, si no se vuelve a intentar
+								game->audio->Play("data/audio/interaction.wav", 0.7f, true);
+
+								if (currentStage->id == 8) //si objeto obtenido es el amuleto Ra (bueno) seguimos con el puzzle, si no se vuelve a intentar
 								{
 									game->mind_stage->isRa = true;
 									currentStage->amuleto = false;
@@ -664,13 +703,13 @@ void EntityPlayer::Interaction()
 								{
 									game->mind_stage->isAmulet = false;
 									game->mind_stage->isRa = false;
-									currentScene->entities_mirror[game->mind_stage->id]->alpha = 0;
+									currentScene->entities_mirror[currentStage->id+1]->alpha = 0;
 									currentScene->lights[0]->intensity -= 0.3f;
 									if (currentScene->lights[0]->intensity < 0)
 										currentScene->lights[0]->intensity = 0;
-									if (game->mind_stage->id == 5)
+									if (currentStage->id == 5)
 										currentStage->cruz = false;
-									if (game->mind_stage->id == 4)
+									if (currentStage->id == 4)
 										currentStage->grail = false;
 								}
 							}
@@ -680,6 +719,7 @@ void EntityPlayer::Interaction()
 
 						if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
 							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
+								game->audio->Play("data/audio/interaction.wav", 0.7f, true);
 								currentStage->glassCount += 1;
 								game->corridor_stage->mind = true;
 								currentStage->changeGlass = true;
@@ -695,7 +735,8 @@ void EntityPlayer::Interaction()
 				if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 100, col_point, col_normal) == true) {
 					if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
 						if (currentScene->entities[i]->id == 2) //si objeto obtenido arrow seguimos con el puzzle, si no se vuelve a intentar
-						{
+						{	
+							game->audio->Play("data/audio/interaction.wav", 0.7f, true);
 							currentStage->arrow = true;
 							currentScene->entities[i]->alpha = 1;
 							currentScene->entities[i]->model.translate(0,0,-50);
@@ -710,6 +751,8 @@ void EntityPlayer::Interaction()
 						
 							if (currentScene->entities[i]->id == 5 && currentStage->arrow) {
 								//mostrar trozo espejo y romper el espejo grande
+								game->audio->Play("data/audio/interaction.wav", 0.7f, true);
+
 								currentScene->entities[15]->alpha = 0;
 								currentStage->arrow = false;
 							}
@@ -722,6 +765,8 @@ void EntityPlayer::Interaction()
 					if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 40, col_point, col_normal) == true) {
 						if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
 							currentStage->glassCount += 1;
+							game->audio->Play("data/audio/interaction.wav", 0.7f, true);
+
 							game->corridor_stage->soul = true;
 							currentStage->changeGlass = true;
 							currentScene->entities[i]->alpha = 1;
@@ -738,6 +783,8 @@ void EntityPlayer::Interaction()
 						{
 							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
 								game->CurrentScene = game->EndScene;
+								game->audio->Stop("data/audio/portal.wav");
+								game->audio->Play("data/audio/end_glass.wav", 0.5, true);
 								game->current_stage = game->end_stage;
 								game->current_stage->createEntities();
 								
@@ -745,6 +792,12 @@ void EntityPlayer::Interaction()
 						}
 					}
 					break;
+				}
+				if (currentStage->glassCount == 3 && one) {
+					game->audio->Stop("data/audio/organ.wav");
+					game->audio->Play("data/audio/portal.wav", 0.5, true);
+					one = false;
+
 				}
 
 			}

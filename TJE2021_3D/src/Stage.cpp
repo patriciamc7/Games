@@ -26,9 +26,12 @@ void IntroStage::createTextures()
 // 0 der puerta ,1  iz puerta ,2 arco puerta ,3 cielo ,4 suelo ,5 iglesia
 void IntroStage::createEntities()
 {
+	Game* game = Game::instance;
 	Scene* scene = Game::instance->intro_scene;
 	string mesh = "data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase,data/intro/cielo.ASE,data/intro/intro.ase";
 	string cad;
+	game->audio->Play("data/audio/intro.wav", 0.1, false);
+
 	int found = -1;
 	int init = 0;
 	this->entities.resize(MAX_ENT_INTRO);
@@ -96,6 +99,8 @@ void IntroStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
+		game->audio->Stop("data/audio/intro.wav");
+
 		game->current_stage = game->body_stage; //tiene que ir a corridor
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
@@ -104,6 +109,8 @@ void IntroStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
+		game->audio->Stop("data/audio/intro.wav");
+
 		game->current_stage = game->mind_stage; //tiene que ir a corridor
 		game->CurrentScene = game->mind_scene;
 		game->current_stage->createEntities();
@@ -112,6 +119,8 @@ void IntroStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
+		game->audio->Stop("data/audio/intro.wav");
+
 		game->current_stage = game->soul_stage; //tiene que ir a corridor
 		game->CurrentScene = game->soul_scene;
 		game->current_stage->createEntities();
@@ -120,6 +129,8 @@ void IntroStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
+		game->audio->Stop("data/audio/intro.wav");
+
 		game->current_stage = game->corridor_stage; //tiene que ir a corridor
 		game->CurrentScene = game->corridor_scene;
 		game->current_stage->createEntities();
@@ -179,8 +190,9 @@ IntroStage::IntroStage()
 void BodyStage::createTextures()
 {
 	Scene* scene = Game::instance->CurrentScene;
-	string texture = "data/imShader/water.tga,data/body/ceiling.tga,data/body/wall.tga,data/body/bath.tga,data/body/door.tga,data/body/sink.tga,data/body/sink.tga,data/body/cabinet.tga,data/body/cabinet.tga,data/body/passage.tga,data/body/passagePlane.tga,data/imShader/noise.tga,data/body/torch.tga,data/body/torch.tga,data/body/torch.tga,data/body/torch.tga";
 
+	string texture = "data/imShader/water.tga,data/body/ceiling.tga,data/body/wall.tga,data/body/bath.tga,data/body/door.tga,data/body/sink.tga,data/body/sink.tga,data/body/cabinet.tga,data/body/cabinet.tga,data/body/passage.tga,data/body/passagePlane.tga,data/imShader/noise.tga,data/body/torch.tga,data/body/torch.tga,data/body/torch.tga,data/body/torch.tga";
+	
 	string cad;
 	int found = -1;
 	int init = 0;
@@ -208,6 +220,8 @@ void BodyStage::createTextures()
 void BodyStage::createEntities()
 {
 	Scene* scene = Game::instance->CurrentScene;
+	Game* game = Game::instance;
+	game->audio->Play("data/audio/bath.wav", 0.1, false);
 
 	string mesh = "data/body/ceiling.ASE,data/body/wall.ASE,data/body/bath.ASE,data/body/door.ASE,data/body/sink.ASE,data/body/sink1.ASE,data/body/cabinet.ASE,data/body/cabinet1.ASE,data/body/passage.ASE,data/glassBody.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE";
 
@@ -514,7 +528,6 @@ void Stage::renderParticle(float timeParticle)
 
 }
 
-
 void Stage::renderGui() {
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -737,7 +750,8 @@ void MindStage::createTextures()
 
 void MindStage::createEntities() {
 	Scene* scene = Game::instance->CurrentScene;
-
+	Game* game = Game::instance;
+	game->audio->Play("data/audio/mind.wav", 0.1, false);
 	string mesh = "data/mind/sala.ASE,data/mind/trinidad.ASE,data/mind/grail.ASE,data/mind/cruz.ASE,data/mind/cuadro1.ASE,data/mind/cuadro2.ASE,data/mind/amuleto.ASE,data/glassMind.ASE,data/mirror.ASE,data/mind/puerta.ASE,data/mind/altar.ASE,data/body/passage.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE";
 	this->changeGlass = false;
 
@@ -1012,6 +1026,7 @@ void MindStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
+		game->audio->Play("data/audio/bath.wav", 0.5, false);
 		game->current_stage = game->body_stage; //tiene que ir a corridor
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
@@ -1045,6 +1060,7 @@ void MindStage::ChangePosLight()
 			this->contObject += 1; 
 			if (this->contObject == 3)
 				this->contObject = 0; 
+			game->audio->Play("data/audio/light_sound.wav", 0.1f, true);
 			scene->lights[0]->light_position = Vector3(-80, 25, contObject*25); //spot reality world
 			scene->lights[1]->light_position = Vector3(-125, 25, contObject * 25); //spot reality world
 
@@ -1098,7 +1114,7 @@ MindStage::MindStage()
 
 void TitleStage::createTextures()
 {
-	string texture = "data/Button/play0.tga,data/Button/controls0.tga,data/Button/options0.tga,data/Button/quit0.tga,data/Button/play1.tga,data/Button/controls1.tga,data/Button/options1.tga,data/Button/quit1.tga,data/Button/controls2.tga";
+	string texture = "data/Button/play0.tga,data/Button/controls0.tga,data/Button/quit0.tga,data/Button/play1.tga,data/Button/controls1.tga,data/Button/quit1.tga,data/Button/controls2.tga";
 
 	string cad;
 	int found = -1;
@@ -1116,6 +1132,9 @@ void TitleStage::createTextures()
 
 void TitleStage::createEntities()
 {
+	Game* game = Game::instance;
+	game->audio->Play("data/audio/title.wav", 0.5, false);
+
 	menu = new EntityMesh();
 	menu->mesh->createPlane(100);
 	menu->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
@@ -1126,20 +1145,18 @@ void TitleStage::createEntities()
 		this->ButtonsPlane[i] = new EntityMesh; 
 		this->ButtonsPlane[i]->id = i;
 
-		if (this->ButtonsPlane[i]->id == 8)
+		if (this->ButtonsPlane[i]->id == 6)
 			this->ButtonsPlane[i]->mesh->createPlane(40);
 		else
 			this->ButtonsPlane[i]->mesh->createPlane(9);
 		this->ButtonsPlane[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
-		if(this->ButtonsPlane[i]->id ==0 || this->ButtonsPlane[i]->id == 4)
+		if(this->ButtonsPlane[i]->id ==0 || this->ButtonsPlane[i]->id == 3)
 			this->ButtonsPlane[i]->model.translate(-70, 0, 0);
-		if (this->ButtonsPlane[i]->id == 1 || this->ButtonsPlane[i]->id == 5)
+		if (this->ButtonsPlane[i]->id == 1 || this->ButtonsPlane[i]->id == 4)
 			this->ButtonsPlane[i]->model.translate(-70, 0, -20);
-		if (this->ButtonsPlane[i]->id == 2 || this->ButtonsPlane[i]->id == 6)
+		if (this->ButtonsPlane[i]->id == 2 || this->ButtonsPlane[i]->id == 5)
 			this->ButtonsPlane[i]->model.translate(-70,0, -40);
-		if (this->ButtonsPlane[i]->id == 3 || this->ButtonsPlane[i]->id == 7)
-			this->ButtonsPlane[i]->model.translate(-70, 0, -60);
-		if(this->ButtonsPlane[i]->id == 8)
+		if(this->ButtonsPlane[i]->id == 6)
 			this->ButtonsPlane[i]->model.translate(20, 0, 0);
 		
 		this->ButtonsPlane[i]->model.scale(1.5, 1, 1); 
@@ -1174,12 +1191,14 @@ void TitleStage::render()
 		if ( v2_mouse.x>65 && v2_mouse.x<171)
 		{
 			if (i == 0 && v2_mouse.y > 271 && v2_mouse.y < 323) {
-				var += 4;
+				var += 3;
 				if (Input::mouse_state == 1) {// cambiar a intro (PLAY)
 					ButtonsPlane.clear();
 					game->current_stage = game->intro_stage;
+					game->audio->Stop("data/audio/title.wav");
 					game->CurrentScene = game->intro_scene;
-					game->CurrentScene->CreatePlayer(); 
+					game->audio->Play("data/audio/intro.wav", 0.5, false);
+					game->CurrentScene->CreatePlayer();
 					game->current_stage->createEntities();
 					ChangeIntro = true; 
 					game->free_camera = false;
@@ -1187,25 +1206,26 @@ void TitleStage::render()
 				}
 			}
 			if (i == 1 && v2_mouse.y > 332 && v2_mouse.y < 378) { //CONTROLS
-				var += 4;
+				var += 3;
 				//Cargar imagen de controles
-				this->shader->setUniform("u_model", this->ButtonsPlane[8]->model);
+				this->shader->setUniform("u_model", this->ButtonsPlane[6]->model);
 				this->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 				this->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 
-				this->shader->setUniform("u_texture", this->ButtonsPlane[8]->texture, 0);
+				this->shader->setUniform("u_texture", this->ButtonsPlane[6]->texture, 0);
 				this->shader->setUniform("u_texture_tiling", 1.0f);
-				this->ButtonsPlane[8]->mesh->render(GL_TRIANGLES);
+				this->ButtonsPlane[6]->mesh->render(GL_TRIANGLES);
 			}
-			if (i == 2 && v2_mouse.y > 392 && v2_mouse.y < 441) {//OPTIONS
-				var += 4;
-				//if (Input::mouse_state == 1)
-			}
-			if (i == 3 && v2_mouse.y > 452 && v2_mouse.y < 502) {//Exit
-				var += 4;
+			if (i == 2 && v2_mouse.y > 392 && v2_mouse.y < 441) {//Exit
+				var += 3;
 				if (Input::mouse_state == 1) //salir del juego
-					game->must_exit = true; 
+					game->must_exit = true;
 			}
+			//if (i == 3 && v2_mouse.y > 452 && v2_mouse.y < 502) {//Exit
+			//	var += 4;
+			//	if (Input::mouse_state == 1) //salir del juego
+			//		game->must_exit = true; 
+			//}
 		}
 		if (!ChangeIntro) {
 			this->shader->setUniform("u_model", this->ButtonsPlane[var]->model);
@@ -1228,6 +1248,7 @@ void TitleStage::update(double seconds_elapsed)
 	Game* game = Game::instance;
 
 	if (Input::wasKeyPressed(SDL_SCANCODE_I)) {
+		game->audio->Play("data/audio/intro.wav", 0.5, false);
 		game->current_stage = game->intro_stage;
 		game->current_stage->createEntities();
 	}
@@ -1313,6 +1334,7 @@ void SoulStage::createEntities()
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
 	string mesh = "data/soul/Ouija.ASE,data/soul/OuijaArrow.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/mind/altar.ASE,data/soul/floor.ASE,data/soul/wall.ASE,data/soul/pilar.ASE,data/soul/window.ASE,data/soul/floor.ASE,data/soul/mirror.ASE,data/soul/wallMirror.ASE,data/soul/door.ASE,data/glassSpirit.ASE,data/body/passage.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE";
+	game->audio->Play("data/audio/soul.wav", 0.1, false);
 
 	this->changeGlass = false;
 	this->PuzzleCorrect = true; 
@@ -1555,6 +1577,8 @@ void SoulStage::render()
 
 			}
 			if (PuzzleCorrect == true) {
+				game->audio->Play("data/audio/broken_glass.wav", 0.5, true);
+
 				scene->timeLive = game->time;
 				PuzzleCorrect = false;
 			}
@@ -1628,6 +1652,7 @@ void SoulStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
+		game->audio->Play("data/audio/bath.wav", 0.5, false);
 		game->current_stage = game->body_stage; //tiene que ir a corridor
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
@@ -1710,7 +1735,10 @@ void CorridorStage::createTextures()
 
 void CorridorStage::createEntities()
 {
-	Scene* scene = Game::instance->corridor_scene; 
+	Scene* scene = Game::instance->corridor_scene;
+	Game* game = Game::instance;
+	game->audio->Play("data/audio/organ.wav", 0.1, true);
+
 
 	string mesh = "data/passage/sala.ASE,data/passage/salaIntro.ASE,data/passage/portal.ASE,data/passage/glassBody.ASE,data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase,data/passage/glassSpirit.ASE,data/passage/glassMind.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE,data/body/torch.ASE";
 	this->changeGlass = false;
@@ -1906,11 +1934,13 @@ void CorridorStage::update(double seconds_elapsed)
 	}
 	if (this->glassCount == 3) {
 		game->spot3->intensity = 0.8;
+
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_B))
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
+		game->audio->Play("data/audio/bath.wav", 0.5, false);
 		game->current_stage = game->body_stage; //tiene que ir a corridor
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
@@ -1983,7 +2013,7 @@ void EndStage::createEntities()
 void EndStage::render()
 {
 	Camera* camera = new Camera();
-
+	Game* game = Game::instance;
 	menu->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	menu->shader->enable();
 	menu->shader->setUniform("u_model", menu->model);
@@ -1996,6 +2026,8 @@ void EndStage::render()
 	////render the 
 	menu->mesh->render(GL_TRIANGLES);
 	menu->shader->disable();
+	
+
 }
 
 void EndStage::update(double seconds_elapsed)

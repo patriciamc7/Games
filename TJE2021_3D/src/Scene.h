@@ -52,6 +52,7 @@ public:
 	
 //Attrubutes of this class
 	bool changeStage;
+	bool one = true;
 	float vel_factor = 0;
 	float center_value_y;
 	Mesh* mesh;
@@ -106,20 +107,16 @@ public:
 	eLightType light_type;
 	Vector3 light_position;
 	Vector3 light_vector;
+	EntityLight(eLightType light_type, Vector3 light_position, Vector3 light_vector, Vector3 color, float intensity); //constructor
 
 	//Directional light
 	float spotCosineCutoff;
 	float max_distance;
 	float spotExponent;
-	int flag;
-
-	//Shadowmap
-	Camera* cameraLight;
-	float bias;
 
 	//methods overwritten
-	virtual void render();
-	virtual void update(float dt);
+	virtual void render() {};
+	virtual void update(float dt) {};
 };
 struct sMirrorParticle {
 	float rotateParticle;
