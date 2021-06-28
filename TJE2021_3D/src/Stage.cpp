@@ -1221,11 +1221,7 @@ void TitleStage::render()
 				if (Input::mouse_state == 1) //salir del juego
 					game->must_exit = true;
 			}
-			//if (i == 3 && v2_mouse.y > 452 && v2_mouse.y < 502) {//Exit
-			//	var += 4;
-			//	if (Input::mouse_state == 1) //salir del juego
-			//		game->must_exit = true; 
-			//}
+			
 		}
 		if (!ChangeIntro) {
 			this->shader->setUniform("u_model", this->ButtonsPlane[var]->model);
@@ -1551,7 +1547,7 @@ void SoulStage::render()
 {
 	Scene* scene = Game::instance->soul_scene;
 	Game* game = Game::instance;
-	int timeAnimation = 5; 
+	int timeAnimation = 3; 
 	for (int i = 1; i < scene->entities_mirror.size(); i++)
 	{
 		if(scene->entities_mirror[i]->id != 2 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id < 12)
