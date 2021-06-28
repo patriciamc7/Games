@@ -2,6 +2,67 @@
 #include "game.h"
 #include "framework.h"
 
+//Audio
+Audio::Audio(const char* filename) //init and load the audios
+{
+	//Inicializamos BASS al arrancar el juego (id_del_device, muestras por segundo, ...)
+	if (BASS_Init(-1, 44100, 0, 0, NULL) == false) //-1 significa usar el por defecto del sistema operativo
+	{
+
+	}
+
+	hSample = BASS_SampleLoad(false, filename, 0, 0, 3, 0);
+	hSampleChannel = BASS_SampleGetChannel(hSample, false);
+
+}
+
+void Audio::Stop(const char* filename)
+{
+	Game* game = Game::instance;
+
+	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
+
+	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
+	{
+		if (strcmp(it->first.c_str(), filename) == 0)
+			BASS_ChannelPause(it->second->hSampleChannel);
+	}
+
+}
+
+bool Audio::Get(const char* filename)
+{
+	Game* game = Game::instance;
+	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
+
+	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
+	{
+		if (strcmp(it->first.c_str(), filename) == 0) {
+			return true;
+		}
+	}
+	return false;
+
+}
+
+void Audio::Play(const char* filename, float volume, bool bucle)
+{
+	// Lanzamos un sample
+
+	Game* game = Game::instance;
+	bool Correct = false;
+	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
+
+	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
+	{
+		if (strcmp(it->first.c_str(), filename) == 0) {
+			BASS_ChannelSetAttribute(it->second->hSampleChannel, BASS_ATTRIB_VOL, volume);
+			BASS_ChannelPlay(it->second->hSampleChannel, bucle);
+			Correct = true;
+		}
+	}
+}
+
 EntityMesh::EntityMesh()
 {
 	this->mesh = new Mesh();
@@ -15,8 +76,7 @@ EntityMesh::EntityMesh()
 
 void EntityMesh::render()
 {
-	//var for fog
-
+	//variables para fog
 	Vector4 fogColor = Vector4(0.5f, 0.5f, 0.5f, 1.f);
 	float fogDensity = 0.025f;
 	glDepthFunc(GL_LEQUAL);
@@ -86,76 +146,6 @@ void EntityMesh::update(float dt)
 {
 }
 
-
-Audio::Audio(const char* filename) //init and load the audios
-{
-	//Inicializamos BASS al arrancar el juego (id_del_device, muestras por segundo, ...)
-	if (BASS_Init(-1, 44100, 0, 0, NULL) == false) //-1 significa usar el por defecto del sistema operativo
-	{
-	
-	}
-	
-	hSample = BASS_SampleLoad(false, filename, 0, 0, 3, 0);
-	hSampleChannel = BASS_SampleGetChannel(hSample, false);
-	
-}
-
-void Audio::Stop(const char* filename)
-{
-	Game* game = Game::instance;
-
-	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
-
-	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
-	{
-
-		if (strcmp(it->first.c_str(), filename) == 0) {
-			BASS_ChannelPause(it->second->hSampleChannel);
-		}
-		
-	}
-
-}
-
-bool Audio::Get(const char* filename)
-{
-	Game* game = Game::instance;
-	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
-
-	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
-	{
-		if (strcmp(it->first.c_str(), filename) == 0) {
-			return true; 
-		}
-	}
-	return false; 
-
-}
-
-void Audio::Play(const char* filename, float volume, bool bucle)
-{
-	// Lanzamos un sample
-	
-	Game* game = Game::instance;
-	bool Correct = false; 
-	std::map<std::string, Audio* >::iterator it = game->sLoadedAudios.begin();
-
-	for (it = game->sLoadedAudios.begin(); it != game->sLoadedAudios.end(); ++it)
-	{
-	
-		if (strcmp(it->first.c_str(),filename)==0) {
-			BASS_ChannelSetAttribute(it->second->hSampleChannel, BASS_ATTRIB_VOL,volume);
-			BASS_ChannelPlay(it->second->hSampleChannel, bucle);
-			Correct = true; 
-		}
-		
-	}
-	
-
-}
-
-
-
 EntityLight::EntityLight()
 {
 	//General light
@@ -177,9 +167,6 @@ EntityLight::EntityLight(eLightType light_type, Vector3 light_position, Vector3 
 	this->max_distance = 1.f;
 	this->spotCosineCutoff = cos(1 * DEG2RAD);
 }
-
-
-
 
 Scene::Scene()
 {
@@ -223,10 +210,8 @@ EntityPlayer::EntityPlayer()
 	this->pitch = 0.0f;
 }
 
-
 void EntityPlayer::render()
 {
-	//cout << this->pos.x <<" " <<this->pos.y <<" "<< this->pos.z << "\n ";
 	Game* game = Game::instance;
 	//get the last camera thet was activated
 	Camera* camera = Camera::current;
@@ -240,6 +225,13 @@ void EntityPlayer::render()
 			game->body_stage->InitStage = false;
 		}
 	}
+	if (game->current_stage == game->intro_stage) {
+		if (game->intro_stage->InitStage) {
+			this->pos = Vector3(-40, 0, -10);
+			this->yaw = -90;
+			game->intro_stage->InitStage = false;
+		}
+	}
 	if (game->current_stage == game->mind_stage) {
 		if (game->mind_stage->InitStage) {
 			this->yaw = 0;
@@ -250,7 +242,7 @@ void EntityPlayer::render()
 	if (game->current_stage == game->corridor_stage ) {
 		if (game->corridor_stage->InitStage) {
 			this->yaw = -90;
-			this->pos = Vector3(4.0f, 0, 0.0f);
+			this->pos = Vector3(15, 0, 0.0f);
 			game->corridor_stage->InitStage = false;
 		}
 	}
@@ -611,7 +603,6 @@ void EntityPlayer::collisionMesh(float dt)
 			if (this->mesh->testSphereCollision(currentScene->entities[i]->model, character_center, 7, col_point, col_normal) == false) {
 				continue; //si no colisiona, pasamos al siguiente objeto
 			}
-			//cout << currentScene->entities[i]->id << "\n";
 			//si la esfera está colisionando muevela a su posicion anterior alejandola del objeto
 			Vector3 push_away = normalize(col_point - character_center) * dt;
 			this->pos = this->pos - push_away; //move to previous pos but a little bit further
@@ -621,11 +612,8 @@ void EntityPlayer::collisionMesh(float dt)
 
 			//reflejamos el vector velocidad para que de la sensacion de que rebota en la pared
 			this->player_speed = reflect(this->player_speed, col_normal) * 0.95;
-
 		}
-		
 	}
-
 }
 
 void EntityPlayer::Interaction()
@@ -653,7 +641,7 @@ void EntityPlayer::Interaction()
 
 				if (currentStage == game->body_stage) {
 					if (currentScene->entities[i]->id == 12) {
-						if (this->pos.x > -32 && this->pos.x < -25 && this->pos.z > 2 && this->pos.x < 7) { //estoy mirando si el player esta cerca de el cristal lo pongo en alpha 1 si aprieto shift
+						if (this->pos.x > -32 && this->pos.x < -25 && this->pos.z > 2 && this->pos.x < 7) { //miramos si el player esta cerca de el cristal lo pongo en alpha 1 si aprieto shift
 							if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT)) {
 								game->audio->Play("data/audio/interaction.wav", 0.7f, true);
 								game->body_stage->glassCount += 1;
@@ -699,7 +687,7 @@ void EntityPlayer::Interaction()
 									currentStage->amuleto = false;
 
 								}
-								else //bajar intensidad de la spot
+								else //bajar intensidad de la spot si nos equivocamos de objeto
 								{
 									game->mind_stage->isAmulet = false;
 									game->mind_stage->isRa = false;

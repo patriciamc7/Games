@@ -4,6 +4,169 @@
 #include "utils.h"
 #include "game.h"
 
+void Stage::renderTorch(int i, vector<EntityMesh*> entities)
+{
+
+	EntityMesh* torch;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Camera* camera = Camera::current;
+	torch = entities[i - 1];
+	torch->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/torch.fs");
+	torch->shader->enable();
+	torch->shader->setUniform("u_model", torch->model);
+	torch->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	torch->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	torch->shader->setUniform("u_time", Game::instance->time);
+	////render the 
+	torch->mesh->render(GL_TRIANGLES);
+	torch->shader->disable();
+	glDisable(GL_BLEND);
+}
+
+void Stage::renderMirror(int i, vector<EntityMesh*> entities)
+{
+	Scene* scene = Game::instance->CurrentScene;
+	Stage* stage = Game::instance->current_stage;
+	Game* game = Game::instance;
+
+	EntityMesh* mirror;
+	if (stage == game->body_stage) {
+		if (!game->body_stage->animation2)
+			glDisable(GL_DEPTH_TEST);
+	}
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Camera* camera = Camera::current;
+	mirror = entities[i - 1];
+
+	mirror->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/mirror.fs");
+	mirror->shader->enable();
+	mirror->shader->setUniform("u_model", mirror->model);
+	mirror->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	mirror->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+
+	mirror->shader->setUniform("u_texture_1", mirror->texture2, 5);
+	mirror->shader->setUniform("u_texture", mirror->texture, 6);
+	mirror->shader->setUniform("u_alpha", mirror->alpha);
+
+
+	////render the 
+	mirror->mesh->render(GL_TRIANGLES);
+	mirror->shader->disable();
+	glDisable(GL_BLEND);
+	if (!animation2)
+		glEnable(GL_DEPTH_TEST);
+}
+
+void Stage::renderParticle(float timeParticle)
+{
+	Scene* scene = Game::instance->CurrentScene;
+	Camera* camera = Camera::current;
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(false);
+
+
+	for (int i = 0; i < scene->mirrorParticle.size(); i++)
+	{
+		scene->mirrorParticle[i].v_particles->mesh->vertices.resize(6);
+		scene->mirrorParticle[i].v_particles->mesh->uvs.resize(6);
+
+		Vector3& pos = Vector3(0, -0.5 * pow(timeParticle, 2), -timeParticle);
+		float sizeParticle = scene->mirrorParticle[i].sizeParticle;
+		Vector3 camUp = camera->getLocalVector(Vector3(0, 1, 0)) * sizeParticle;
+		Vector3 camRight = camera->getLocalVector(Vector3(1, 0, 0)) * sizeParticle;
+		//encarar al ojo de la camara
+		scene->mirrorParticle[i].v_particles->mesh->vertices[0] = Vector3(pos + camUp + camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[0] = Vector2(1, 0);
+		scene->mirrorParticle[i].v_particles->mesh->vertices[1] = Vector3(pos + camUp - camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[1] = Vector2(0, 0);
+		scene->mirrorParticle[i].v_particles->mesh->vertices[2] = Vector3(pos - camUp - camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[2] = Vector2(0, 1);
+
+
+		scene->mirrorParticle[i].v_particles->mesh->vertices[3] = Vector3(pos - camUp - camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[3] = Vector2(0, 1);
+		scene->mirrorParticle[i].v_particles->mesh->vertices[4] = Vector3(pos - camUp + camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[4] = Vector2(1, 1);
+		scene->mirrorParticle[i].v_particles->mesh->vertices[5] = Vector3(pos + camUp + camRight);
+		scene->mirrorParticle[i].v_particles->mesh->uvs[5] = Vector2(1, 0);
+
+		scene->mirrorParticle[i].v_particles->model.rotate(scene->mirrorParticle[i].rotateParticle, Vector3(0, 0, 1));
+		scene->mirrorParticle[i].v_particles->render();
+		scene->mirrorParticle[i].v_particles->model.rotate(-scene->mirrorParticle[i].rotateParticle, Vector3(0, 0, 1));
+	}
+	//Fin de encarar
+	glDisable(GL_BLEND);
+	glDepthMask(true);
+
+
+}
+
+void Stage::renderGui() {
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	Game* game = Game::instance;
+
+	Camera* cam2D = new Camera();
+	cam2D->setOrthographic(0, game->window_width, game->window_height, 0, -1, 1);
+
+	Mesh quad;
+	quad.createQuad(100, 100, 100, 100, true);
+
+	Mesh inventario;
+	inventario.createQuad(100, 500, 100, 100, true);
+	cam2D->enable();
+
+	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	shader->enable();
+
+	shader->setUniform("u_model", Matrix44());
+	shader->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
+	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader->setUniform("u_texture_tiling", 1.0f);
+	if (glassCount == 0)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI0.tga"), 0);
+	if (this->glassCount == 1)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI1.tga"), 0);
+	if (this->glassCount == 2)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI2.tga"), 0);
+	if (this->glassCount == 3)
+		shader->setUniform("u_texture", Texture::Get("data/gui/GUI3.tga"), 0);
+	quad.render(GL_TRIANGLES);
+	shader->disable();
+	//inventario
+	Shader* shader2 = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	shader2->enable();
+
+	shader2->setUniform("u_model", Matrix44());
+	shader2->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
+	shader2->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader2->setUniform("u_texture_tiling", 1.0f);
+	if (this->amuleto)
+		shader2->setUniform("u_texture", Texture::Get("data/gui/amuleto.tga"), 1);
+	else  if (this->cruz)
+		shader2->setUniform("u_texture", Texture::Get("data/gui/cruz.tga"), 2);
+	else if (this->grail)
+		shader2->setUniform("u_texture", Texture::Get("data/gui/grail.tga"), 3);
+	else if (this->arrow)
+		shader2->setUniform("u_texture", Texture::Get("data/gui/ouijaArrow.tga"), 4);
+	else
+		shader2->setUniform("u_texture", Texture::Get("data/gui/void.tga"), 5);
+
+	inventario.render(GL_TRIANGLES);
+	shader2->disable();
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+}
+
 void IntroStage::createTextures()
 {
 	Scene* scene = Game::instance->intro_scene;
@@ -30,6 +193,7 @@ void IntroStage::createEntities()
 	Scene* scene = Game::instance->intro_scene;
 	string mesh = "data/intro/RightDoor.ase,data/intro/LeftDoor.ase,data/intro/ArcDoor.ase,data/intro/cielo.ASE,data/intro/intro.ase";
 	string cad;
+	this->InitStage = true;
 	game->audio->Play("data/audio/intro.wav", 0.1, false);
 
 	int found = -1;
@@ -101,7 +265,7 @@ void IntroStage::update(double seconds_elapsed)
 		game->CurrentScene->entities.clear();
 		game->audio->Stop("data/audio/intro.wav");
 
-		game->current_stage = game->body_stage; //tiene que ir a corridor
+		game->current_stage = game->body_stage;
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
 	}
@@ -111,7 +275,7 @@ void IntroStage::update(double seconds_elapsed)
 		game->CurrentScene->entities.clear();
 		game->audio->Stop("data/audio/intro.wav");
 
-		game->current_stage = game->mind_stage; //tiene que ir a corridor
+		game->current_stage = game->mind_stage;
 		game->CurrentScene = game->mind_scene;
 		game->current_stage->createEntities();
 	}
@@ -121,7 +285,7 @@ void IntroStage::update(double seconds_elapsed)
 		game->CurrentScene->entities.clear();
 		game->audio->Stop("data/audio/intro.wav");
 
-		game->current_stage = game->soul_stage; //tiene que ir a corridor
+		game->current_stage = game->soul_stage;
 		game->CurrentScene = game->soul_scene;
 		game->current_stage->createEntities();
 	}
@@ -131,11 +295,11 @@ void IntroStage::update(double seconds_elapsed)
 		game->CurrentScene->entities.clear();
 		game->audio->Stop("data/audio/intro.wav");
 
-		game->current_stage = game->corridor_stage; //tiene que ir a corridor
+		game->current_stage = game->corridor_stage;
 		game->CurrentScene = game->corridor_scene;
 		game->current_stage->createEntities();
 	}
-	if (this->animation)
+	if (this->animation) //animacion de las puertas
 	{
 		float radLeftDoor = -90 * DEG2RAD * seconds_elapsed;
 		float radRightDoor = 90 * DEG2RAD * seconds_elapsed;
@@ -424,171 +588,6 @@ void BodyStage::renderWater(int i)
 	glDisable(GL_BLEND);
 }
 
-void Stage::renderTorch(int i, vector<EntityMesh*> entities)
-{
-
-	EntityMesh* torch;
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	Camera* camera = Camera::current;
-	torch = entities[i - 1];
-	torch->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/torch.fs");
-	torch->shader->enable();
-	torch->shader->setUniform("u_model", torch->model);
-	torch->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	torch->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-	torch->shader->setUniform("u_time", Game::instance->time);
-	////render the 
-	torch->mesh->render(GL_TRIANGLES);
-	torch->shader->disable();
-	glDisable(GL_BLEND);
-}
-
-void Stage::renderMirror(int i, vector<EntityMesh*> entities )
-{
-	Scene* scene = Game::instance->CurrentScene;
-	Stage* stage = Game::instance->current_stage;
-	Game* game = Game::instance;
-
-	EntityMesh* mirror;
-	if (stage == game->body_stage) {
-		if (!game->body_stage->animation2)
-			glDisable(GL_DEPTH_TEST);
-	}
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	Camera* camera = Camera::current;
-	mirror = entities[i - 1];
-
-	mirror->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/mirror.fs");
-	mirror->shader->enable();
-	mirror->shader->setUniform("u_model", mirror->model);
-	mirror->shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	mirror->shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-
-	mirror->shader->setUniform("u_texture_1", mirror->texture2, 5);
-	mirror->shader->setUniform("u_texture", mirror->texture, 6);
-	mirror->shader->setUniform("u_alpha", mirror->alpha);
-
-
-	////render the 
-	mirror->mesh->render(GL_TRIANGLES);
-	mirror->shader->disable();
-	glDisable(GL_BLEND);
-	if (!animation2)
-		glEnable(GL_DEPTH_TEST);
-}
-
-void Stage::renderParticle(float timeParticle)
-{
-	Scene* scene = Game::instance->CurrentScene;
-	Camera* camera = Camera::current;
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthMask(false);
-
-
-	//particle->texture = Texture::Get("data/imShader/grayMirror.tga"); 
-	for (int i = 0; i < scene->mirrorParticle.size(); i++)
-	{
-		scene->mirrorParticle[i].v_particles->mesh->vertices.resize(6);
-		scene->mirrorParticle[i].v_particles->mesh->uvs.resize(6);
-
-		Vector3& pos = Vector3(0, -0.5 * pow(timeParticle, 2), -timeParticle);
-		//if(scene->v_particles[i])
-		float sizeParticle = scene->mirrorParticle[i].sizeParticle;
-		Vector3 camUp = camera->getLocalVector(Vector3(0, 1, 0)) * sizeParticle;
-		Vector3 camRight = camera->getLocalVector(Vector3(1, 0, 0)) * sizeParticle;
-		//encarar al ojo de la camara
-		scene->mirrorParticle[i].v_particles->mesh->vertices[0] = Vector3(pos + camUp + camRight);
-		scene->mirrorParticle[i].v_particles->mesh->uvs[0] = Vector2(1, 0);
-		scene->mirrorParticle[i].v_particles->mesh->vertices[1] = Vector3(pos + camUp - camRight);
-		scene->mirrorParticle[i].v_particles->mesh->uvs[1] = Vector2(0, 0);
-		scene->mirrorParticle[i].v_particles->mesh->vertices[2] = Vector3(pos - camUp - camRight);
-		scene->mirrorParticle[i].v_particles->mesh->uvs[2] = Vector2(0, 1);
-
-
-		scene->mirrorParticle[i].v_particles->mesh->vertices[3] = Vector3(pos - camUp - camRight);
-		scene->mirrorParticle[i].v_particles->mesh->uvs[3] = Vector2(0, 1);
-		scene->mirrorParticle[i].v_particles->mesh->vertices[4] = Vector3(pos - camUp + camRight);
-		scene->mirrorParticle[i].v_particles->mesh->uvs[4] = Vector2(1, 1);
-		scene->mirrorParticle[i].v_particles->mesh->vertices[5] = Vector3(pos + camUp + camRight);
-		scene->mirrorParticle[i].v_particles->mesh->uvs[5] = Vector2(1, 0);
-
-		scene->mirrorParticle[i].v_particles->model.rotate(scene->mirrorParticle[i].rotateParticle, Vector3(0, 0, 1));
-		scene->mirrorParticle[i].v_particles->render();
-		scene->mirrorParticle[i].v_particles->model.rotate(-scene->mirrorParticle[i].rotateParticle, Vector3(0, 0, 1));
-	}
-	//Fin de encarar
-	glDisable(GL_BLEND);
-	glDepthMask(true);
-
-
-}
-
-void Stage::renderGui() {
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	Game* game = Game::instance;
-
-	Camera* cam2D = new Camera();
-	cam2D->setOrthographic(0, game->window_width, game->window_height, 0, -1, 1);
-
-	Mesh quad;
-	quad.createQuad(100, 100, 100, 100, true);
-
-	Mesh inventario;
-	inventario.createQuad(100, 500, 100, 100, true);
-	cam2D->enable();
-
-	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	shader->enable();
-
-	shader->setUniform("u_model", Matrix44());
-	shader->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
-	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-	shader->setUniform("u_texture_tiling", 1.0f);
-	if (glassCount == 0)
-		shader->setUniform("u_texture", Texture::Get("data/gui/GUI0.tga"), 0);
-	if (this->glassCount == 1)
-		shader->setUniform("u_texture", Texture::Get("data/gui/GUI1.tga"), 0);
-	if (this->glassCount == 2)
-		shader->setUniform("u_texture", Texture::Get("data/gui/GUI2.tga"), 0);
-	if (this->glassCount == 3)
-		shader->setUniform("u_texture", Texture::Get("data/gui/GUI3.tga"), 0);
-	quad.render(GL_TRIANGLES);
-	shader->disable();
-	//inventario
-	Shader* shader2 = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	shader2->enable();
-
-	shader2->setUniform("u_model", Matrix44());
-	shader2->setUniform("u_viewprojection", cam2D->viewprojection_matrix);
-	shader2->setUniform("u_color", Vector4(1, 1, 1, 1));
-	shader2->setUniform("u_texture_tiling", 1.0f);
-	if (this->amuleto)
-		shader2->setUniform("u_texture", Texture::Get("data/gui/amuleto.tga"), 1);
-	else  if (this->cruz)
-		shader2->setUniform("u_texture", Texture::Get("data/gui/cruz.tga"), 2);
-	else if (this->grail)
-		shader2->setUniform("u_texture", Texture::Get("data/gui/grail.tga"), 3);
-	else if (this->arrow)
-		shader2->setUniform("u_texture", Texture::Get("data/gui/ouijaArrow.tga"), 4);
-	else 
-		shader2->setUniform("u_texture", Texture::Get("data/gui/void.tga"), 5);
-	
-	inventario.render(GL_TRIANGLES);
-	shader2->disable();
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glDisable(GL_BLEND);
-}
-
 void BodyStage::render()
 {
 
@@ -636,7 +635,7 @@ void BodyStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->mind_stage; //tiene que ir a corridor
+		game->current_stage = game->mind_stage;
 		game->CurrentScene = game->mind_scene;
 		game->current_stage->createEntities();
 	}
@@ -644,7 +643,7 @@ void BodyStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->soul_stage; //tiene que ir a corridor
+		game->current_stage = game->soul_stage;
 		game->CurrentScene = game->soul_scene;
 		game->current_stage->createEntities();
 	}
@@ -652,7 +651,7 @@ void BodyStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->corridor_stage; //tiene que ir a corridor
+		game->current_stage = game->corridor_stage;
 		game->CurrentScene = game->corridor_scene;
 		game->current_stage->createEntities();
 	}
@@ -680,8 +679,6 @@ void BodyStage::update(double seconds_elapsed)
 		}
 
 	}
-	/*if (this->glassCount == 3) // en el pasillo cuando el player deje los tres trozos en el portal, que se acabae el juego
-		game->current_stage = game->end_stage;*/
 	if (this->changeGlass && this->doorOpen2) {
 
 		this->doorOpen2 = false;
@@ -736,7 +733,7 @@ void MindStage::createTextures()
 
 	for (int i = 0; i < MAX_ENT_MIND; i++)
 	{
-		if (this->entities[i]->id == 10 || this->entities[i]->id == 13) {
+		if (this->entities[i]->id == 10 || this->entities[i]->id == 13) { //para espejos
 			this->entities[i]->texture2 = Texture::Get("data/imShader/gray.tga");
 		}
 		init = found + 1;
@@ -879,42 +876,28 @@ void MindStage::createEntities() {
 			this->entities_mirror[i]->model.translate(-50, 0, 70);
 			this->entities_mirror[i]->model.scale(0.5, 0.5, 0.5);
 			this->entities[i]->model.scale(0.5, 0.5, 0.5);
-
 		}
 		if (this->entities[i]->id == 15) //pasillo 
 		{
 			this->entities[i]->isColision = false;
 			this->entities[i]->model.translate(-15, 0, -85);
 			this->entities[i]->model.scale(1.5, 1, 1);
-		
-
 		}
 		if (this->entities[i]->id == 16) //antorchas prefab 
 		{
 			this->entities[i]->model.translate(2, 10, -104);
 			this->entities[i]->model.rotate(180 * DEG2RAD, Vector3(0, 1, 0));
-			
-
-
 		}
 		if (this->entities[i]->id == 17) //antorchas prefab 
-		{
 			this->entities[i]->model.translate(-35, 10, -108);
 
-
-		}
 		if (this->entities[i]->id == 18) //antorchas prefab 
-		{
 			this->entities[i]->model.translate(-35, 10, -93);
 
-
-		}
 		if (this->entities[i]->id == 19) //antorchas prefab 
 		{
 			this->entities[i]->model.translate(2, 10, -93);
 			this->entities[i]->model.rotate(180 * DEG2RAD, Vector3(0, 1, 0));
-			
-
 		}
 		if (this->entities[i]->id == 20) //plano profundidad 
 		{
@@ -963,7 +946,7 @@ void MindStage::render()
 	Scene* scene = Game::instance->mind_scene;
 	for (int i = 1; i < scene->entities_mirror.size(); i++) 
 	{
-		//no renerizamos el epejo/ el marco ni el trozo de espejo
+		//no renerizamos el epejo/ el marco ni el trozo de espejo en el mirror 
 		if (scene->entities_mirror[i]->id != 10 && scene->entities_mirror[i]->id != 11 && scene->entities_mirror[i]->id != 13 && scene->entities_mirror[i]->id < 15)
 			scene->entities_mirror[i]->render();
 	}
@@ -996,7 +979,7 @@ void MindStage::update(double seconds_elapsed)
 	{
 		scene->entities_mirror[i]->update(seconds_elapsed);
 	}
-	if (this->animation)
+	if (this->animation) //animacion de la puerta
 	{
 		float x = 10 * seconds_elapsed;
 
@@ -1021,13 +1004,13 @@ void MindStage::update(double seconds_elapsed)
 		this->animation = true;
 		this->firstTime = true;
 	}
-	ChangePosLight();
+	ChangePosLight(); //cambiar la posicion de la luz
 	if (Input::wasKeyPressed(SDL_SCANCODE_B))
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
 		game->audio->Play("data/audio/bath.wav", 0.5, false);
-		game->current_stage = game->body_stage; //tiene que ir a corridor
+		game->current_stage = game->body_stage;
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
 	}
@@ -1035,7 +1018,7 @@ void MindStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->soul_stage; //tiene que ir a corridor
+		game->current_stage = game->soul_stage;
 		game->CurrentScene = game->soul_scene;
 		game->current_stage->createEntities();
 	}
@@ -1043,7 +1026,7 @@ void MindStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->corridor_stage; //tiene que ir a corridor
+		game->current_stage = game->corridor_stage;
 		game->CurrentScene = game->corridor_scene;
 		game->current_stage->createEntities();
 	}
@@ -1535,7 +1518,6 @@ void SoulStage::createEntities()
 	}
 	for (int j = 0; j < scene->mirrorParticle.size(); j++) {
 		scene->mirrorParticle[j].v_particles = new EntityMesh();
-		//scene->v_particles[j]->model.rotate(rand()*90 * DEG2RAD, Vector3(0, 0, 1));
 		scene->mirrorParticle[j].v_particles->model.translate(random() * 40 - 20, random() * 30 + 5, random() * 2 + 80);
 		scene->mirrorParticle[j].sizeParticle = rand() % 25;
 		scene->mirrorParticle[j].rotateParticle = rand() % 90;
@@ -1591,7 +1573,7 @@ void SoulStage::render()
 					scene->entities[i]->isColision = false;
 			}
 			if (abs(game->time - scene->timeLive) > timeAnimation) {
-				scene->mirrorParticle.clear(); //Quitar prefab de mirror y marco de mirror
+				scene->mirrorParticle.clear(); //Quitamos prefab de mirror y marco de mirror
 
 			}
 		}
@@ -1618,7 +1600,7 @@ void SoulStage::update(double seconds_elapsed)
 	{
 		scene->entities[i]->update(seconds_elapsed);
 	}
-	if (this->animation)
+	if (this->animation) //animacion puerta
 	{
 		float radDoor = -90 * DEG2RAD * seconds_elapsed;
 
@@ -1649,7 +1631,7 @@ void SoulStage::update(double seconds_elapsed)
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
 		game->audio->Play("data/audio/bath.wav", 0.5, false);
-		game->current_stage = game->body_stage; //tiene que ir a corridor
+		game->current_stage = game->body_stage;
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
 	}
@@ -1657,7 +1639,7 @@ void SoulStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->mind_stage; //tiene que ir a corridor
+		game->current_stage = game->mind_stage;
 		game->CurrentScene = game->mind_scene;
 		game->current_stage->createEntities();
 	}
@@ -1665,7 +1647,7 @@ void SoulStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->corridor_stage; //tiene que ir a corridor
+		game->current_stage = game->corridor_stage;
 		game->CurrentScene = game->corridor_scene;
 		game->current_stage->createEntities();
 	}
@@ -1760,10 +1742,10 @@ void CorridorStage::createEntities()
 			cad = mesh.substr(init, found - init);
 			this->entities[i]->mesh = Mesh::Get(cad.c_str());
 		}
-		
+
 		if (this->entities[i]->id == 3) {
 			this->entities[i]->model.translate(65, 0, 5);
-			this->entities[i]->model.rotate(90*DEG2RAD, Vector3(0, 1, 0));
+			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0, 1, 0));
 		}
 		if (this->entities[i]->id == 4) {
 			this->entities[i]->mesh->createPlane(20);
@@ -1775,7 +1757,7 @@ void CorridorStage::createEntities()
 		if (this->entities[i]->id == 5) {
 			this->entities[i]->mesh->createPlane(20);
 			this->entities[i]->model.translate(60, 7, -100);
-			this->entities[i]->model.scale(1,2,1);
+			this->entities[i]->model.scale(1, 2, 1);
 
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
 		}
@@ -1794,13 +1776,22 @@ void CorridorStage::createEntities()
 
 		}
 		if (this->entities[i]->id == 8)//door
+		{
 			this->entities[i]->model.translate(-18.0f, 0.0f, 16.0f);
+			this->entities[i]->isColision = false;
+		}
 
 		if (this->entities[i]->id == 9) //door
+		{
 			this->entities[i]->model.translate(-18.0f, 0.0f, -15.5f);
+			this->entities[i]->isColision = false;
+		}
 
 		if (this->entities[i]->id == 10) //door arco
+		{
+			this->entities[i]->isColision = false;
 			this->entities[i]->model.translate(-18.0f, 0.0f, 0.0f);
+		}
 
 		if (this->entities[i]->id == 11) //glass spirit
 		{ 
@@ -1843,7 +1834,7 @@ void CorridorStage::createEntities()
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
 
-			this->entities[i]->model.translate(23, 160, 31); //LADO/DELANTE/ALTURA 
+			this->entities[i]->model.translate(23, 160, 31);
 
 		}
 		if (this->entities[i]->id == 20) //antorchas fuego MIND
@@ -1852,7 +1843,7 @@ void CorridorStage::createEntities()
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(0.0f, 0.0f, 1.0f));
 
-			this->entities[i]->model.translate(-13, 160, 31); //LADO/DELANTE/ALTURA 
+			this->entities[i]->model.translate(-13, 160, 31);
 
 		}
 		//BODY antorchas fuego
@@ -1861,14 +1852,14 @@ void CorridorStage::createEntities()
 			this->entities[i]->mesh->createPlane(10);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 
-			this->entities[i]->model.translate(47,75 , 31); // delante/lado/altura
+			this->entities[i]->model.translate(47,75 , 31); 
 		}
 		if (this->entities[i]->id == 22) //antorchas fuego
 		{
 			this->entities[i]->mesh->createPlane(10);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 
-			this->entities[i]->model.translate(73, 75, 31); // delante/lado/altura
+			this->entities[i]->model.translate(73, 75, 31);
 
 		}
 		//soul
@@ -1877,7 +1868,7 @@ void CorridorStage::createEntities()
 			this->entities[i]->mesh->createPlane(10);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 
-			this->entities[i]->model.translate(78, -80, 31); // delante/lado/altura
+			this->entities[i]->model.translate(78, -80, 31);
 
 		}
 		if (this->entities[i]->id == 24) //antorchas fuego
@@ -1885,7 +1876,7 @@ void CorridorStage::createEntities()
 			this->entities[i]->mesh->createPlane(10);
 			this->entities[i]->model.rotate(90 * DEG2RAD, Vector3(1.0f, 0.0f, 0.0f));
 
-			this->entities[i]->model.translate(42, -80, 31); // delante/lado/altura
+			this->entities[i]->model.translate(42, -80, 31);
 
 		}
 		scene->entities[i+1] = this->entities[i];
@@ -1937,7 +1928,7 @@ void CorridorStage::update(double seconds_elapsed)
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
 		game->audio->Play("data/audio/bath.wav", 0.5, false);
-		game->current_stage = game->body_stage; //tiene que ir a corridor
+		game->current_stage = game->body_stage;
 		game->CurrentScene = game->BodyScene;
 		game->current_stage->createEntities();
 	}
@@ -1945,7 +1936,7 @@ void CorridorStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->mind_stage; //tiene que ir a corridor
+		game->current_stage = game->mind_stage;
 		game->CurrentScene = game->mind_scene;
 		game->current_stage->createEntities();
 	}
@@ -1953,7 +1944,7 @@ void CorridorStage::update(double seconds_elapsed)
 	{
 		this->firstTime = true;
 		game->CurrentScene->entities.clear();
-		game->current_stage = game->soul_stage; //tiene que ir a corridor
+		game->current_stage = game->soul_stage;
 		game->CurrentScene = game->soul_scene;
 		game->current_stage->createEntities();
 	}

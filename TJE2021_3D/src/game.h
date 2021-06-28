@@ -56,6 +56,7 @@ public:
 
 	//Lights
 	EntityLight* directional;
+	EntityLight* directional2;
 	EntityLight* spot;
 	EntityLight* spot2;
 	EntityLight* spot3;
